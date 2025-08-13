@@ -11,7 +11,7 @@ import SwiftUI
 struct ADA_C4_compastApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            CompastView()
         }
     }
 }
