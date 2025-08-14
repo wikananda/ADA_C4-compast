@@ -14,24 +14,33 @@ struct CustomTabView: View {
         HStack (alignment: .top) {
             CustomTabItem(
                 iconName: "arrow.up.bin.fill",
-                label: "Your Containers",
+                label: "Home",
                 index: 0,
                 selectedIndex: $selectedTab,
             )
             Spacer()
             CustomTabItem(
-                iconName: "rectangle.and.text.magnifyingglass",
-                label: "Analyze",
+                iconName: "calendar",
+                label: "Task",
                 index: 1,
                 selectedIndex: $selectedTab,
             )
             Spacer()
             CustomTabItem(
-                iconName: "text.document.fill",
-                label: "History",
+                iconName: "person.3.fill",
+                label: "Fascilitator",
                 index: 2,
                 selectedIndex: $selectedTab,
             )
+            
+            Spacer()
+            CustomTabItem(
+                iconName: "questionmark.circle.fill",
+                label: "Help",
+                index: 3,
+                selectedIndex: $selectedTab,
+            )
+
         }
         .frame(maxWidth: .infinity, maxHeight: 60)
         .padding(.vertical, 5)
@@ -66,13 +75,13 @@ struct CustomTabItem: View {
                     .clipShape(Capsule())
                 
                 // Tab item contents
-                VStack(alignment: .center, spacing: 5) {
+                VStack(alignment: .center, spacing: 2) {
                     Image(systemName: iconName)
-                        .font(.system(size: 20))
+                        .font(.system(size: 17))
                     Text(label)
                         .frame(maxWidth: 75)
                         .multilineTextAlignment(.center)
-                        .font(.system(size: 10))
+                        .font(.caption2)
                 }
             }
             .foregroundStyle(isSelected ? .black : .gray)
