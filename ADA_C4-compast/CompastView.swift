@@ -17,9 +17,11 @@ struct CompastView: View {
                 case 0:
                     Text("Container List")
                 case 1:
-                    Text("Analyzing...")
+                    Text("Your tasks")
+                case 2:
+                    Text("List of fascilitators")
                 default:
-                    Text("Your history")
+                    Text("Need help? \n me too...")
                 }
             }
             .frame(maxWidth:.infinity, maxHeight: .infinity)
