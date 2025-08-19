@@ -20,29 +20,21 @@ struct CustomTabView: View {
             )
             Spacer()
             CustomTabItem(
-                iconName: "calendar",
-                label: "Task",
+                iconName: "leaf.circle.fill",
+                label: "Your Composts",
                 index: 1,
                 selectedIndex: $selectedTab,
             )
             Spacer()
             CustomTabItem(
-                iconName: "person.3.fill",
-                label: "Fascilitator",
+                iconName: "person.fill",
+                label: "Profile",
                 index: 2,
-                selectedIndex: $selectedTab,
-            )
-            
-            Spacer()
-            CustomTabItem(
-                iconName: "questionmark.circle.fill",
-                label: "Help",
-                index: 3,
                 selectedIndex: $selectedTab,
             )
 
         }
-        .frame(maxWidth: .infinity, maxHeight: 60)
+        .frame(maxWidth: 300, maxHeight: 60, alignment: .top)
         .padding(.vertical, 5)
         .padding(.horizontal)
         .background(Color.gray.opacity(0.2))
