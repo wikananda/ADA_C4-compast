@@ -11,15 +11,13 @@ struct CompastView: View {
     @State private var selectedTab: Int = 0 // to be inserted to custom tab bar
     
     var body: some View {
-        ZStack(alignment: .bottom) {
+        VStack() {
             VStack {
                 switch selectedTab {
                 case 0:
-                    Text("Container List")
+                    PilePrototype()
                 case 1:
                     Text("Your tasks")
-                case 2:
-                    Text("List of fascilitators")
                 default:
                     Text("Need help? \n me too...")
                 }
