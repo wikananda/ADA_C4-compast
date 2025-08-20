@@ -9,7 +9,19 @@ import SwiftUI
 
 struct YourCompostsView: View {
     var body: some View {
-        VStack {
+        VStack (spacing: 25) {
+            HStack(spacing: 50) {
+                Button(action: {} ) {
+                    Image(systemName: "plus")
+                        .resizable()
+                        .frame(width: 30, height: 30)
+                }
+                Button(action: {} ) {
+                    Image(systemName: "trash")
+                        .resizable()
+                        .frame(width: 30, height: 30)
+                }
+            }
             PileCard()
         }
     }

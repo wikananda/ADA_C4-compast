@@ -1,48 +1,76 @@
 //
-//  OnboardingView.swift
+//  NewCompostView.swift
 //  ADA_C4-compast
 //
-//  Created by Komang Wikananda on 12/08/25.
+//  Created by Komang Wikananda on 20/08/25.
 //
 
 import SwiftUI
 
-struct StepperFlow {
-    let id = UUID()
-    let title: String
-    let content: AnyView
-}
-
-struct OnboardingTest: View {
-    var text: String = "Onboarding test"
-    
-    init(_ text: String) {
-        self.text = text
-    }
-    
+struct NewMethodView: View {
     var body: some View {
-        VStack {
-            Text(text)
+        VStack(spacing: 20) {
+            Button(action: {}) {
+                Text("Hot Compost")
+            }
+            Button(action: {}) {
+                Text("Cold Compost")
+            }
+            Button(action: {}) {
+                Text("Tumblr")
+            }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.gray.opacity(0.5))
     }
 }
 
-struct StepperFlowView: View {
+struct NewSpaceView: View {
+    var body: some View {
+        VStack(spacing: 20) {
+            Button(action: {}) {
+                Text("Tiny spot")
+            }
+            Button(action: {}) {
+                Text("Room to grow")
+            }
+            Button(action: {}) {
+                Text("Plenty of land")
+            }
+        }
+    }
+}
+
+struct NewContainerView: View {
+    var body: some View {
+        VStack(spacing: 20) {
+            Button(action: {}) {
+                Text("Barrel")
+            }
+            Button(action: {}) {
+                Text("Trash Stack")
+            }
+            Button(action: {}) {
+                Text("Open Field")
+            }
+        }
+    }
+}
+
+
+
+struct NewCompostView: View {
     @State var currentStep: Int = 1
     private let steps: [StepperFlow] = [
         StepperFlow(
-            title: "Test 1",
-            content: AnyView(OnboardingTest("This is onboarding test 1"))
+            title: "Methods",
+            content: AnyView(NewMethodView())
             ),
         StepperFlow(
-            title: "Test 2",
-            content: AnyView(OnboardingTest("This is second view test of onboarding"))
+            title: "Spaces",
+            content: AnyView(NewSpaceView())
             ),
         StepperFlow(
-            title: "Test 3",
-            content: AnyView(OnboardingTest("The third"))
+            title: "Containers",
+            content: AnyView(NewContainerView())
             ),
     ]
     
@@ -100,22 +128,6 @@ struct StepperFlowView: View {
     }
 }
 
-struct StepperFlowProgressView: View {
-    @Binding var currentStep: Int
-    var totalSteps: Int
-    
-    var body: some View {
-        HStack {
-            ForEach(1...totalSteps, id: \.self) { step in
-                Rectangle()
-                    .frame(height: 5)
-                    .foregroundColor(step <= currentStep ? .blue : .gray)
-                    .clipShape(Capsule())
-            }
-        }
-    }
-}
-
 #Preview {
-    StepperFlowView()
+    NewCompostView()
 }
