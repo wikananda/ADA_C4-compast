@@ -6,13 +6,25 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct ADA_C4_compastApp: App {
     var body: some Scene {
         WindowGroup {
 //            CompastView()
-            PilePrototype()
+//            PilePrototype()
+            NavigationStack {
+                YourCompostsView()
+            }
+            .modelContainer(for: [
+                CompostMethod.self,
+                CompostItem.self,
+                CompostMethodSteps.self,
+                CompostStack.self,
+                CompostFrequency.self,
+                CompostContainer.self,
+            ])
         }
     }
 }

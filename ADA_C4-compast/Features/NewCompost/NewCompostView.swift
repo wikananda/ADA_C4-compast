@@ -6,17 +6,19 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct NewMethodView: View {
+    @Binding var selectedMethod: String?
     var body: some View {
         VStack(spacing: 20) {
-            Button(action: {}) {
+            Button(action: { selectedMethod = "Hot Compost" }) {
                 Text("Hot Compost")
             }
-            Button(action: {}) {
+            Button(action: { selectedMethod = "Cold Compost" }) {
                 Text("Cold Compost")
             }
-            Button(action: {}) {
+            Button(action: { selectedMethod = "Tumblr" }) {
                 Text("Tumblr")
             }
         }
@@ -24,15 +26,16 @@ struct NewMethodView: View {
 }
 
 struct NewSpaceView: View {
+    @Binding var selectedSpace: String?
     var body: some View {
         VStack(spacing: 20) {
-            Button(action: {}) {
+            Button(action: { selectedSpace = "Tiny spot" }) {
                 Text("Tiny spot")
             }
-            Button(action: {}) {
+            Button(action: { selectedSpace = "Room to grow" }) {
                 Text("Room to grow")
             }
-            Button(action: {}) {
+            Button(action: { selectedSpace = "Plenty of land" }) {
                 Text("Plenty of land")
             }
         }
@@ -40,39 +43,48 @@ struct NewSpaceView: View {
 }
 
 struct NewContainerView: View {
+    @Binding var selectedContainer: String?
     var body: some View {
         VStack(spacing: 20) {
-            Button(action: {}) {
+            Button(action: { selectedContainer = "Barrel" }) {
                 Text("Barrel")
             }
-            Button(action: {}) {
+            Button(action: { selectedContainer = "Trash Stack" }) {
                 Text("Trash Stack")
             }
-            Button(action: {}) {
+            Button(action: { selectedContainer = "Open Field" }) {
                 Text("Open Field")
             }
         }
     }
 }
 
-
-
 struct NewCompostView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
+    
     @State var currentStep: Int = 1
-    private let steps: [StepperFlow] = [
-        StepperFlow(
-            title: "Methods",
-            content: AnyView(NewMethodView())
+    
+    @State var selectedMethod: String?
+    @State var selectedSpace: String?
+    @State var selectedContainer: String?
+    
+    private var steps: [StepperFlow] {
+        [
+            StepperFlow(
+                title: "Methods",
+                content: AnyView(NewMethodView(selectedMethod: $selectedMethod))
             ),
-        StepperFlow(
-            title: "Spaces",
-            content: AnyView(NewSpaceView())
+            StepperFlow(
+                title: "Spaces",
+                content: AnyView(NewSpaceView(selectedSpace: $selectedSpace))
             ),
-        StepperFlow(
-            title: "Containers",
-            content: AnyView(NewContainerView())
+            StepperFlow(
+                title: "Containers",
+                content: AnyView(NewContainerView(selectedContainer: $selectedContainer))
             ),
-    ]
+        ]
+    }
     
     var body: some View {
         ZStack {
@@ -83,7 +95,9 @@ struct NewCompostView: View {
                     Button(action: {
                         if currentStep > 1 {
                             currentStep -= 1
+                            return
                         }
+                        dismiss()
                     } ) {
                         HStack {
                             Image(systemName: "chevron.left")
@@ -105,11 +119,7 @@ struct NewCompostView: View {
                 
                 Spacer()
                 
-                Button(action: {
-                    if currentStep < steps.count {
-                        currentStep += 1
-                    }
-                }) {
+                Button(action: ButtonAction) {
                     if (currentStep == steps.count){
                         Text("Let's Go")
                     } else {
@@ -125,6 +135,50 @@ struct NewCompostView: View {
             }
             .padding()
         }
+    }
+    
+    func ButtonAction() {
+        if currentStep < steps.count {
+            currentStep += 1
+            return
+        }
+        AddNewCompost()
+    }
+    
+    func AddNewCompost() {
+        guard
+            let methodName = selectedMethod,
+            let spaceName = selectedSpace,
+            let containerName = selectedContainer
+        else {
+            return
+        }
+        
+        let methodId = Int(Date().timeIntervalSince1970)
+//        let itemId = Int((Date().timeIntervalSince1970 * 1000).truncatingRemainder(dividingBy: 2_000_000_000))
+        
+        let method = CompostMethod(
+            compostMethodId: methodId,
+            name: methodName,
+            descriptionText: "\(spaceName) - \(containerName)",
+            compostDuration1: 30,
+            compostDuration2: 180,
+            spaceNeeded1: 1,
+            spaceNeeded2: 4,
+        )
+        
+        let item = CompostItem(
+            name: "Test item",
+            temperature: 27,
+            moisture: 40,
+        )
+        
+        item.compostMethodId = method
+        
+        modelContext.insert(method)
+        modelContext.insert(item)
+        
+        dismiss()
     }
 }
 

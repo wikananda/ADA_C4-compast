@@ -75,8 +75,8 @@ final class CompostItem {
     @Relationship(deleteRule: .cascade, inverse: \CompostStack.compostItemId)
     var compostStacks: [CompostStack] = []
     
-    init(compostItemId: Int, name: String, temperature: Int, moisture: Int) {
-        self.compostItemId = compostItemId
+    init(name: String, temperature: Int, moisture: Int) {
+        self.compostItemId = UUID().hashValue
         self.name = name
         self.temperature = temperature
         self.moisture = moisture

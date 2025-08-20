@@ -6,12 +6,17 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct YourCompostsView: View {
+    @Query private var compostItems: [CompostItem]
+    @State private var showingNewCompost: Bool = false
+    @Environment(\.modelContext) private var modelContext
+    
     var body: some View {
         VStack (spacing: 25) {
             HStack(spacing: 50) {
-                Button(action: {} ) {
+                Button(action: { showingNewCompost = true} ) {
                     Image(systemName: "plus")
                         .resizable()
                         .frame(width: 30, height: 30)
@@ -22,7 +27,24 @@ struct YourCompostsView: View {
                         .frame(width: 30, height: 30)
                 }
             }
-            PileCard()
+            if compostItems.isEmpty {
+                Text("No composts yet. Tap + to add one.")
+                    .foregroundStyle(.secondary)
+            } else {
+                ForEach(compostItems) { item in
+                    PileCard()
+                        .contextMenu {
+                            Button(role: .destructive) {
+                                modelContext.delete(item)
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                        }
+                }
+            }
+        }
+        .sheet(isPresented: $showingNewCompost) {
+            NewCompostView()
         }
     }
 }
@@ -30,7 +52,7 @@ struct YourCompostsView: View {
 struct PileCard: View {
     var body: some View {
         VStack(alignment: .leading) {
-            HStack {
+            HStack (alignment: .top) {
                 VStack (alignment: .leading) {
                     Text("Timbunan Pertama")
                         .font(.system(size: 24, weight: .bold))
