@@ -173,10 +173,15 @@ struct NewCompostView: View {
             moisture: 40,
         )
         
+        
         item.compostMethodId = method
         
         modelContext.insert(method)
         modelContext.insert(item)
+        
+        print("Created new compost item with id: \(item.compostItemId)")
+        print("method: \(method.name), \(method.descriptionText)")
+        print("item: \(item.name), \(item.temperature), \(item.moisture)")
         
         dismiss()
     }
