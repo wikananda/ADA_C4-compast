@@ -13,16 +13,28 @@ struct StepperFlow {
     let content: AnyView
 }
 
-struct OnboardingTest: View {
-    var text: String = "Onboarding test"
+struct OnboardingInfo: View {
+    var title: String = "Title"
+    var description : String = "Description"
+    var image : String = "image"
     
-    init(_ text: String) {
-        self.text = text
+    init(_ title: String, _ description: String, _ image: String) {
+        self.title = title
+        self.description = description
+        self.image = image
     }
     
     var body: some View {
-        VStack {
-            Text(text)
+        ZStack {
+            
+            Image(image)
+                .resizable()
+                .frame(width: .infinity, height: .infinity)
+            
+            VStack{
+                Text(title)
+                Text(description)
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.gray.opacity(0.5))
@@ -31,6 +43,8 @@ struct OnboardingTest: View {
 
 struct StepperFlowView: View {
     @State var currentStep: Int = 1
+    
+    
     private let steps: [StepperFlow] = [
         StepperFlow(
             title: "Test 1",
@@ -84,6 +98,8 @@ struct StepperFlowView: View {
                 }) {
                     if (currentStep == steps.count){
                         Text("Let's Go")
+                        
+                        
                     } else {
                         Text("Next")
                     }
