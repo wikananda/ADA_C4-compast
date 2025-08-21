@@ -25,16 +25,37 @@ struct OnboardingInfo: View {
     }
     
     var body: some View {
-        ZStack {
+        ZStack (alignment: .bottom) {
             
             Image(image)
-                .resizable()
-                .frame(width: .infinity, height: .infinity)
             
-            VStack{
-                Text(title)
-                Text(description)
+            VStack(spacing: 0){
+                ZStack(alignment: .bottom){
+                    Rectangle()
+                        .fill(
+                            LinearGradient(
+                                gradient: Gradient(colors: [Color.white.opacity(0.0), Color.white.opacity(1.0)]),
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        ).frame(width: .infinity, height: 300)
+                    
+                    Image("onboarding/compast-logo-dark-green")
+                        .padding(.bottom, 24)
+                    
+                }
+
+                VStack{
+                    Text(title)
+                        .multilineTextAlignment(.center)
+                    Text(description)
+                        .multilineTextAlignment(.center)
+                }
+                .padding()
+                .padding(.top, 12)
+                .background(Color.white)
             }
+            
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.gray.opacity(0.5))
@@ -48,15 +69,15 @@ struct StepperFlowView: View {
     private let steps: [StepperFlow] = [
         StepperFlow(
             title: "Test 1",
-            content: AnyView(OnboardingTest("This is onboarding test 1"))
+            content: AnyView(OnboardingInfo("What is Composting?", "Composting transforms food scraps and garden waste into rich, fertile soil.", "onboarding/what-is-composting"))
             ),
         StepperFlow(
             title: "Test 2",
-            content: AnyView(OnboardingTest("This is second view test of onboarding"))
+            content: AnyView(OnboardingInfo("What is Composting?", "Composting transforms food scraps and garden waste into rich, fertile soil.", "onboarding/why-compost"))
             ),
         StepperFlow(
             title: "Test 3",
-            content: AnyView(OnboardingTest("The third"))
+            content: AnyView(OnboardingInfo("What is Composting?", "Composting transforms food scraps and garden waste into rich, fertile soil.", "onboarding/how-it-works"))
             ),
     ]
     
