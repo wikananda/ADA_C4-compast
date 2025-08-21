@@ -7,117 +7,24 @@
 
 import SwiftUI
 
-// MARK: - Content View (Main Screen)
-struct ContentView: View {
-    var body: some View {
-        NavigationView {
-            ScrollView {
-                LazyVStack(spacing: 20) {
-                    // Scenario 1: Healthy Compost
-                    CompostCard(
-                        name: "First Compost",
-                        method: "Tumbler Compost",
-                        temperature: 75,
-                        userInputs: ["green vegetables", "brown paper", "coffee grounds"],
-                        creationDate: Calendar.current.date(byAdding: .day, value: -14, to: Date())!,
-                        isHealthy: true,
-                        alerts: []
-                    )
-                    
-                    // Scenario 2: Need Action - Too Wet & Cold
-                    CompostCard(
-                        name: "Backyard Pile",
-                        method: "Open Pile Compost",
-                        temperature: 45,
-                        userInputs: ["green vegetables", "green grass", "fruit scraps", "vegetable peels"],
-                        creationDate: Calendar.current.date(byAdding: .day, value: -7, to: Date())!,
-                        isHealthy: false,
-                        alerts: [
-                            CompostAlert(
-                                title: "Too Wet",
-                                solution: "Add brown materials to reduce moisture",
-                                icon: "drop.fill",
-                                color: .blue
-                            ),
-                            CompostAlert(
-                                title: "Too Cold",
-                                solution: "Add more green materials or turn the pile to increase temperature",
-                                icon: "thermometer",
-                                color: .red
-                            )
-                        ]
-                    )
-                    
-                    // Scenario 3: Need Action - Too Dry
-                    CompostCard(
-                        name: "Kitchen Scraps",
-                        method: "Bin Compost",
-                        temperature: 68,
-                        userInputs: ["brown paper", "brown cardboard", "dried leaves"],
-                        creationDate: Calendar.current.date(byAdding: .day, value: -21, to: Date())!,
-                        isHealthy: false,
-                        alerts: [
-                            CompostAlert(
-                                title: "Too Dry",
-                                solution: "Add water or green materials to increase moisture",
-                                icon: "drop",
-                                color: .orange
-                            )
-                        ]
-                    )
-                    
-                    // Scenario 4: Need Action - Multiple Issues
-                    CompostCard(
-                        name: "Garden Waste",
-                        method: "Worm Compost",
-                        temperature: 55,
-                        userInputs: ["green vegetables", "green grass clippings"],
-                        creationDate: Calendar.current.date(byAdding: .day, value: -30, to: Date())!,
-                        isHealthy: false,
-                        alerts: [
-                            CompostAlert(
-                                title: "Needs Turning",
-                                solution: "Turn the compost to improve aeration and speed decomposition",
-                                icon: "arrow.3.trianglepath",
-                                color: .purple
-                            ),
-                            CompostAlert(
-                                title: "Add Brown Materials",
-                                solution: "Balance with brown materials like dry leaves or paper",
-                                icon: "leaf",
-                                color: .brown
-                            ),
-                            CompostAlert(
-                                title: "pH Imbalance",
-                                solution: "Test pH levels and add lime if too acidic",
-                                icon: "testtube.2",
-                                color: .green
-                            )
-                        ]
-                    )
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 20)
-            }
-            .navigationTitle("Compost Tracker")
-            .background(Color(.systemGray6))
-        }
-    }
-}
 
 // MARK: - Compost Card View
 struct CompostCard: View {
+    @Environment(\.modelContext) var context
+
     @State private var compostName: String
     @State private var isEditing: Bool = false
     @State private var showAlerts: Bool = false
     @State private var longPressWorkItem: DispatchWorkItem?
     
-    let compostMethod: String
-    let temperature: Int
-    let moisture: Int
-    let creationDate: Date
-    let userInputs: [String]
-    let isHealthy: Bool
+    let compostItem: CompostItem
+    
+    private let compostMethod: String
+    private let temperature: Int
+    private let moisture: Int
+    private let creationDate: Date
+//    let userInputs: [String]
+    private let isHealthy: Bool
     let alerts: [CompostAlert]
     
     // Computed properties
@@ -133,19 +40,15 @@ struct CompostCard: View {
         isHealthy ? .green : .orange
     }
     
-    init(name: String, method: String, temperature: Int, userInputs: [String], creationDate: Date, isHealthy: Bool, alerts: [CompostAlert]) {
-        self._compostName = State(initialValue: name)
-        self.compostMethod = method
-        self.temperature = temperature
-        self.userInputs = userInputs
-        self.creationDate = creationDate
-        self.isHealthy = isHealthy
+    init(compostItem: CompostItem, alerts: [CompostAlert]) {
+        self.compostItem = compostItem
         self.alerts = alerts
-        
-        // Calculate moisture based on user inputs
-        let greenMaterials = userInputs.filter { $0.contains("green") || $0.contains("vegetable") }.count
-        let brownMaterials = userInputs.filter { $0.contains("brown") || $0.contains("paper") }.count
-        self.moisture = min(90, max(30, 60 + (greenMaterials * 10) - (brownMaterials * 5)))
+        self.compostMethod = compostItem.compostMethodId?.name ?? ""
+        self.temperature = compostItem.temperature
+        self.creationDate = compostItem.creationDate
+        self.isHealthy = compostItem.isHealthy
+        self.moisture = compostItem.moisture
+        self.compostName = compostItem.name
     }
     
     var body: some View {
@@ -162,6 +65,13 @@ struct CompostCard: View {
                                 .fontWeight(.semibold)
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
                                 .onSubmit {
+                                    compostItem.name = compostName
+                                    do {
+                                        try context.save()
+                                    } catch {
+                                        print("Error saving compost item: \(error.localizedDescription)")
+                                    }
+                                    
                                     withAnimation(.easeInOut(duration: 0.2)) {
                                         isEditing = false
                                     }
@@ -171,31 +81,16 @@ struct CompostCard: View {
                                 Text(compostName)
                                     .font(.title2)
                                     .fontWeight(.semibold)
-                                    .onTapGesture(count: 2) {
+                                    .onTapGesture(count: 1) {
                                         withAnimation(.easeInOut(duration: 0.2)) {
                                             isEditing = true
                                         }
                                     }
-                                    .onLongPressGesture(minimumDuration: 0.1, maximumDistance: 50) {
-                                        // Start 5-second timer for long press
-                                        let workItem = DispatchWorkItem {
-                                            withAnimation(.easeInOut(duration: 0.2)) {
-                                                isEditing = true
-                                            }
-                                        }
-                                        longPressWorkItem = workItem
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0, execute: workItem)
-                                    } onPressingChanged: { pressing in
-                                        if !pressing {
-                                            longPressWorkItem?.cancel()
-                                            longPressWorkItem = nil
-                                        }
-                                    }
                                 
                                 Image(systemName: "pencil")
-                                    .font(.caption2)
+                                    .font(.headline)
                                     .foregroundColor(.gray)
-                                    .opacity(0.6)
+                                    .opacity(0.75)
                             }
                         }
                         
@@ -227,7 +122,7 @@ struct CompostCard: View {
                 HStack(spacing: 20) {
                     MetricView(
                         icon: "thermometer",
-                        value: "\(temperature)°F",
+                        value: "\(temperature)°C",
                         label: "Temperature"
                     )
                     
@@ -379,15 +274,4 @@ struct CompostAlert {
     let solution: String
     let icon: String
     let color: Color
-}
-
-// MARK: - Preview
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-            .preferredColorScheme(.light)
-        
-        ContentView()
-            .preferredColorScheme(.dark)
-    }
 }

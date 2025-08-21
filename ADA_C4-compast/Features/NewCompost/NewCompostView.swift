@@ -8,6 +8,19 @@
 import SwiftUI
 import SwiftData
 
+// MARK: New Compost Sub-Onboarding Views
+struct NewNameView: View {
+    @Binding var name: String?
+    var body: some View {
+        TextField("Name your compost", text: Binding(
+            get: { name ?? "" },
+            set: { name = $0.isEmpty ? nil : $0 }
+        ))
+        .padding()
+        .border(Color.secondary, width: 2)
+    }
+}
+
 struct NewMethodView: View {
     @Binding var selectedMethod: String?
     var body: some View {
@@ -59,18 +72,25 @@ struct NewContainerView: View {
     }
 }
 
+
+// MARK: Main views holder
 struct NewCompostView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     
     @State var currentStep: Int = 1
     
+    @State var name: String?
     @State var selectedMethod: String?
     @State var selectedSpace: String?
     @State var selectedContainer: String?
     
     private var steps: [StepperFlow] {
         [
+            StepperFlow(
+                title: "New Compost",
+                content: AnyView(NewNameView(name: $name))
+            ),
             StepperFlow(
                 title: "Methods",
                 content: AnyView(NewMethodView(selectedMethod: $selectedMethod))
@@ -137,6 +157,7 @@ struct NewCompostView: View {
         }
     }
     
+    // For the button function
     func ButtonAction() {
         if currentStep < steps.count {
             currentStep += 1
@@ -145,8 +166,10 @@ struct NewCompostView: View {
         AddNewCompost()
     }
     
+    // Saving to SwiftData
     func AddNewCompost() {
         guard
+            let writtenName = name,
             let methodName = selectedMethod,
             let spaceName = selectedSpace,
             let containerName = selectedContainer
@@ -155,7 +178,6 @@ struct NewCompostView: View {
         }
         
         let methodId = Int(Date().timeIntervalSince1970)
-//        let itemId = Int((Date().timeIntervalSince1970 * 1000).truncatingRemainder(dividingBy: 2_000_000_000))
         
         let method = CompostMethod(
             compostMethodId: methodId,
@@ -168,14 +190,11 @@ struct NewCompostView: View {
         )
         
         let item = CompostItem(
-            name: "Test item",
+            name: writtenName,
             temperature: 27,
             moisture: 40,
         )
-        
-        
-        item.compostMethodId = method
-        
+        item.compostMethodId = method // update method
         modelContext.insert(method)
         modelContext.insert(item)
         
