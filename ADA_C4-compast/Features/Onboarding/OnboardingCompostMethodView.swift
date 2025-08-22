@@ -40,25 +40,25 @@ struct Onboarding: View {
     }
 }
 
-
-struct OnboardingCompostOption: View {
-    var icon: String = "sun.max"
-    var title: String = "Sunny"
-    var description: String = "Sunny day"
-    @State var isSelected: Bool = false
-    
-    init(_ icon: String, _ title: String, _ description: String) {
-        self.icon = icon
-        self.title = title
-        self.title = description
-    }
-    
-    var body: some View {
-        VStack{}
-    }
-    
-    
-}
+//
+//struct OnboardingCompostOption: View {
+//    var icon: String = "sun.max"
+//    var title: String = "Sunny"
+//    var description: String = "Sunny day"
+//    @State var isSelected: Bool = false
+//    
+//    init(_ icon: String, _ title: String, _ description: String) {
+//        self.icon = icon
+//        self.title = title
+//        self.title = description
+//    }
+//    
+//    var body: some View {
+//        VStack{}
+//    }
+//    
+//    
+//}
 
 struct StepperFlowCompostMethodView: View {
     @State var currentStep: Int = 1
