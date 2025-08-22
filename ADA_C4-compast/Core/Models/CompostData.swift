@@ -71,6 +71,8 @@ final class CompostItem {
     var creationDate: Date
     var isHealthy: Bool
     
+    var lastTurnedOver: Date
+    
     // Relationship
     var compostMethodId: CompostMethod?
     
@@ -84,6 +86,7 @@ final class CompostItem {
         self.moisture = moisture
         self.creationDate = Date()
         self.isHealthy = true
+        self.lastTurnedOver = Date()
     }
 }
 
