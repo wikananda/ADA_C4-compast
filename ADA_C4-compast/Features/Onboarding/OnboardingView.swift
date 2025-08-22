@@ -25,40 +25,53 @@ struct OnboardingInfo: View {
     }
     
     var body: some View {
-        ZStack (alignment: .bottom) {
-            
-            Image(image)
-            
-            VStack(spacing: 0){
-                ZStack(alignment: .bottom){
+        ZStack(alignment: .bottom) {
+            // Foreground content only
+            VStack(spacing: 0) {
+                ZStack(alignment: .bottom) {
                     Rectangle()
                         .fill(
                             LinearGradient(
-                                gradient: Gradient(colors: [Color.white.opacity(0.0), Color.white.opacity(1.0)]),
+                                gradient: Gradient(colors: [
+                                    Color.white.opacity(0.0),
+                                    Color.white.opacity(1.0)
+                                ]),
                                 startPoint: .top,
                                 endPoint: .bottom
                             )
-                        ).frame(width: .infinity, height: 300)
-                    
+                        )
+                        .frame(height: 300)               // height only
+                        .frame(maxWidth: .infinity)       // stretch horizontally
+
                     Image("onboarding/compast-logo-dark-green")
                         .padding(.bottom, 24)
-                    
                 }
 
-                VStack{
-                    Text(title)
-                        .multilineTextAlignment(.center)
-                    Text(description)
-                        .multilineTextAlignment(.center)
+                VStack(spacing: 16) {
+                    Text(title).multilineTextAlignment(.center)
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                    Text(description).multilineTextAlignment(.center)
                 }
-                .padding()
                 .padding(.top, 12)
+                .padding(.horizontal, 32)
                 .background(Color.white)
             }
-            
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.gray.opacity(0.5))
+        .background(
+            ZStack(alignment: .bottom){
+                    Image(image)
+                        .resizable()
+                        .scaledToFill()           // fill screen under safe areas
+                Rectangle()
+                    .fill(Color.white)
+                    .frame(width: .infinity, height: 300)
+                   
+            }
+                .ignoresSafeArea()
+        )
+
     }
 }
 
@@ -83,6 +96,7 @@ struct StepperFlowView: View {
     
     var body: some View {
         ZStack {
+                
             steps[currentStep - 1].content // Onboarding content
             VStack(alignment: .leading) {
                 // Header Titles and Back buttons
@@ -107,10 +121,13 @@ struct StepperFlowView: View {
                         .frame(maxWidth: 100, maxHeight: 1)
                 }
                 
+                
+                Spacer()
+                
                 // The progress bar of onboarding
                 StepperFlowProgressView(currentStep: $currentStep, totalSteps: steps.count)
                 
-                Spacer()
+//                Spacer()
                 
                 Button(action: {
                     if currentStep < steps.count {
@@ -137,22 +154,25 @@ struct StepperFlowView: View {
     }
 }
 
-struct StepperFlowProgressView: View {
+struct StepperFlowInfoProgressView: View {
     @Binding var currentStep: Int
     var totalSteps: Int
     
     var body: some View {
-        HStack {
+        HStack(alignment: .center , spacing: 8){
             ForEach(1...totalSteps, id: \.self) { step in
                 Rectangle()
-                    .frame(height: 5)
+                    .frame(width: 8, height: 8)
                     .foregroundColor(step <= currentStep ? .blue : .gray)
                     .clipShape(Capsule())
             }
         }
+        .padding(.bottom, 24)
+        .padding(.horizontal, 24)
     }
 }
 
 #Preview {
     StepperFlowView()
+    
 }
