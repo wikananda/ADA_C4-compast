@@ -98,6 +98,8 @@ struct YourCompostsView: View {
                             }
                         }
                     }
+                    Color.clear
+                        .frame(height: 100)
                 }
                 .sheet(isPresented: $showingNewCompost) {
                     NewCompostView()
