@@ -15,7 +15,7 @@ struct ADA_C4_compastApp: App {
 //            CompastView()
 //            PilePrototype()
             NavigationStack {
-                YourCompostsView()
+                CompastView()
             }
             .modelContainer(for: [
                 CompostMethod.self,
