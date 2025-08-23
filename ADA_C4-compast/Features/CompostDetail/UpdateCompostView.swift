@@ -59,7 +59,10 @@ struct UpdateCompostView: View {
                 
                 Spacer()
                 
-                Image("navigation/nav-UpdateCompost")
+                Text("Update Compost")
+                    .font(.custom("KronaOne-Regular", size: 16))
+                    .foregroundStyle(Color("BrandGreenDark"))
+//                Image("navigation/nav-UpdateCompost")
                 
                 Spacer()
                 
@@ -181,18 +184,11 @@ struct UpdateCompostView: View {
                 RoundedRectangle(cornerRadius: 24)
                     .fill(Color.white)
             )
-                
-            
-            VStack{
-                
-            }
-            
-            // placeholder button to mix
             
             // placeholder temperature and moisture
             VStack (alignment: .leading, spacing: 50) {
                 ZStack(alignment: .trailing) {
-                    Text("Temperature: \(currentTemperatureCategory)")
+                    Text("Temperature: \(compostItem.temperatureCategory)")
                 }
                 .frame(maxWidth: .infinity, maxHeight: 100)
                 .background(Color.gray)
