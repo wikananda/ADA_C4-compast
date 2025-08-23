@@ -130,7 +130,9 @@ struct UpdateCompostView: View {
                 }
                 
                 HStack(){
-                    Button(action: {}) {
+                    Button(action: {
+                        MixCompost()
+                    }) {
                         HStack(){
                             Image(systemName: "arrow.trianglehead.2.clockwise")
                                 Text("Turn Compost")
@@ -139,10 +141,14 @@ struct UpdateCompostView: View {
                         .foregroundStyle(Color.white)
                     }
                     .padding(16)
-                    .background(
-                        RoundedRectangle(cornerRadius: 24)
-                            .fill(Color.black.opacity(0.5))
-                    )
+                    .frame(maxHeight: 50)
+//                    .frame(width: 16, height: 16)
+                    .background(Color.black.opacity(0.5))
+                    .clipShape(Capsule())
+//                    .background(
+//                        RoundedRectangle(cornerRadius: 24)
+//                            .fill(Color.black.opacity(0.5))
+//                    )
                     
                     Spacer()
                     
@@ -155,11 +161,13 @@ struct UpdateCompostView: View {
                         .foregroundStyle(Color.white)
                     }
                     .padding(16)
-                    .frame(width: .infinity)
-                    .background(
-                        RoundedRectangle(cornerRadius: 24)
-                            .fill(Color("BrandGreen"))
-                    )
+                    .frame(maxHeight: 50)
+                    .background(Color("BrandGreen"))
+                    .clipShape(Capsule())
+//                    .background(
+//                        RoundedRectangle(cornerRadius: 24)
+//                            .fill(Color("BrandGreen"))
+//                    )
                 }
             }
             .padding(24)
@@ -174,19 +182,6 @@ struct UpdateCompostView: View {
             }
             
             // placeholder button to mix
-            HStack {
-                Button(action: {
-                    MixCompost()
-                }) {
-                    Text("Mix")
-                        .frame(width: 50, height: 50)
-                        .font(.body)
-                        .padding()
-                        .background(Color.orange)
-                        .cornerRadius(5)
-                        .foregroundStyle(.white)
-                }
-            }
             
             // placeholder temperature and moisture
             VStack (alignment: .leading, spacing: 50) {
@@ -211,7 +206,9 @@ struct UpdateCompostView: View {
             
             
         }
-        .padding(.horizontal, 24) .background(Color("Status/Background"))
+        .padding(.horizontal, 24)
+        .background(Color("Status/Background"))
+        .navigationBarHidden(true)
         .sheet(isPresented: $tempSheetIsPresented) {
             UpdateTemperatureView(selectedTemp: $selectedTemp, compostItem: compostItem)
         }
