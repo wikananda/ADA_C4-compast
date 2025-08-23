@@ -62,6 +62,8 @@ struct Onboarding: View {
 
 struct StepperFlowCompostMethodView: View {
     @State var currentStep: Int = 1
+    var showProgress: Bool = true
+//    var steps: [StepperFlow] = []
     private let steps: [StepperFlow] = [
         StepperFlow(
             title: "Test 1",
@@ -104,7 +106,9 @@ struct StepperFlowCompostMethodView: View {
                 }
                 
                 // The progress bar of onboarding
-                StepperFlowProgressView(currentStep: $currentStep, totalSteps: steps.count)
+                if showProgress {
+                    StepperFlowProgressView(currentStep: $currentStep, totalSteps: steps.count)
+                }
                 
                 Spacer()
                 
