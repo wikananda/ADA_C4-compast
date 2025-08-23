@@ -48,43 +48,126 @@ struct UpdateCompostView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 24){
             
-            //Compost Title
-            HStack(alignment: .top){
-                VStack(alignment: .leading){
-                    Text(compost_name)
-                    
-                    HStack(alignment: .center){
-                        Image(systemName: "leaf.arrow.trianglehead.clockwise")
-                        Text(compost_method)
-                    }
+            HStack{
+                Button(action: {
+                    dismiss()
+                }){
+                    Image(systemName: "chevron.left")
                 }
+                .foregroundStyle(Color("BrandGreenDark"))
+                
+                Spacer()
+                
+//                Text("Update Compost")
+                Image("navigation/nav-UpdateCompost")
+                
+                Spacer()
+                
+                Button(action: {
+                }){
+                    Image(systemName: "ellipsis.circle")
+                }
+                .foregroundStyle(Color("BrandGreenDark"))
+            }
+            
+            //Compost Title
+            HStack(alignment: .center){
+                Text(compost_name)
+                    .font(.title3)
+                    .fontWeight(.bold)
                 
                 Spacer()
                 
                 Text(status ? "Healthy" : "Need Action")
+                    .padding(.horizontal,18)
+                    .padding(.vertical,8)
+                    .background(
+                    RoundedRectangle(cornerRadius: 100)
+                        .fill(status ? Color("Status/Success") : Color("Status/Warning"))
+                    )
+                    .foregroundStyle(Color.white)
+                    .font(.caption)
             }
+            .padding(.top, 12)
             
             //Compost Temperature
-            HStack(alignment: .center){
-                VStack(alignment: .leading){
-                    Text(turned_over == 0 ? "Today" : "\(turned_over) days ago")
-                    Text("Last turned")
+            VStack(spacing: 24){
+                HStack(alignment: .center){
+                    VStack(alignment: .center){
+                        Image(systemName: "arrow.trianglehead.2.clockwise")
+                            .foregroundStyle(Color("Status/Success"))
+                        Text(turned_over == 0 ? "Today" : "\(turned_over) days ago")
+                            .font(.headline)
+                            .padding(.top, 4)
+                        Text("Last turned")
+                            .font(.subheadline)
+                    }
+                    
+                    Spacer()
+                    
+                    VStack(alignment: .center){
+                        Image(systemName: "calendar")
+                            .foregroundStyle(Color("Status/Success"))
+                        Text("\(age) day")
+                            .font(.headline)
+                            .padding(.top, 4)
+                        Text("Age")
+                            .font(.subheadline)
+                    }
+                    
+                    Spacer()
+                    
+                    VStack(alignment: .center){
+                        Image(systemName: "checkmark.circle")
+                            .foregroundStyle(Color("Status/Success"))
+                        Text("17 Feb 2025")
+                            .font(.headline)
+                            .padding(.top, 4)
+                        Text("Est. Harvest")
+                            .font(.subheadline)
+
+                    }
                 }
                 
-                Spacer()
-                
-                VStack(alignment: .leading){
-                    Text("\(age) Day")
-                    Text("Age")
+                HStack(){
+                    Button(action: {}) {
+                        HStack(){
+                            Image(systemName: "arrow.trianglehead.2.clockwise")
+                                Text("Turn Compost")
+                                    .font(.caption)
+                        }
+                        .foregroundStyle(Color.white)
+                    }
+                    .padding(16)
+                    .background(
+                        RoundedRectangle(cornerRadius: 24)
+                            .fill(Color.black.opacity(0.5))
+                    )
+                    
+                    Spacer()
+                    
+                    Button(action: {}) {
+                        HStack(){
+                            Image(systemName: "plus")
+                            Text("Add Material")
+                                .font(.caption)
+                        }
+                        .foregroundStyle(Color.white)
+                    }
+                    .padding(16)
+                    .frame(width: .infinity)
+                    .background(
+                        RoundedRectangle(cornerRadius: 24)
+                            .fill(Color("BrandGreen"))
+                    )
                 }
+            }
+            .padding(24)
+            .background(
+                RoundedRectangle(cornerRadius: 24)
+                    .fill(Color.white)
+            )
                 
-                Spacer()
-                
-                VStack(alignment: .leading){
-                    Text("17 Feb 2025")
-                    Text("Est. Harvest")
-                }
-            }.padding(16)
             
             VStack{
                 
@@ -128,7 +211,7 @@ struct UpdateCompostView: View {
             
             
         }
-        .padding(.horizontal, 24)
+        .padding(.horizontal, 24) .background(Color("Status/Background"))
         .sheet(isPresented: $tempSheetIsPresented) {
             UpdateTemperatureView(selectedTemp: $selectedTemp, compostItem: compostItem)
         }
@@ -136,6 +219,7 @@ struct UpdateCompostView: View {
             UpdateMoistureView(selectedMoist: $selectedMoisture, compostItem: compostItem)
         }
     }
+      
     
     func MixCompost() {
         compostItem.lastTurnedOver = Date()
