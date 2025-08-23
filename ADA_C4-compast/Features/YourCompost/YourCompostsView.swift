@@ -13,8 +13,10 @@ struct YourCompostsView: View {
     @State private var showingNewCompost: Bool = false
     @Environment(\.modelContext) private var modelContext
     
+    @State private var navigationPath = NavigationPath()
+    
     var body: some View {
-        NavigationView {
+        NavigationStack(path: $navigationPath) {
             ScrollView {
                 LazyVStack (spacing: 25) {
                     HStack(alignment: .center, spacing: 50) {
@@ -82,7 +84,8 @@ struct YourCompostsView: View {
                         ForEach(compostItems) { item in
                             CompostCard(
                                 compostItem: item,
-                                alerts: []
+                                alerts: [],
+                                navigationPath: $navigationPath
                             )
                             // when press hold, show menu
                             .contextMenu {
@@ -95,11 +98,16 @@ struct YourCompostsView: View {
                             }
                         }
                     }
+                    Color.clear
+                        .frame(height: 100)
                 }
                 .sheet(isPresented: $showingNewCompost) {
                     NewCompostView()
                 }
             }
+        }
+        .navigationDestination(for: CompostItem.self) { item in
+            UpdateCompostView(compostItem: item)
         }
     }
 }

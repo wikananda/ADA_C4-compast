@@ -13,31 +13,33 @@ struct CustomTabView: View {
     var body: some View {
         HStack (alignment: .top) {
             CustomTabItem(
-                iconName: "arrow.up.bin.fill",
-                label: "Home",
+                iconName: "leaf.circle.fill",
+                label: "My Compost",
                 index: 0,
                 selectedIndex: $selectedTab,
             )
             Spacer()
             CustomTabItem(
-                iconName: "leaf.circle.fill",
-                label: "Your Composts",
+                iconName: "checklist",
+                label: "To Do",
                 index: 1,
                 selectedIndex: $selectedTab,
             )
             Spacer()
             CustomTabItem(
-                iconName: "person.fill",
-                label: "Profile",
+                iconName: "gearshape.fill",
+                label: "Settings",
                 index: 2,
                 selectedIndex: $selectedTab,
             )
 
         }
         .frame(maxWidth: 300, maxHeight: 60, alignment: .top)
-        .padding(.vertical, 5)
-        .padding(.horizontal)
-        .background(Color.gray.opacity(0.2))
+        .padding(.vertical, 9)
+        .padding(.horizontal, 10)
+        .background(
+            .ultraThinMaterial
+        )
         .clipShape(Capsule())
     }
 }
@@ -63,11 +65,11 @@ struct CustomTabItem: View {
                 Color.clear
                     .padding(.vertical, 5)
                     .padding(.horizontal)
-                    .background(isSelected ? .gray.opacity(0.5) : .clear)
+                    .background(isSelected ? .white : .clear)
                     .clipShape(Capsule())
                 
                 // Tab item contents
-                VStack(alignment: .center, spacing: 2) {
+                VStack(alignment: .center, spacing: 5) {
                     Image(systemName: iconName)
                         .font(.system(size: 17))
                     Text(label)

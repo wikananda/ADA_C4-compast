@@ -11,15 +11,15 @@ struct CompastView: View {
     @State private var selectedTab: Int = 0 // to be inserted to custom tab bar
     
     var body: some View {
-        VStack() {
+        ZStack(alignment: .bottom) {
             VStack {
                 switch selectedTab {
                 case 0:
-                    PilePrototype()
+                    YourCompostsView()
                 case 1:
                     Text("Your tasks")
                 default:
-                    Text("Need help? \n me too...")
+                    SettingsView()
                 }
             }
             .frame(maxWidth:.infinity, maxHeight: .infinity)
@@ -27,7 +27,13 @@ struct CompastView: View {
             // the custom tab bar
             CustomTabView(selectedTab: $selectedTab)
                 .padding(.horizontal)
+                .padding(.bottom, 25)
         }
+        .ignoresSafeArea(.container, edges: .bottom)
+        .background(Color.clear)
+//        .safeAreaInset(edge: .bottom, spacing: 0) {
+//            Color.clear.frame(height: 0)
+//        }
     }
 }
 

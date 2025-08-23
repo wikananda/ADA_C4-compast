@@ -16,6 +16,7 @@ struct CompostCard: View {
     @State private var isEditing: Bool = false
     @State private var showAlerts: Bool = false
     @State private var longPressWorkItem: DispatchWorkItem?
+    @Binding private var navigationPath: NavigationPath
     
     let compostItem: CompostItem
     
@@ -40,7 +41,7 @@ struct CompostCard: View {
         isHealthy ? .green : .orange
     }
     
-    init(compostItem: CompostItem, alerts: [CompostAlert]) {
+    init(compostItem: CompostItem, alerts: [CompostAlert], navigationPath: Binding<NavigationPath>) {
         self.compostItem = compostItem
         self.alerts = alerts
         self.compostMethod = compostItem.compostMethodId?.name ?? ""
@@ -49,6 +50,7 @@ struct CompostCard: View {
         self.isHealthy = compostItem.isHealthy
         self.moistureCategory = compostItem.moistureCategory
         self.compostName = compostItem.name
+        self._navigationPath = navigationPath
     }
     
     var body: some View {
@@ -142,7 +144,7 @@ struct CompostCard: View {
                 // Update Button
                 Button(action: {
                     // Navigate to detail page
-                    print("Navigate to compost detail page for: \(compostName)")
+                    navigationPath.append(compostItem)
                 }) {
                     Text("Update Compost")
                         .font(.headline)
