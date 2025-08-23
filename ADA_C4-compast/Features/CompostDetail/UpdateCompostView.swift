@@ -10,6 +10,11 @@ import SwiftUI
 struct UpdateCompostView: View {
     @Environment(\.modelContext) private var context
     let compostItem : CompostItem
+    @Environment(\.dismiss) private var dismiss
+    
+    // Navigation
+    @State private var tempSheetIsPresented: Bool = false
+    @State private var moistureSheetIsPresented: Bool = false
     
     //Compost identity
     @State private var compost_name : String
@@ -18,7 +23,10 @@ struct UpdateCompostView: View {
     
     //Compost Stats
     @State private var createdAt : Date
-//    private var duration : Date = Date()
+    @State private var currentTemperatureCategory: String
+    
+    @State private var selectedTemp: Option?
+    @State private var selectedMoisture: Option?
     
     init(compostItem: CompostItem) {
         self.compostItem = compostItem
@@ -26,6 +34,7 @@ struct UpdateCompostView: View {
         self.compost_method = compostItem.compostMethodId?.name ?? ""
         self.status = compostItem.isHealthy
         self.createdAt = compostItem.creationDate
+        self.currentTemperatureCategory = compostItem.temperatureCategory
     }
     
     // Calculated variables
@@ -97,10 +106,22 @@ struct UpdateCompostView: View {
             }
             
             // placeholder temperature and moisture
-            HStack {
-                Text("Temperature: \(compostItem.moisture)°C")
-                Spacer()
-                Text("Moisture: \(compostItem.moisture)%")
+            VStack (alignment: .leading, spacing: 50) {
+                ZStack(alignment: .trailing) {
+                    Text("Temperature: \(currentTemperatureCategory)")
+                }
+                .frame(maxWidth: .infinity, maxHeight: 100)
+                .background(Color.gray)
+                .cornerRadius(10)
+                .onTapGesture { tempSheetIsPresented.toggle() }
+                
+                ZStack(alignment: .trailing) {
+                    Text("Moisture: \(compostItem.moistureCategory)")
+                }
+                .frame(maxWidth: .infinity, maxHeight: 100)
+                .background(Color.gray.opacity(0.5))
+                .cornerRadius(10)
+                .onTapGesture { moistureSheetIsPresented.toggle() }
             }
             
             Spacer()
@@ -108,6 +129,12 @@ struct UpdateCompostView: View {
             
         }
         .padding(.horizontal, 24)
+        .sheet(isPresented: $tempSheetIsPresented) {
+            UpdateTemperatureView(selectedTemp: $selectedTemp, compostItem: compostItem)
+        }
+        .sheet(isPresented: $moistureSheetIsPresented) {
+            UpdateMoistureView(selectedMoist: $selectedMoisture, compostItem: compostItem)
+        }
     }
     
     func MixCompost() {
@@ -128,9 +155,7 @@ struct UpdateCompostView: View {
         spaceNeeded2: 4,
     )
     let compost = CompostItem(
-        name: "Makmum Pile",
-        temperature: 25,
-        moisture: 40,
+        name: "Makmum Pile"
     )
     compost.compostMethodId = method
     let threeDaysAgo = Date().addingTimeInterval(-3 * 24 * 60 * 60)

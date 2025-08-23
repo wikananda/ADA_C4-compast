@@ -66,8 +66,8 @@ final class CompostMethodSteps {
 final class CompostItem {
     @Attribute(.unique) var compostItemId: Int
     var name: String
-    var temperature: Int
-    var moisture: Int
+    var temperatureCategory: String
+    var moistureCategory: String
     var creationDate: Date
     var isHealthy: Bool
     
@@ -79,11 +79,11 @@ final class CompostItem {
     @Relationship(deleteRule: .cascade, inverse: \CompostStack.compostItemId)
     var compostStacks: [CompostStack] = []
     
-    init(name: String, temperature: Int, moisture: Int) {
+    init(name: String) {
         self.compostItemId = UUID().hashValue
         self.name = name
-        self.temperature = temperature
-        self.moisture = moisture
+        self.temperatureCategory = "Cold"
+        self.moistureCategory = "Dry"
         self.creationDate = Date()
         self.isHealthy = true
         self.lastTurnedOver = Date()
