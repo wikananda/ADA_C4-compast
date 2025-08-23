@@ -91,6 +91,8 @@ extension Color {
 struct OptionListScreen: View {
     let title: String
     let options: [Option]
+    var paddingTop: CGFloat = 100
+    var paddingBottom: CGFloat = 120
     @Binding var selected: Option?
     
     var body: some View {
@@ -106,8 +108,8 @@ struct OptionListScreen: View {
                 }
             }
             .padding(.horizontal, 20)
-            .padding(.top, 100)
-            .padding(.bottom, 120) // room for sticky button
+            .padding(.top, paddingTop)
+            .padding(.bottom, paddingBottom) // room for sticky button
         }
         .background(Color(.systemGroupedBackground))
     }
@@ -135,7 +137,7 @@ struct NewNameView: View {
             
             Image("onboarding/guy-doing-compost")
                 .resizable()
-                .frame(width: .infinity)
+                .frame(maxWidth: .infinity, alignment: .center)
                 .aspectRatio(contentMode: .fit)
                 .ignoresSafeArea()
             
@@ -370,8 +372,6 @@ struct NewCompostView: View {
         
         let item = CompostItem(
             name: writtenName,
-            temperature: 27,
-            moisture: 40,
         )
         item.compostMethodId = method // update method
         modelContext.insert(method)
@@ -379,7 +379,7 @@ struct NewCompostView: View {
         
         print("Created new compost item with id: \(item.compostItemId)")
         print("method: \(method.name), \(method.descriptionText)")
-        print("item: \(item.name), \(item.temperature), \(item.moisture)")
+        print("item: \(item.name), \(item.temperatureCategory), \(item.moistureCategory)")
         
         dismiss()
     }

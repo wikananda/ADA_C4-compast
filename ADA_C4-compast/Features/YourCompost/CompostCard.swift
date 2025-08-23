@@ -20,8 +20,8 @@ struct CompostCard: View {
     let compostItem: CompostItem
     
     private let compostMethod: String
-    private let temperature: Int
-    private let moisture: Int
+    private let temperatureCategory: String
+    private let moistureCategory: String
     private let creationDate: Date
 //    let userInputs: [String]
     private let isHealthy: Bool
@@ -44,10 +44,10 @@ struct CompostCard: View {
         self.compostItem = compostItem
         self.alerts = alerts
         self.compostMethod = compostItem.compostMethodId?.name ?? ""
-        self.temperature = compostItem.temperature
+        self.temperatureCategory = compostItem.temperatureCategory
         self.creationDate = compostItem.creationDate
         self.isHealthy = compostItem.isHealthy
-        self.moisture = compostItem.moisture
+        self.moistureCategory = compostItem.moistureCategory
         self.compostName = compostItem.name
     }
     
@@ -122,13 +122,13 @@ struct CompostCard: View {
                 HStack(spacing: 20) {
                     MetricView(
                         icon: "thermometer",
-                        value: "\(temperature)°C",
+                        value: "\(temperatureCategory)",
                         label: "Temperature"
                     )
                     
                     MetricView(
                         icon: "drop.fill",
-                        value: "\(moisture)%",
+                        value: "\(moistureCategory)",
                         label: "Moisture"
                     )
                     
