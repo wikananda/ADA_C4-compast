@@ -19,7 +19,9 @@ enum MaterialType: String, Identifiable, Hashable {
 struct PileBand: Identifiable {
     let id = UUID()
     let type: MaterialType
+    var isShredded: Bool = false
 }
+
 
 // A wavy shape for the band top
 struct WavyTopShape: Shape {
@@ -58,16 +60,26 @@ struct WavyTopShape: Shape {
 struct PileBandView: View {
     let type: MaterialType
     let phase: CGFloat
-    
+    let isShredded: Bool
+
     var body: some View {
         let base = type == .green ? Color("compost/PileGreen", default: Color.green.opacity(0.6))
                                   : Color("compost/PileBrown", default: Color.brown.opacity(0.7))
-        
+
         ZStack {
             base
-            // light organic texture suggestion (optional)
             LinearGradient(colors: [Color.white.opacity(0.5), .clear],
                            startPoint: .topLeading, endPoint: .bottomTrailing)
+
+            // Shredded texture overlay (masked to the same wavy shape)
+            if isShredded {
+                Image("compost/shredded-overlay")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .opacity(1)
+                    .mask(WavyTopShape(phase: phase))
+                    .allowsHitTesting(false)
+            }
         }
         .mask(WavyTopShape(phase: phase))
         .overlay(
@@ -78,19 +90,18 @@ struct PileBandView: View {
     }
 }
 
+
 // The canvas that stacks bands from bottom up
 struct CompostCanvas: View {
-    let bands: [PileBand]
+    @Binding var bands: [PileBand]
 
     var body: some View {
         GeometryReader { geo in
             let h = geo.size.height
             let n = max(bands.count, 1)
 
-            // Overlap as a fraction of each band’s height
-            let overlapFactor: CGFloat = 0.65  // 0.0 = no overlap, 0.35 = nice strata
-            // Solve for bandH so the stack exactly fills the canvas height:
-            // totalHeight = bandH + (n-1) * (bandH * (1 - overlapFactor)) = h
+            let overlapFactor: CGFloat = 0.65
+//            let overlapFactor: CGFloat = 0.0
             let bandH = h / (1 + CGFloat(n - 1) * (1 - overlapFactor))
             let overlap = bandH * overlapFactor
 
@@ -98,22 +109,29 @@ struct CompostCanvas: View {
                 Color("BrandSoil", default: Color(red: 0.25, green: 0.18, blue: 0.14))
                     .ignoresSafeArea()
 
-                // Draw in original order; zIndex ensures older sit on top.
                 ForEach(Array(bands.enumerated()), id: \.element.id) { idx, band in
                     let z = Double(n - idx) // oldest highest z
-                    PileBandView(type: band.type,
-                                 phase: CGFloat(idx).truncatingRemainder(dividingBy: 2) * .pi/2)
-                        .frame(height: bandH)
-                        .frame(maxWidth: .infinity)
-                        .offset(y: -CGFloat(idx) * (bandH - overlap))
-                        .shadow(color: .black.opacity(0.08), radius: 6, y: 3)
-                        .zIndex(z)
-                        .transition(.blurReplace)
+                    PileBandView(
+                        type: band.type,
+                        phase: CGFloat(idx).truncatingRemainder(dividingBy: 2) * .pi/2,
+                        isShredded: band.isShredded
+                    )
+                    .frame(height: bandH)
+                    .frame(maxWidth: .infinity)
+                    .offset(y: -CGFloat(idx) * (bandH - overlap))
+                    .shadow(color: .black.opacity(0.08), radius: 6, y: 3)
+                    .zIndex(z)
+                    .onTapGesture {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.9)) {
+                            bands[idx].isShredded.toggle()
+                        }
+                    }
                 }
             }
         }
     }
 }
+
     
 
 struct PilePrototype: View {
@@ -136,7 +154,7 @@ struct PilePrototype: View {
     private func addMaterial(_ type: MaterialType) {
         let countForType = bands.filter { $0.type == type }.count
         guard countForType < maxPerType else { return }
-        bands.append(.init(type: type))  // newest goes to bottom visually via zIndex above
+        bands.append(PileBand(type: type, isShredded: false)) // explicit, though default is false
         if type == .green { greenAmount += 1 } else { brownAmount += 1 }
         ratio = calculateRatio()
     }
@@ -225,16 +243,13 @@ struct PilePrototype: View {
             
             VStack {
                 // Pile canvas
-                CompostCanvas(bands: bands)
-                    .frame(maxHeight: .infinity)      // adjust to your layout
+                CompostCanvas(bands: $bands)   // <-- binding
+                    .frame(maxHeight: .infinity)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
                             .stroke(Color.black.opacity(0.06), lineWidth: 1)
                     )
-                    .padding(.horizontal, 0)
-                    .padding(.bottom, 8)
-                
                 // Drop zone icon (kept; we still capture its frame)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
