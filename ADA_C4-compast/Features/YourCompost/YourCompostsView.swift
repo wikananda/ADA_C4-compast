@@ -19,12 +19,16 @@ struct YourCompostsView: View {
         NavigationStack(path: $navigationPath) {
             ScrollView {
                 LazyVStack (spacing: 25) {
-                    HStack(alignment: .center, spacing: 50) {
-                        
-                        Image("navigation/nav-MyCompost")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(height: 48)
+                    HStack(alignment: .center, spacing: 0) {
+                        HStack (spacing: 10) {
+                            Image("compost/logo-dark-green")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(height: 32)
+                            Text("My Compost")
+                                .font(.custom("KronaOne-Regular", size: 20))
+                                .foregroundStyle(Color("BrandGreenDark"))
+                        }
                         // Placeholder button to add new item
                         
                         Spacer()
@@ -32,14 +36,16 @@ struct YourCompostsView: View {
                         Button(action: { showingNewCompost = true} ) {
                             Image(systemName: "plus")
                                 .resizable()
-                                .frame(width: 24, height: 24)
+                                .frame(width: 16, height: 16)
+                                .bold(true)
                                 .foregroundStyle(.white)
                         }
                         .background(
-                            Circle().fill(Color("BrandGreen"))
-                                .frame(width: 40, height: 40)
+                            Circle().fill(Color("BrandGreenDark"))
+                                .frame(width: 32, height: 32)
                         )
-                    }.padding()
+                    }
+                    .padding()
                     // Getting the compost item data
                     if compostItems.isEmpty {
                         
@@ -70,15 +76,14 @@ struct YourCompostsView: View {
                             .frame(width: 280)
                             .padding(.horizontal, 14)
                             .padding(.vertical, 20)
-                                .background(
+                            .background(
                                     RoundedRectangle(cornerRadius: 100)   // adjust radius as you like
                                         .stroke(Color.secondary, lineWidth: 1.5) // border color
-                                        .fill(Color("BrandGreen"))
+                                        .fill(Color("BrandGreenDark"))
                                 )
                                 
-                        }.padding(.top, 100)
-                        
-                        
+                        }
+                        .padding(.top, 100)
                         
                     } else {
                         ForEach(compostItems) { item in
@@ -101,6 +106,7 @@ struct YourCompostsView: View {
                     Color.clear
                         .frame(height: 100)
                 }
+                .padding(.horizontal)
                 .sheet(isPresented: $showingNewCompost) {
                     NewCompostView()
                 }
