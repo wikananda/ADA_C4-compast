@@ -108,6 +108,7 @@ struct CompostCanvas: View {
                         .offset(y: -CGFloat(idx) * (bandH - overlap))
                         .shadow(color: .black.opacity(0.08), radius: 6, y: 3)
                         .zIndex(z)
+                        .transition(.blurReplace)
                 }
             }
         }
@@ -124,7 +125,7 @@ struct PilePrototype: View {
     
     @State private var dropZoneArea: CGRect = .zero
     
-    @State private var recommendation: String = "This is a recommendation"
+    @State var recommendation: String = "This is a recommendation"
     
     @State private var bands: [PileBand] = []
     
@@ -147,8 +148,13 @@ struct PilePrototype: View {
         var ratio: CGFloat = 0.0
         if greenAmount == 0 && brownAmount == 0 {
             ratio = 0.0
+            
+            recommendation = "Hendy is happy with your current waste ratio!"
+            
         } else {
             ratio = CGFloat(brownAmount) / CGFloat(greenAmount + brownAmount)
+            
+            recommendation = "Your current waste ratio is \(Int(ratio * 100))%. Try to reduce your green waste."
         }
         return ratio
     }
@@ -208,7 +214,9 @@ struct PilePrototype: View {
                         RoundedRectangle(cornerRadius: 10)
                             .fill(Color.white)
                             .stroke(Color.black.opacity(0.1))
-                    ).frame(maxWidth: .infinity)
+                    )
+                    .frame(maxWidth: .infinity)
+                    .transition(.move(edge: .top))
                 
                 Spacer()
             }
@@ -218,7 +226,7 @@ struct PilePrototype: View {
             VStack {
                 // Pile canvas
                 CompostCanvas(bands: bands)
-                    .frame(height: 400)      // adjust to your layout
+                    .frame(maxHeight: .infinity)      // adjust to your layout
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
@@ -257,10 +265,12 @@ struct PilePrototype: View {
 
 
                     Button(action: {
-                        bands.removeAll()
-                        brownAmount = 0
-                        greenAmount = 0
-                        ratio = calculateRatio()
+                        withAnimation(){
+                            bands.removeAll()
+                            brownAmount = 0
+                            greenAmount = 0
+                            ratio = calculateRatio()
+                        }
                     }) {
                         Text("Reset")
                             .frame(width: 50, height: 10)
@@ -278,14 +288,14 @@ struct PilePrototype: View {
                         dropZoneArea: $dropZoneArea,
                         label: "+ Green",
                         color: Color("BrandGreenDark", default: Color.green),
-                        actions: { addMaterial(.green) }
+                        actions: { withAnimation(){addMaterial(.green)} }
                     )
                     
                     WasteCard(
                         dropZoneArea: $dropZoneArea,
                         label: "+ Brown",
                         color: Color("compost/PileBrown"),
-                        actions: { addMaterial(.brown) }
+                        actions: { withAnimation(){addMaterial(.brown)} }
                     )
                 }
             }
