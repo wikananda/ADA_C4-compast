@@ -48,6 +48,7 @@ struct UpdateCompostView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 24){
             
+            //Header
             HStack{
                 Button(action: {
                     dismiss()
@@ -131,7 +132,7 @@ struct UpdateCompostView: View {
                     }
                 }
                 
-                HStack(){
+                HStack(spacing: 4){
                     Button(action: {
                         MixCompost()
                     }) {
@@ -139,11 +140,12 @@ struct UpdateCompostView: View {
                             Image(systemName: "arrow.trianglehead.2.clockwise")
                                 Text("Turn Compost")
                                     .font(.caption)
+                                    .fontWeight(.bold)
                         }
                         .foregroundStyle(Color.white)
                     }
                     .padding(16)
-                    .frame(maxHeight: 50)
+                    .frame(maxWidth: .infinity ,maxHeight: 50)
 //                    .frame(width: 16, height: 16)
                     .background(Color.black.opacity(0.5))
                     .clipShape(Capsule())
@@ -154,18 +156,23 @@ struct UpdateCompostView: View {
                     
                     Spacer()
                     
-                    Button(action: {}) {
-                        HStack(){
-                            Image(systemName: "plus")
-                            Text("Add Material")
-                                .font(.caption)
+                    
+                    NavigationLink(destination: PilePrototype()){
+                        Button(action: {
+                        }) {
+                            HStack(){
+                                Image(systemName: "plus")
+                                Text("Add Material")
+                                    .font(.caption)
+                                    .fontWeight(.bold)
+                            }
+                            .foregroundStyle(Color.white)
                         }
-                        .foregroundStyle(Color.white)
+                        .padding(16)
+                        .frame(maxWidth: .infinity ,maxHeight: 50)
+                        .background(Color("BrandGreen"))
+                        .clipShape(Capsule())
                     }
-                    .padding(16)
-                    .frame(maxHeight: 50)
-                    .background(Color("BrandGreen"))
-                    .clipShape(Capsule())
 //                    .background(
 //                        RoundedRectangle(cornerRadius: 24)
 //                            .fill(Color("BrandGreen"))
@@ -198,6 +205,21 @@ struct UpdateCompostView: View {
             }
             
             Spacer()
+            
+            
+            Button(action: {
+            }) {
+                HStack(){
+                    Text("SAVE")
+                        .fontWeight(.bold)
+                }
+                .foregroundStyle(Color.white)
+            }
+            .padding(16)
+            .frame(maxWidth: .infinity, maxHeight: 60)
+            .background(Color("BrandGreen"))
+            .clipShape(Capsule())
+            
             
             
         }
