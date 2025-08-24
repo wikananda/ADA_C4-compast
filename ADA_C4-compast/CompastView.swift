@@ -16,6 +16,7 @@ struct CompastView: View {
                 switch selectedTab {
                 case 0:
                     YourCompostsView()
+                        .modelContainer(previewContainer)
                 case 1:
                     Text("Your tasks")
                 default:
