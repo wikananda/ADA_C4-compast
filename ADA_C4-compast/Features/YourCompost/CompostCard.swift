@@ -38,7 +38,7 @@ struct CompostCard: View {
     }
     
     private var statusColor: Color {
-        isHealthy ? .green : .orange
+        isHealthy ? Color("Status/Success") : Color("Status/Danger")
     }
     
     init(compostItem: CompostItem, alerts: [CompostAlert], navigationPath: Binding<NavigationPath>) {
@@ -144,21 +144,15 @@ struct CompostCard: View {
                 // Update Button
                 Button(action: {
                     // Navigate to detail page
-                    navigationPath.append(compostItem)
+                    navigationPath.append(CompostNavigation.updateCompost(compostItem.compostItemId))
                 }) {
                     Text("Update Compost")
                         .font(.headline)
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 14)
-                        .background(
-                            LinearGradient(
-                                gradient: Gradient(colors: [Color(red: 0.2, green: 0.5, blue: 0.3), Color(red: 0.15, green: 0.4, blue: 0.25)]),
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .background(Color("BrandGreenDark"))
+                        .clipShape(Capsule())
                 }
                 .buttonStyle(PlainButtonStyle())
             }
@@ -224,19 +218,21 @@ struct MetricView: View {
         VStack(spacing: 8) {
             Image(systemName: icon)
                 .font(.title2)
-                .foregroundColor(.blue)
+                .foregroundColor(Color("Status/Success"))
                 .frame(height: 24)
             
-            Text(value)
-                .font(.title3)
-                .fontWeight(.semibold)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
-            
-            Text(label)
-                .font(.caption)
-                .foregroundColor(.secondary)
-                .lineLimit(1)
+            VStack(spacing: 0) {
+                Text(value)
+                    .font(.title3)
+                    .fontWeight(.semibold)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+                
+                Text(label)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
+            }
         }
         .frame(maxWidth: .infinity)
     }

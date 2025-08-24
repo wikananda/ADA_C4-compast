@@ -28,13 +28,17 @@ struct UpdateCompostView: View {
     @State private var selectedTemp: Option?
     @State private var selectedMoisture: Option?
     
-    init(compostItem: CompostItem) {
+    @Binding private var navigationPath: NavigationPath
+    
+    init(compostItem: CompostItem, navigationPath: Binding<NavigationPath>) {
         self.compostItem = compostItem
         self.compost_name = compostItem.name
         self.compost_method = compostItem.compostMethodId?.name ?? ""
         self.status = compostItem.isHealthy
         self.createdAt = compostItem.creationDate
         self.currentTemperatureCategory = compostItem.temperatureCategory
+        self._navigationPath = navigationPath
+
     }
     
     // Calculated variables
@@ -59,7 +63,10 @@ struct UpdateCompostView: View {
                 
                 Spacer()
                 
-                Image("navigation/nav-UpdateCompost")
+                Text("Update Compost")
+                    .font(.custom("KronaOne-Regular", size: 16))
+                    .foregroundStyle(Color("BrandGreenDark"))
+                //                Image("navigation/nav-UpdateCompost")
                 
                 Spacer()
                 
@@ -82,8 +89,8 @@ struct UpdateCompostView: View {
                     .padding(.horizontal,18)
                     .padding(.vertical,8)
                     .background(
-                    RoundedRectangle(cornerRadius: 100)
-                        .fill(status ? Color("Status/Success") : Color("Status/Warning"))
+                        RoundedRectangle(cornerRadius: 100)
+                            .fill(status ? Color("Status/Success") : Color("Status/Warning"))
                     )
                     .foregroundStyle(Color.white)
                     .font(.caption)
@@ -125,7 +132,7 @@ struct UpdateCompostView: View {
                             .padding(.top, 4)
                         Text("Est. Harvest")
                             .font(.subheadline)
-
+                        
                     }
                 }
                 
@@ -135,45 +142,45 @@ struct UpdateCompostView: View {
                     }) {
                         HStack(){
                             Image(systemName: "arrow.trianglehead.2.clockwise")
-                                Text("Turn Compost")
-                                    .font(.caption)
-                                    .fontWeight(.bold)
+                            Text("Turn Compost")
+                                .font(.caption)
+                                .fontWeight(.bold)
                         }
                         .foregroundStyle(Color.white)
                     }
                     .padding(16)
                     .frame(maxWidth: .infinity ,maxHeight: 50)
-//                    .frame(width: 16, height: 16)
+                    //                    .frame(width: 16, height: 16)
                     .background(Color.black.opacity(0.5))
                     .clipShape(Capsule())
-//                    .background(
-//                        RoundedRectangle(cornerRadius: 24)
-//                            .fill(Color.black.opacity(0.5))
-//                    )
+                    //                    .background(
+                    //                        RoundedRectangle(cornerRadius: 24)
+                    //                            .fill(Color.black.opacity(0.5))
+                    //                    )
                     
                     Spacer()
                     
                     
-                    NavigationLink(destination: PilePrototype()){
-                        Button(action: {
-                        }) {
-                            HStack(){
-                                Image(systemName: "plus")
-                                Text("Add Material")
-                                    .font(.caption)
-                                    .fontWeight(.bold)
-                            }
-                            .foregroundStyle(Color.white)
+                    Button(action: {
+                        navigationPath.append(CompostNavigation.pilePrototype(compostItem.compostItemId))
+                    }) {
+                        HStack(){
+                            Image(systemName: "plus")
+                            Text("Add Material")
+                                .font(.caption)
+                                .fontWeight(.bold)
                         }
-                        .padding(16)
-                        .frame(maxWidth: .infinity ,maxHeight: 50)
-                        .background(Color("BrandGreen"))
-                        .clipShape(Capsule())
+                        .foregroundStyle(Color.white)
                     }
-//                    .background(
-//                        RoundedRectangle(cornerRadius: 24)
-//                            .fill(Color("BrandGreen"))
-//                    )
+                    .padding(16)
+                    .frame(maxWidth: .infinity ,maxHeight: 50)
+                    .background(Color("BrandGreen"))
+                    .clipShape(Capsule())
+                    
+                    //                    .background(
+                    //                        RoundedRectangle(cornerRadius: 24)
+                    //                            .fill(Color("BrandGreen"))
+                    //                    )
                 }
             }
             .padding(24)
@@ -181,18 +188,11 @@ struct UpdateCompostView: View {
                 RoundedRectangle(cornerRadius: 24)
                     .fill(Color.white)
             )
-                
-            
-            VStack{
-                
-            }
-            
-            // placeholder button to mix
             
             // placeholder temperature and moisture
             VStack (alignment: .leading, spacing: 50) {
                 ZStack(alignment: .trailing) {
-                    Text("Temperature: \(currentTemperatureCategory)")
+                    Text("Temperature: \(compostItem.temperatureCategory)")
                 }
                 .frame(maxWidth: .infinity, maxHeight: 100)
                 .background(Color.gray)
@@ -247,6 +247,8 @@ struct UpdateCompostView: View {
 
 #Preview{
     // Dummy for visualization
+    @Previewable @State var navigationPath = NavigationPath()
+    // Dummy for visualization
     let method = CompostMethod(
         compostMethodId: 1,
         name: "Hot Compost",
@@ -263,6 +265,6 @@ struct UpdateCompostView: View {
     let threeDaysAgo = Date().addingTimeInterval(-3 * 24 * 60 * 60)
     compost.creationDate = threeDaysAgo
     compost.lastTurnedOver = threeDaysAgo
-
-    return UpdateCompostView(compostItem: compost)
+    
+    return UpdateCompostView(compostItem: compost, navigationPath: $navigationPath)
 }
