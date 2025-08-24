@@ -300,15 +300,16 @@ struct NewCompostView: View {
                         }
                         .foregroundStyle(Color("BrandGreenDark"))                    }
                     .frame(maxWidth:100, alignment: .leading)
+                    
+                    Spacer()
+                }
+                .overlay(
                     Text(steps[currentStep - 1].title)
                         .bold(true)
-                        .frame(maxWidth: .infinity, alignment: .center)
                         .font(.custom("KronaOne-Regular", size: 16))
-                        .foregroundStyle(Color("BrandGreenDark"))
-                    // Ensure Text is at center (mind the maxWidth with the button's maxWidth)
-                    Color.clear
-                        .frame(maxWidth: 100, maxHeight: 1)
-                }
+                        .foregroundStyle(Color("BrandGreenDark")),
+                    alignment: .center
+                )
                 
                 // The progress bar of onboarding
                 
