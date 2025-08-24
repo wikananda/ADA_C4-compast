@@ -130,7 +130,7 @@ struct PilePrototype: View {
     
     private var hasAnyMaterial: Bool { !bands.isEmpty }
 
-
+    let compostItem: CompostItem
     private let maxPerType = 5
     private func addMaterial(_ type: MaterialType) {
         let countForType = bands.filter { $0.type == type }.count
@@ -167,9 +167,6 @@ struct PilePrototype: View {
                 
                 Spacer()
                 
-                Image("navigation/nav-AddMaterial")
-                
-                Spacer()
                 
 //                Button(action: {
 //                }){
@@ -197,6 +194,13 @@ struct PilePrototype: View {
 
                 
             }
+            .overlay(
+                Text("Add Material")
+                    .bold(true)
+                    .font(.custom("KronaOne-Regular", size: 16))
+                    .foregroundStyle(Color("BrandGreenDark")),
+                alignment: .center
+            )
             .padding()
             
             HStack(alignment: .center, spacing: 20){
@@ -293,6 +297,7 @@ struct PilePrototype: View {
             .background(.white)
         }
         .background(Color("Status/AddCompostBG"))
+        .navigationBarHidden(true)
     }
 }
 
@@ -372,5 +377,23 @@ struct RatioBar: View {
 }
 
 #Preview {
-    PilePrototype()
+    // Dummy for visualization
+    let method = CompostMethod(
+        compostMethodId: 1,
+        name: "Hot Compost",
+        descriptionText: "",
+        compostDuration1: 30,
+        compostDuration2: 180,
+        spaceNeeded1: 1,
+        spaceNeeded2: 4,
+    )
+    let compost = CompostItem(
+        name: "Makmum Pile"
+    )
+    compost.compostMethodId = method
+    let threeDaysAgo = Date().addingTimeInterval(-3 * 24 * 60 * 60)
+    compost.creationDate = threeDaysAgo
+    compost.lastTurnedOver = threeDaysAgo
+    
+    return PilePrototype(compostItem: compost)
 }

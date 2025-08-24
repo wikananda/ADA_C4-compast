@@ -144,7 +144,7 @@ struct CompostCard: View {
                 // Update Button
                 Button(action: {
                     // Navigate to detail page
-                    navigationPath.append(compostItem)
+                    navigationPath.append(CompostNavigation.updateCompost(compostItem.compostItemId))
                 }) {
                     Text("Update Compost")
                         .font(.headline)

@@ -8,6 +8,11 @@
 import SwiftUI
 import SwiftData
 
+enum CompostNavigation: Hashable {
+    case updateCompost(Int)
+    case pilePrototype(Int)
+}
+
 struct YourCompostsView: View {
     @Query(sort: \CompostItem.creationDate, order: .reverse) private var compostItems: [CompostItem]
     @State private var showingNewCompost: Bool = false
@@ -104,7 +109,7 @@ struct YourCompostsView: View {
                         }
                     }
                     Color.clear
-                        .frame(height: 75)
+                        .frame(height: 100)
                 }
                 .padding(.horizontal)
                 .sheet(isPresented: $showingNewCompost) {
@@ -112,18 +117,30 @@ struct YourCompostsView: View {
                 }
             }
         }
-        .navigationDestination(for: CompostItem.self) { item in
-            UpdateCompostView(compostItem: item)
+        .navigationDestination(for: CompostNavigation.self) { nav in
+            switch nav {
+            case .updateCompost(let itemId):
+                if let item = compostItems.first(where: {$0.compostItemId == itemId}) {
+                    UpdateCompostView(compostItem: item, navigationPath: $navigationPath)
+                } else {
+                    Text("Compost Item not found")
+                }
+            case .pilePrototype(let itemId):
+                if let item = compostItems.first(where: {$0.compostItemId == itemId}) {
+                    PilePrototype(compostItem: item)
+                } else {
+                    Text("Compost item not found")
+                }
+            }
         }
     }
 }
 
 #Preview {
     YourCompostsView()
-        .modelContainer(previewContainer)
+//        .modelContainer(previewContainer)
 }
 
-// Dummy data to add into preview
 @MainActor
 let previewContainer: ModelContainer = {
     do {
