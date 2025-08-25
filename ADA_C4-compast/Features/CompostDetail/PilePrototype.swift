@@ -123,34 +123,40 @@ struct CompostCanvas: View {
 
     private let bandBaseHeight: CGFloat = 120
     private let overlapFactor: CGFloat = 0.7
-
+    private let initialOffset: CGFloat = 225
+    
     var body: some View {
         GeometryReader { geo in
             let overlap = bandBaseHeight * overlapFactor
             let contentHeight = CGFloat(bands.count) * (bandBaseHeight - overlap) + overlap // bandBaseHeight + (N - 1) * (bandBaseHeight - overlap)
 
             ScrollView(.vertical, showsIndicators: true) {
-                ZStack(alignment: .bottom) {
-                    ForEach(Array(bands.enumerated()), id: \.element.pileBandId) { idx, band in
-                        BandView(
-                            band: band,
-                            index: idx,
-                            bandHeight: bandBaseHeight,
-                            overlap: overlap,
-                            totalBands: bands.count,
-                            onTap: {
-                                withAnimation(.spring(response: 0.3, dampingFraction: 0.9)) {
-                                    bands[idx].isShredded.toggle()
+                VStack(spacing: 0) {
+                    ZStack(alignment: .bottom) {
+                        ForEach(Array(bands.enumerated()), id: \.element.pileBandId) { idx, band in
+                            BandView(
+                                band: band,
+                                index: idx,
+                                bandHeight: bandBaseHeight,
+                                overlap: overlap,
+                                totalBands: bands.count,
+                                onTap: {
+                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.9)) {
+                                        bands[idx].isShredded.toggle()
+                                    }
                                 }
-                            }
-                        )
+                            )
+                        }
+                    }
+                    if !bands.isEmpty {
+                        Color.clear.frame(height: initialOffset)
                     }
                 }
                 .frame(
                     maxWidth: .infinity,
                     alignment: .bottom
                 )
-                .frame(height: max(geo.size.height, contentHeight), alignment: .bottom)
+                .frame(height: max(geo.size.height, contentHeight + initialOffset), alignment: .bottom)
 //                .frame(
 //                    maxWidth: .infinity,
 //                    minHeight: geo.size.height,
@@ -322,7 +328,7 @@ struct PilePrototype: View {
             .padding(.horizontal, 24)
             .padding(.vertical, 24)
             
-            VStack {
+            ZStack (alignment: .bottom) {
                 // Pile canvas
                 CompostCanvas(bands: $bands)   // <-- binding
                     .frame(maxHeight: .infinity)
@@ -332,71 +338,70 @@ struct PilePrototype: View {
                             .stroke(Color.black.opacity(0.06), lineWidth: 1)
                     )
                 // Drop zone icon (kept; we still capture its frame)
+                VStack(spacing: 32){
+                    HStack{
+                        Text("RATIO: \(Int(greenAmount)) / \(Int(brownAmount))")
+                            .fontWeight(.bold)
+                            .padding(.trailing, 16)
+                        
+                        Button(action:{}){
+                            Image(systemName: "questionmark")
+                                .foregroundStyle(.white)
+                                .fontWeight(.bold)
+                        }
+                        .frame(width: 38, height: 38)
+                        .background(Color("BrandGreenDark"))
+                        .cornerRadius(100)
+                            
+                        Spacer()
+                        
+                        Button(action: {
+                            withAnimation(){
+                                bands.removeAll()
+                                brownAmount = 0
+                                greenAmount = 0
+                                ratio = calculateRatio()
+                            }
+                        }) {
+                            Text("Reset")
+                                .frame(width: 50, height: 10)
+                                .font(.body)
+                                .padding()
+                                .foregroundStyle(Color.white).background(Color("Status/Danger"))
+                                .cornerRadius(100)
+                        }
+                    }
+                    HStack(spacing: 25) {
+                        WasteCard(
+                            dropZoneArea: $dropZoneArea,
+                            label: "+ Green",
+                            color: Color("BrandGreenDark", default: Color.green),
+                            actions: { withAnimation(){addMaterial(.green)} }
+                        )
+                        
+                        WasteCard(
+                            dropZoneArea: $dropZoneArea,
+                            label: "+ Brown",
+                            color: Color("compost/PileBrown"),
+                            actions: { withAnimation(){addMaterial(.brown)} }
+                        )
+                    }
+                }
+                .padding()
+                .background(.ultraThinMaterial)
+                .cornerRadius(20)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(Color("BrandGreenDark").opacity(0.5), lineWidth: 2)
+                )
+                .padding()
+                .padding(.bottom, 20)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .ignoresSafeArea(edges: .bottom)
 
+//            Spacer()
             
-            Spacer()
-            
-            VStack(spacing: 32){
-                HStack{
-                    
-                    Text("RATIO: \(Int(greenAmount)) / \(Int(brownAmount))")
-                        .fontWeight(.bold)
-                        .padding(.trailing, 16)
-                    
-                    Button(action:{}){
-                        Image(systemName: "questionmark")
-                            .foregroundStyle(.white)
-                            .fontWeight(.bold)
-                    }
-                    .frame(width: 38, height: 38)
-                    .background(Color("BrandGreenDark"))
-                    .cornerRadius(100)
-                        
-                    
-                    Spacer()
-                    
-                    
-
-
-                    Button(action: {
-                        withAnimation(){
-                            bands.removeAll()
-                            brownAmount = 0
-                            greenAmount = 0
-                            ratio = calculateRatio()
-                        }
-                    }) {
-                        Text("Reset")
-                            .frame(width: 50, height: 10)
-                            .font(.body)
-                            .padding()
-                            .foregroundStyle(Color.white).background(Color("Status/Danger"))
-                            .cornerRadius(100)
-                    }
-                    
-                    
-                }
-                HStack(spacing: 25) {
-                    
-                    WasteCard(
-                        dropZoneArea: $dropZoneArea,
-                        label: "+ Green",
-                        color: Color("BrandGreenDark", default: Color.green),
-                        actions: { withAnimation(){addMaterial(.green)} }
-                    )
-                    
-                    WasteCard(
-                        dropZoneArea: $dropZoneArea,
-                        label: "+ Brown",
-                        color: Color("compost/PileBrown"),
-                        actions: { withAnimation(){addMaterial(.brown)} }
-                    )
-                }
-            }
-            .padding()
-            .background(.white)
         }
         .background(Color("Status/AddCompostBG"))
         .navigationBarHidden(true)
