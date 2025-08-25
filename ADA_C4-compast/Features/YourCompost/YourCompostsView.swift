@@ -82,8 +82,8 @@ struct YourCompostsView: View {
                             .padding(.horizontal, 14)
                             .padding(.vertical, 20)
                             .background(
-                                    RoundedRectangle(cornerRadius: 100)   // adjust radius as you like
-                                        .stroke(Color.secondary, lineWidth: 1.5) // border color
+                                    RoundedRectangle(cornerRadius: 100)
+                                        .stroke(Color.secondary, lineWidth: 1.5)
                                         .fill(Color("BrandGreenDark"))
                                 )
                                 
