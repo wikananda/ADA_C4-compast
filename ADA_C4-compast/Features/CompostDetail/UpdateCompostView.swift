@@ -66,7 +66,6 @@ struct UpdateCompostView: View {
                 Text("Update Compost")
                     .font(.custom("KronaOne-Regular", size: 16))
                     .foregroundStyle(Color("BrandGreenDark"))
-                //                Image("navigation/nav-UpdateCompost")
                 
                 Spacer()
                 
@@ -150,13 +149,8 @@ struct UpdateCompostView: View {
                     }
                     .padding(16)
                     .frame(maxWidth: .infinity ,maxHeight: 50)
-                    //                    .frame(width: 16, height: 16)
                     .background(Color.black.opacity(0.5))
                     .clipShape(Capsule())
-                    //                    .background(
-                    //                        RoundedRectangle(cornerRadius: 24)
-                    //                            .fill(Color.black.opacity(0.5))
-                    //                    )
                     
                     Spacer()
                     
@@ -176,11 +170,6 @@ struct UpdateCompostView: View {
                     .frame(maxWidth: .infinity ,maxHeight: 50)
                     .background(Color("BrandGreen"))
                     .clipShape(Capsule())
-                    
-                    //                    .background(
-                    //                        RoundedRectangle(cornerRadius: 24)
-                    //                            .fill(Color("BrandGreen"))
-                    //                    )
                 }
             }
             .padding(24)

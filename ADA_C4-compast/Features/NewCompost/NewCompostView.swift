@@ -141,7 +141,6 @@ struct NewNameView: View {
             }
             .padding(.horizontal, 32)
             
-            
             Image("onboarding/guy-doing-compost")
                 .resizable()
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -337,6 +336,7 @@ struct NewCompostView: View {
             .padding(.bottom, 25)
         }
         .ignoresSafeArea(.container, edges: .bottom)
+        .ignoresSafeArea(.keyboard)
         .background(Color.clear)
     }
     

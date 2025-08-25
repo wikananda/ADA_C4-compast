@@ -51,20 +51,16 @@ struct YourCompostsView: View {
                         )
                     }
                     .padding()
+                    
                     // Getting the compost item data
                     if compostItems.isEmpty {
-                        
                         VStack(spacing: 48){
                             Image("compost/my-compost")
-                                .frame(width: .infinity)
+                                .frame(maxWidth: .infinity)
                                 .aspectRatio(contentMode: .fit)
-                            
-                            
                             VStack{
-                                
                                 Text("You haven't create any pile.")
                                     .font(.title2).fontWeight(.bold)
-                                
                                 Text("Get started by creating one!").font(.subheadline)
                             }
                             
@@ -116,20 +112,20 @@ struct YourCompostsView: View {
                     NewCompostView()
                 }
             }
-        }
-        .navigationDestination(for: CompostNavigation.self) { nav in
-            switch nav {
-            case .updateCompost(let itemId):
-                if let item = compostItems.first(where: {$0.compostItemId == itemId}) {
-                    UpdateCompostView(compostItem: item, navigationPath: $navigationPath)
-                } else {
-                    Text("Compost Item not found")
-                }
-            case .pilePrototype(let itemId):
-                if let item = compostItems.first(where: {$0.compostItemId == itemId}) {
-                    PilePrototype(compostItem: item)
-                } else {
-                    Text("Compost item not found")
+            .navigationDestination(for: CompostNavigation.self) { nav in
+                switch nav {
+                case .updateCompost(let itemId):
+                    if let item = compostItems.first(where: {$0.compostItemId == itemId}) {
+                        UpdateCompostView(compostItem: item, navigationPath: $navigationPath)
+                    } else {
+                        Text("Compost Item not found")
+                    }
+                case .pilePrototype(let itemId):
+                    if let item = compostItems.first(where: {$0.compostItemId == itemId}) {
+                        PilePrototype(compostItem: item)
+                    } else {
+                        Text("Compost item not found")
+                    }
                 }
             }
         }
