@@ -191,6 +191,10 @@ struct UpdateCompostView: View {
             
             // placeholder temperature and moisture
             VStack (alignment: .leading, spacing: 50) {
+                HStack {
+                    Text("Total Green: \(compostItem.totalGreen)")
+                    Text("Total Brown: \(compostItem.totalBrown)")
+                }
                 ZStack(alignment: .trailing) {
                     Text("Temperature: \(compostItem.temperatureCategory)")
                 }

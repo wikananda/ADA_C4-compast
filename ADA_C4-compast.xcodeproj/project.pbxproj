@@ -29,22 +29,9 @@
 		0AE341A62E4B32EA00B2DA09 /* ADA_C4-compastUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ADA_C4-compastUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		0A7AA49B2E59D49F0090A364 /* Exceptions for "ADA_C4-compast" folder in "ADA_C4-compast" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				"ADA-C4-compast-Info.plist",
-			);
-			target = 0AE3418E2E4B32E900B2DA09 /* ADA_C4-compast */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		0AE341912E4B32E900B2DA09 /* ADA_C4-compast */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				0A7AA49B2E59D49F0090A364 /* Exceptions for "ADA_C4-compast" folder in "ADA_C4-compast" target */,
-			);
 			path = "ADA_C4-compast";
 			sourceTree = "<group>";
 		};
