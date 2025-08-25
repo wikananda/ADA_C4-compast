@@ -111,7 +111,7 @@ struct BandView: View {
         .frame(maxWidth: .infinity)
         .offset(y: -CGFloat(index) * (bandHeight - overlap))
         .shadow(color: .black.opacity(0.08), radius: 6, y: 3)
-        .zIndex(z)
+        .zIndex(Double(totalBands - index))
         .onTapGesture(perform: onTap)
     }
 }
@@ -121,35 +121,43 @@ struct BandView: View {
 struct CompostCanvas: View {
     @Binding var bands: [PileBand]
 
+    private let bandBaseHeight: CGFloat = 120
+    private let overlapFactor: CGFloat = 0.7
+
     var body: some View {
         GeometryReader { geo in
-            let h = geo.size.height
-            let n = max(bands.count, 1)
-            let overlapFactor: CGFloat = 0.65
-//            let overlapFactor: CGFloat = 0.0
-            let bandH = h / (1 + CGFloat(n - 1) * (1 - overlapFactor))
-            let overlap = bandH * overlapFactor
+            let overlap = bandBaseHeight * overlapFactor
+            let contentHeight = CGFloat(bands.count) * (bandBaseHeight - overlap) + overlap // bandBaseHeight + (N - 1) * (bandBaseHeight - overlap)
 
-            ZStack(alignment: .bottom) {
-//                Color("compost/PileBrown", default: Color(red: 0.25, green: 0.18, blue: 0.14))
-//                    .ignoresSafeArea()
-                Color.clear
-                    .ignoresSafeArea()
-
-                ForEach(Array(bands.enumerated()), id: \.element.pileBandId) { idx, band in
-                    BandView(
-                        band: band,
-                        index: idx,
-                        bandHeight: bandH,
-                        overlap: overlap,
-                        totalBands: n,
-                        onTap: {
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.9)) {
-                                bands[idx].isShredded.toggle()
+            ScrollView(.vertical, showsIndicators: true) {
+                ZStack(alignment: .bottom) {
+                    ForEach(Array(bands.enumerated()), id: \.element.pileBandId) { idx, band in
+                        BandView(
+                            band: band,
+                            index: idx,
+                            bandHeight: bandBaseHeight,
+                            overlap: overlap,
+                            totalBands: bands.count,
+                            onTap: {
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.9)) {
+                                    bands[idx].isShredded.toggle()
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
+                .frame(
+                    maxWidth: .infinity,
+                    alignment: .bottom
+                )
+                .frame(height: max(geo.size.height, contentHeight), alignment: .bottom)
+//                .frame(
+//                    maxWidth: .infinity,
+//                    minHeight: geo.size.height,
+//                    idealHeight: contentHeight,
+//                    alignment: .bottom
+//                )
+                .padding(.vertical, 16)
             }
         }
     }
@@ -175,14 +183,10 @@ struct PilePrototype: View {
     
     private var hasAnyMaterial: Bool { !bands.isEmpty }
 
-    private let maxPerType = 5
+//    private let maxPerType = 10
     private func addMaterial(_ type: MaterialType) {
-        //        let countForType = bands.filter { $0.type == type }.count
-        //        guard countForType < maxPerType else { return }
-        //        bands.append(PileBand(type: type, isShredded: false)) // explicit, though default is false
-        //        if type == .green { greenAmount += 1 } else { brownAmount += 1 }
-        let countForType = bands.filter { $0.materialType == type.rawValue }.count
-        guard countForType < maxPerType else { return }
+//        let countForType = bands.filter { $0.materialType == type.rawValue }.count
+//        guard countForType < maxPerType else { return }
         
         let pileBand = PileBand(
             materialType: type.rawValue,
@@ -190,6 +194,7 @@ struct PilePrototype: View {
             order: bands.count,
         )
         bands.append(pileBand)
+//        bands.insert(pileBand, at: 0)
         print("bands count: \(bands.count)")
         if type == .green { greenAmount += 1 } else { brownAmount += 1 }
         ratio = calculateRatio()
@@ -373,7 +378,7 @@ struct PilePrototype: View {
                     
                     
                 }
-                HStack {
+                HStack(spacing: 25) {
                     
                     WasteCard(
                         dropZoneArea: $dropZoneArea,
