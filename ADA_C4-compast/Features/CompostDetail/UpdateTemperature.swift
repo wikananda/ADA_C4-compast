@@ -14,6 +14,12 @@ struct UpdateMoistureView: View {
     @Binding var selectedMoist: Option?
     let compostItem: CompostItem
     
+    var backgroundColor: Color = Color(.systemGroupedBackground)
+    
+    private var anySelected: Bool {
+        return !((selectedMoist?.title.isEmpty) == nil)
+    }
+    
     private let options: [Option] = [
         .init(icon: "square.split.bottomrightquarter.fill",
               title: "Dry",
@@ -34,6 +40,7 @@ struct UpdateMoistureView: View {
                 OptionListScreen(
                     title: "Does it feel like a damp sponge (moisture)?",
                     options: options,
+                    backgroundColor: backgroundColor,
                     paddingTop: 25,
                     selected: $selectedMoist,
                 )
@@ -47,19 +54,22 @@ struct UpdateMoistureView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 50)
-                .background(.blue)
+                .background(anySelected ? Color("BrandGreenDark") : Color.gray.opacity(0.4))
                 .foregroundStyle(.white)
                 .clipShape(Capsule())
                 .padding(.horizontal, 16)
-                .padding(.bottom, 16)
+                .padding(.bottom, 50)
             }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Close") {
-                        dismiss()
+                    Button(action: { dismiss() }) {
+                        Text("Close")
+                            .foregroundStyle(Color("BrandGreenDark"))
                     }
                 }
             }
+            .ignoresSafeArea(.container, edges: .bottom)
+            .background(backgroundColor)
         }
     }
 }
@@ -69,8 +79,14 @@ struct UpdateTemperatureView: View {
     @Environment(\.modelContext) private var context
     
     @Binding var selectedTemp: Option?
-    
     let compostItem: CompostItem
+    
+    var backgroundColor: Color = Color(.systemGroupedBackground)
+    
+    private var anySelected: Bool {
+        return !((selectedTemp?.title.isEmpty) == nil)
+    }
+    
     private let options: [Option] = [
         .init(icon: "square.split.bottomrightquarter.fill",
               title: "Cold",
@@ -91,9 +107,11 @@ struct UpdateTemperatureView: View {
                 OptionListScreen(
                     title: "How does the temperature feel?",
                     options: options,
+                    backgroundColor: backgroundColor,
                     paddingTop: 25,
                     selected: $selectedTemp
                 )
+                
                 Spacer()
                 Button(action: {
                     compostItem.temperatureCategory = selectedTemp?.title ?? "Warm"
@@ -104,19 +122,22 @@ struct UpdateTemperatureView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 50)
-                .background(.blue)
+                .background(anySelected ? Color("BrandGreenDark") : Color.gray.opacity(0.4))
                 .foregroundStyle(.white)
                 .clipShape(Capsule())
                 .padding(.horizontal, 16)
-                .padding(.bottom, 16)
+                .padding(.bottom, 50)
             }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Close") {
-                        dismiss()
+                    Button(action: { dismiss() }) {
+                        Text("Close")
+                            .foregroundStyle(Color("BrandGreenDark"))
                     }
                 }
             }
+            .ignoresSafeArea(.container, edges: .bottom)
+            .background(backgroundColor)
         }
     }
 }

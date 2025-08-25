@@ -8,6 +8,11 @@
 import SwiftUI
 import SwiftData
 
+enum CompostNavigation: Hashable {
+    case updateCompost(Int)
+    case pilePrototype(Int)
+}
+
 struct YourCompostsView: View {
     @Query(sort: \CompostItem.creationDate, order: .reverse) private var compostItems: [CompostItem]
     @State private var showingNewCompost: Bool = false
@@ -19,12 +24,16 @@ struct YourCompostsView: View {
         NavigationStack(path: $navigationPath) {
             ScrollView {
                 LazyVStack (spacing: 25) {
-                    HStack(alignment: .center, spacing: 50) {
-                        
-                        Image("navigation/nav-MyCompost")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(height: 48)
+                    HStack(alignment: .center, spacing: 0) {
+                        HStack (spacing: 10) {
+                            Image("compost/logo-dark-green")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(height: 32)
+                            Text("My Compost")
+                                .font(.custom("KronaOne-Regular", size: 20))
+                                .foregroundStyle(Color("BrandGreenDark"))
+                        }
                         // Placeholder button to add new item
                         
                         Spacer()
@@ -32,14 +41,16 @@ struct YourCompostsView: View {
                         Button(action: { showingNewCompost = true} ) {
                             Image(systemName: "plus")
                                 .resizable()
-                                .frame(width: 24, height: 24)
+                                .frame(width: 16, height: 16)
+                                .bold(true)
                                 .foregroundStyle(.white)
                         }
                         .background(
-                            Circle().fill(Color("BrandGreen"))
-                                .frame(width: 40, height: 40)
+                            Circle().fill(Color("BrandGreenDark"))
+                                .frame(width: 32, height: 32)
                         )
-                    }.padding()
+                    }
+                    .padding()
                     // Getting the compost item data
                     if compostItems.isEmpty {
                         
@@ -70,15 +81,14 @@ struct YourCompostsView: View {
                             .frame(width: 280)
                             .padding(.horizontal, 14)
                             .padding(.vertical, 20)
-                                .background(
+                            .background(
                                     RoundedRectangle(cornerRadius: 100)   // adjust radius as you like
                                         .stroke(Color.secondary, lineWidth: 1.5) // border color
-                                        .fill(Color("BrandGreen"))
+                                        .fill(Color("BrandGreenDark"))
                                 )
                                 
-                        }.padding(.top, 100)
-                        
-                        
+                        }
+                        .padding(.top, 100)
                         
                     } else {
                         ForEach(compostItems) { item in
@@ -101,17 +111,81 @@ struct YourCompostsView: View {
                     Color.clear
                         .frame(height: 100)
                 }
+                .padding(.horizontal)
                 .sheet(isPresented: $showingNewCompost) {
                     NewCompostView()
                 }
             }
         }
-        .navigationDestination(for: CompostItem.self) { item in
-            UpdateCompostView(compostItem: item)
+        .navigationDestination(for: CompostNavigation.self) { nav in
+            switch nav {
+            case .updateCompost(let itemId):
+                if let item = compostItems.first(where: {$0.compostItemId == itemId}) {
+                    UpdateCompostView(compostItem: item, navigationPath: $navigationPath)
+                } else {
+                    Text("Compost Item not found")
+                }
+            case .pilePrototype(let itemId):
+                if let item = compostItems.first(where: {$0.compostItemId == itemId}) {
+                    PilePrototype(compostItem: item)
+                } else {
+                    Text("Compost item not found")
+                }
+            }
         }
     }
 }
 
 #Preview {
     YourCompostsView()
+//        .modelContainer(previewContainer)
 }
+
+@MainActor
+let previewContainer: ModelContainer = {
+    do {
+        let container = try ModelContainer(
+            for: CompostItem.self, CompostMethod.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
+
+        // Creating dummy data
+        let method = CompostMethod(
+            compostMethodId: 1,
+            name: "Hot Compost",
+            descriptionText: "Fast composting method",
+            compostDuration1: 30,
+            compostDuration2: 180,
+            spaceNeeded1: 1,
+            spaceNeeded2: 4
+        )
+
+        let item1 = CompostItem(
+            name: "First pile"
+        )
+        item1.compostMethodId = method
+        item1.creationDate = Date().addingTimeInterval(-14 * 24 * 60 * 60)
+        item1.lastTurnedOver = Date().addingTimeInterval(-5 * 24 * 60 * 60)
+        
+        let item2 = CompostItem(
+            name: "Second pile"
+        )
+        item2.compostMethodId = method
+        item2.creationDate = Date().addingTimeInterval(-7 * 24 * 60 * 60)
+        item2.lastTurnedOver = Date().addingTimeInterval(-3 * 24 * 60 * 60)
+        
+        let item3 = CompostItem(name: "Third pile")
+        item3.compostMethodId = method
+        item3.creationDate = Date().addingTimeInterval(-5 * 24 * 60 * 60)
+        item3.lastTurnedOver = Date().addingTimeInterval(-2 * 24 * 60 * 60)
+        
+        container.mainContext.insert(method)
+        container.mainContext.insert(item1)
+        container.mainContext.insert(item2)
+        container.mainContext.insert(item3)
+        
+        return container
+    } catch {
+        fatalError("Unable to create preview container: \(error.localizedDescription)")
+    }
+}()

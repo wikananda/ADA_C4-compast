@@ -91,6 +91,7 @@ extension Color {
 struct OptionListScreen: View {
     let title: String
     let options: [Option]
+    var backgroundColor: Color = Color(.systemGroupedBackground)
     var paddingTop: CGFloat = 100
     var paddingBottom: CGFloat = 120
     @Binding var selected: Option?
@@ -111,7 +112,7 @@ struct OptionListScreen: View {
             .padding(.top, paddingTop)
             .padding(.bottom, paddingBottom) // room for sticky button
         }
-        .background(Color(.systemGroupedBackground))
+        .background(backgroundColor)
     }
 }
 
@@ -119,18 +120,24 @@ struct OptionListScreen: View {
 struct NewNameView: View {
     @Binding var name: String?
     var body: some View {
-        
-        VStack( spacing: 20) {
-            
+        VStack( spacing: 100) {
             VStack(alignment: .leading){
-                Text("Compost Name").font(.headline)
-                TextField("Name your compost", text: Binding(
+                Text("Compost Name")
+                    .font(.headline)
+                    .foregroundStyle(Color("BrandGreenDark"))
+                TextField("Name your compost...", text: Binding(
                     get: { name ?? "" },
                     set: { name = $0.isEmpty ? nil : $0 }
                 ))
                 .padding()
-                .border(Color.black.opacity(0.1), width: 2)
-                
+//                .border(Color.black.opacity(0.1), width: 2)
+                .background(Color.white)
+                .cornerRadius(20)
+                .background {
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(Color("BrandGreenDark").opacity(0.25), lineWidth: 2)
+                        .fill(Color("BrandGreenDark"))
+                }
             }
             .padding(.horizontal, 32)
             
@@ -139,9 +146,7 @@ struct NewNameView: View {
                 .resizable()
                 .frame(maxWidth: .infinity, alignment: .center)
                 .aspectRatio(contentMode: .fit)
-                .ignoresSafeArea()
-            
-            
+                .ignoresSafeArea(.container, edges: .bottom)
         }
     }
 }
@@ -167,11 +172,8 @@ struct OnboardingCompostOption: View {
                 Text(title).font(.headline)
                 Text(description).font(.caption)
             }
-            
         }
     }
-    
-    
 }
 
 struct NewMethodView: View {
@@ -266,29 +268,22 @@ struct NewCompostView: View {
     @State var selectedSpace: Option?
     @State var selectedContainer: Option?
     
+    private var isNameValid: Bool {
+        guard let name = name else { return false }
+        return !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+    
     private var steps: [StepperFlow] {
         [
             StepperFlow(
                 title: "New Compost",
                 content: AnyView(NewNameView(name: $name))
             ),
-            StepperFlow(
-                title: "Methods",
-                content: AnyView(NewMethodView(selectedMethod: $selectedMethod))
-            ),
-            StepperFlow(
-                title: "Spaces",
-                content: AnyView(NewSpaceView(selectedSpace: $selectedSpace))
-            ),
-            StepperFlow(
-                title: "Containers",
-                content: AnyView(NewContainerView(selectedContainer: $selectedContainer))
-            ),
         ]
     }
     
     var body: some View {
-        ZStack {
+        ZStack (alignment: .bottom) {
             steps[currentStep - 1].content // Onboarding content
             VStack(alignment: .leading) {
                 // Header Titles and Back buttons
@@ -302,21 +297,21 @@ struct NewCompostView: View {
                     } ) {
                         HStack {
                             Image(systemName: "chevron.left")
-                            Text("Back")
                         }
-                        .foregroundStyle(.blue)
-                    }
+                        .foregroundStyle(Color("BrandGreenDark"))                    }
                     .frame(maxWidth:100, alignment: .leading)
+                    
+                    Spacer()
+                }
+                .overlay(
                     Text(steps[currentStep - 1].title)
                         .bold(true)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                    // Ensure Text is at center (mind the maxWidth with the button's maxWidth)
-                    Color.clear
-                        .frame(maxWidth: 100, maxHeight: 1)
-                }
+                        .font(.custom("KronaOne-Regular", size: 16))
+                        .foregroundStyle(Color("BrandGreenDark")),
+                    alignment: .center
+                )
                 
                 // The progress bar of onboarding
-                StepperFlowProgressView(currentStep: $currentStep, totalSteps: steps.count)
                 
                 Spacer()
                 
@@ -329,13 +324,20 @@ struct NewCompostView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .padding()
-                .background(Color.blue)
+                .background(isNameValid ? Color("BrandGreenDark") : Color.gray.opacity(0.4))
                 .bold(true)
                 .foregroundStyle(.white)
                 .clipShape(Capsule())
+                .background(
+                    Color.white
+                        .clipShape(Capsule())
+                )
             }
             .padding()
+            .padding(.bottom, 25)
         }
+        .ignoresSafeArea(.container, edges: .bottom)
+        .background(Color.clear)
     }
     
     // For the button function
@@ -344,6 +346,8 @@ struct NewCompostView: View {
             currentStep += 1
             return
         }
+        guard isNameValid else { return }
+        
         AddNewCompost()
     }
     
