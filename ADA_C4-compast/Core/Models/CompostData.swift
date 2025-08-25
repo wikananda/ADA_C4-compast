@@ -78,6 +78,9 @@ final class CompostItem {
     
     @Relationship(deleteRule: .cascade, inverse: \CompostStack.compostItemId)
     var compostStacks: [CompostStack] = []
+
+    @Relationship(deleteRule: .cascade, inverse: \PileBand.compostItemId)
+    var pileBands: [PileBand] = []
     
     init(name: String) {
         self.compostItemId = UUID().hashValue
@@ -90,6 +93,31 @@ final class CompostItem {
     }
 }
 
+extension CompostItem {
+    var totalGreen: Int { compostStacks.reduce(0) { $0 + $1.greenAmount } }
+    var totalBrown: Int { compostStacks.reduce(0) { $0 + $1.brownAmount } }
+}
+
+@Model
+final class PileBand {
+    @Attribute(.unique) var pileBandId: Int
+    var materialType: String
+    var isShredded: Bool
+    var order: Int
+    var createdAt: Date
+
+    // Relationship
+    var compostItemId: CompostItem?
+    
+    init(materialType: String, isShredded: Bool, order: Int) {
+        self.pileBandId = UUID().hashValue
+        self.materialType = materialType
+        self.isShredded = isShredded
+        self.order = order
+        self.createdAt = Date()
+    }
+}
+
 @Model
 final class CompostStack {
     @Attribute(.unique) var compostStackId: Int
@@ -97,17 +125,17 @@ final class CompostStack {
     var brownAmount: Int
     var greenAmount: Int
     var createdAt: Date
-    var shredded: Bool
+    var isShredded: Bool
     
     // Relationship
     var compostItemId: CompostItem?
     
-    init(compostStackId: Int, brownAmount: Int, greenAmount: Int, createdAt: Date, shredded: Bool) {
-        self.compostStackId = compostStackId
+    init(brownAmount: Int, greenAmount: Int, createdAt: Date, isShredded: Bool) {
+        self.compostStackId = UUID().hashValue
         self.brownAmount = brownAmount
         self.greenAmount = greenAmount
         self.createdAt = createdAt
-        self.shredded = shredded
+        self.isShredded = isShredded
     }
 }
 

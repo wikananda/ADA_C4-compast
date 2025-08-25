@@ -110,7 +110,7 @@ struct StepperFlowView: View {
                             Image(systemName: "chevron.left")
                             Text("Back")
                         }
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(Color.white)
                     }
                     .frame(maxWidth:100, alignment: .leading)
                     Text(steps[currentStep - 1].title)
@@ -120,7 +120,6 @@ struct StepperFlowView: View {
                     Color.clear
                         .frame(maxWidth: 100, maxHeight: 1)
                 }
-                
                 
                 Spacer()
                 
@@ -144,7 +143,7 @@ struct StepperFlowView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .padding()
-                .background(Color.blue)
+                .background(Color("BrandGreenDark"))
                 .bold(true)
                 .foregroundStyle(.white)
                 .clipShape(Capsule())
@@ -163,7 +162,7 @@ struct StepperFlowInfoProgressView: View {
             ForEach(1...totalSteps, id: \.self) { step in
                 Rectangle()
                     .frame(width: 8, height: 8)
-                    .foregroundColor(step <= currentStep ? .blue : .gray)
+                    .foregroundColor(step <= currentStep ? Color("BrandGreen") : .gray)
                     .clipShape(Capsule())
             }
         }

@@ -16,11 +16,11 @@ enum MaterialType: String, Identifiable, Hashable {
 }
 
 // One band = one bucket
-struct PileBand: Identifiable {
-    let id = UUID()
-    let type: MaterialType
-    var isShredded: Bool = false
-}
+//struct PileBand: Identifiable {
+//    let id = UUID()
+//    let type: MaterialType
+//    var isShredded: Bool = false
+//}
 
 
 // A wavy shape for the band top
@@ -90,6 +90,32 @@ struct PileBandView: View {
     }
 }
 
+struct BandView: View {
+    let band: PileBand
+    let index: Int
+    let bandHeight: CGFloat
+    let overlap: CGFloat
+    let totalBands: Int
+    let onTap: () -> Void
+
+    var body: some View {
+        let z = Double(totalBands - index)
+        let materialType = MaterialType(rawValue: band.materialType) ?? .green
+
+        PileBandView(
+            type: materialType,
+            phase: CGFloat(index).truncatingRemainder(dividingBy: 2) * .pi/2,
+            isShredded: band.isShredded
+        )
+        .frame(height: bandHeight)
+        .frame(maxWidth: .infinity)
+        .offset(y: -CGFloat(index) * (bandHeight - overlap))
+        .shadow(color: .black.opacity(0.08), radius: 6, y: 3)
+        .zIndex(z)
+        .onTapGesture(perform: onTap)
+    }
+}
+
 
 // The canvas that stacks bands from bottom up
 struct CompostCanvas: View {
@@ -99,33 +125,30 @@ struct CompostCanvas: View {
         GeometryReader { geo in
             let h = geo.size.height
             let n = max(bands.count, 1)
-
             let overlapFactor: CGFloat = 0.65
 //            let overlapFactor: CGFloat = 0.0
             let bandH = h / (1 + CGFloat(n - 1) * (1 - overlapFactor))
             let overlap = bandH * overlapFactor
 
             ZStack(alignment: .bottom) {
-                Color("BrandSoil", default: Color(red: 0.25, green: 0.18, blue: 0.14))
+//                Color("compost/PileBrown", default: Color(red: 0.25, green: 0.18, blue: 0.14))
+//                    .ignoresSafeArea()
+                Color.clear
                     .ignoresSafeArea()
 
-                ForEach(Array(bands.enumerated()), id: \.element.id) { idx, band in
-                    let z = Double(n - idx) // oldest highest z
-                    PileBandView(
-                        type: band.type,
-                        phase: CGFloat(idx).truncatingRemainder(dividingBy: 2) * .pi/2,
-                        isShredded: band.isShredded
-                    )
-                    .frame(height: bandH)
-                    .frame(maxWidth: .infinity)
-                    .offset(y: -CGFloat(idx) * (bandH - overlap))
-                    .shadow(color: .black.opacity(0.08), radius: 6, y: 3)
-                    .zIndex(z)
-                    .onTapGesture {
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.9)) {
-                            bands[idx].isShredded.toggle()
+                ForEach(Array(bands.enumerated()), id: \.element.pileBandId) { idx, band in
+                    BandView(
+                        band: band,
+                        index: idx,
+                        bandHeight: bandH,
+                        overlap: overlap,
+                        totalBands: n,
+                        onTap: {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.9)) {
+                                bands[idx].isShredded.toggle()
+                            }
                         }
-                    }
+                    )
                 }
             }
         }
@@ -135,11 +158,14 @@ struct CompostCanvas: View {
     
 
 struct PilePrototype: View {
+    @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    let compostItem: CompostItem
     
     @State private var ratio: CGFloat = 0.0
     @State private var greenAmount: Int = 0
     @State private var brownAmount: Int = 0
+    @State private var initialStackCount = 0
     
     @State private var dropZoneArea: CGRect = .zero
     
@@ -149,17 +175,59 @@ struct PilePrototype: View {
     
     private var hasAnyMaterial: Bool { !bands.isEmpty }
 
-    let compostItem: CompostItem
     private let maxPerType = 5
     private func addMaterial(_ type: MaterialType) {
-        let countForType = bands.filter { $0.type == type }.count
+        //        let countForType = bands.filter { $0.type == type }.count
+        //        guard countForType < maxPerType else { return }
+        //        bands.append(PileBand(type: type, isShredded: false)) // explicit, though default is false
+        //        if type == .green { greenAmount += 1 } else { brownAmount += 1 }
+        let countForType = bands.filter { $0.materialType == type.rawValue }.count
         guard countForType < maxPerType else { return }
-        bands.append(PileBand(type: type, isShredded: false)) // explicit, though default is false
+        
+        let pileBand = PileBand(
+            materialType: type.rawValue,
+            isShredded: false,
+            order: bands.count,
+        )
+        bands.append(pileBand)
+        print("bands count: \(bands.count)")
         if type == .green { greenAmount += 1 } else { brownAmount += 1 }
         ratio = calculateRatio()
     }
 
+    private func loadExistingStacks() {
+        let stacks = compostItem.compostStacks.sorted { $0.createdAt < $1.createdAt }
+        bands = stacks.enumerated().map { idx, s in
+            PileBand(
+                materialType: s.greenAmount == 1 ? "green" : "brown",
+                isShredded: s.isShredded,
+                order: idx
+            )
+        }
+        initialStackCount = bands.count
 
+        greenAmount = stacks.reduce(0) { $0 + $1.greenAmount }
+        brownAmount = stacks.reduce(0) { $0 + $1.brownAmount }
+        ratio = calculateRatio()
+    }
+
+    private func saveCompostStacks() {
+        // let existingStacks = compostItem.compostStacks
+        // existingStacks.forEach { modelContext.delete($0)}
+        guard bands.count > initialStackCount else { return }
+        for band in bands[initialStackCount...] {
+            let stack = CompostStack(
+                brownAmount: band.materialType == "brown" ? 1 : 0,
+                greenAmount: band.materialType == "green" ? 1 : 0, 
+                createdAt: Date(),
+                isShredded: band.isShredded,
+            )
+            stack.compostItemId = compostItem
+            modelContext.insert(stack)
+        }
+        try? modelContext.save()
+        print("Saving...")
+    }
     
     // To calculate ratio of brown and green wastes
     func calculateRatio() -> CGFloat {
@@ -176,6 +244,8 @@ struct PilePrototype: View {
         }
         return ratio
     }
+    
+    
     
     var body: some View {
         VStack {
@@ -203,6 +273,8 @@ struct PilePrototype: View {
                 
                 Button(action: {
                     // do finish action
+                    saveCompostStacks()
+                    dismiss()
                 }) {
                     Text("Finish")
                         .font(.headline.weight(.semibold))
@@ -323,6 +395,9 @@ struct PilePrototype: View {
         }
         .background(Color("Status/AddCompostBG"))
         .navigationBarHidden(true)
+        .onAppear {
+            loadExistingStacks()
+        }
     }
 }
 
