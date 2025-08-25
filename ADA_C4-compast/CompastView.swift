@@ -8,27 +8,31 @@
 import SwiftUI
 
 struct CompastView: View {
-    @State private var selectedTab: Int = 0 // to be inserted to custom tab bar
+    @State private var selectedTab: Int = 0
     @State private var showingSplash: Bool = true
     
     var body: some View {
         ZStack(alignment: .bottom) {
-            VStack {
+            Group {
                 switch selectedTab {
                 case 0:
                     YourCompostsView()
-//                        .modelContainer(previewContainer)
                 case 1:
-                    Text("Your tasks")
-                default:
+                    CompostToDoListView()
+                case 2:
                     SettingsView()
+                default:
+                    YourCompostsView()
                 }
             }
-            .frame(maxWidth:.infinity, maxHeight: .infinity)
-            .background(Color.clear)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .animation(.spring(response: 0.35, dampingFraction: 0.65), value: selectedTab)
             .allowsHitTesting(!showingSplash)
-            
-            // the custom tab bar
+            .onChange(of: selectedTab) { _, newValue in
+                print(">>> selectedTab: %d\n", newValue)
+            }
+
+            // Custom tab bar
             CustomTabView(selectedTab: $selectedTab)
                 .padding(.horizontal)
                 .padding(.bottom, 25)

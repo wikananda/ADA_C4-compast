@@ -9,6 +9,7 @@ import SwiftUI
 
 struct CustomTabView: View {
     @Binding var selectedTab: Int
+    @Namespace private var tabNS
     
     var body: some View {
         HStack (alignment: .top) {
@@ -17,6 +18,7 @@ struct CustomTabView: View {
                 label: "My Compost",
                 index: 0,
                 selectedIndex: $selectedTab,
+                ns: tabNS
             )
             Spacer()
             CustomTabItem(
@@ -24,6 +26,7 @@ struct CustomTabView: View {
                 label: "To Do",
                 index: 1,
                 selectedIndex: $selectedTab,
+                ns: tabNS
             )
             Spacer()
             CustomTabItem(
@@ -31,16 +34,20 @@ struct CustomTabView: View {
                 label: "Settings",
                 index: 2,
                 selectedIndex: $selectedTab,
+                ns: tabNS
             )
 
         }
         .frame(maxWidth: 300, maxHeight: 60, alignment: .top)
         .padding(.vertical, 9)
         .padding(.horizontal, 10)
-        .background(
-            .ultraThinMaterial
-        )
+        .background(.ultraThinMaterial)
         .clipShape(Capsule())
+        .overlay(
+            Capsule()
+                .stroke(Color("BrandGreenDark").opacity(0.1), lineWidth: 1)
+        )
+        .animation(.spring(response: 0.35, dampingFraction: 0.65), value: selectedTab)
     }
 }
 
@@ -50,23 +57,28 @@ struct CustomTabItem: View {
     var index: Int
     
     @Binding var selectedIndex: Int
+    var ns: Namespace.ID
     
     // To check current selected index
-    private var isSelected: Bool {
-        selectedIndex == index
-    }
+    private var isSelected: Bool { selectedIndex == index }
     
     var body: some View {
         Button(action: {
-            self.selectedIndex = index // changing the selected button
+           withAnimation(.spring(response: 0.35, dampingFraction: 0.65)) {
+                self.selectedIndex = index // changing the selected button
+           }
         }) {
             ZStack {
                 // Background for each tab item
-                Color.clear
-                    .padding(.vertical, 5)
-                    .padding(.horizontal)
-                    .background(isSelected ? .white : .clear)
-                    .clipShape(Capsule())
+                if isSelected {
+                    Capsule()
+                        .fill(Color.white)
+                        .matchedGeometryEffect(id: "activeTabBG", in: ns)
+                }
+                // Layouting the button
+               Color.clear
+                   .padding(.vertical, 5)
+                   .padding(.horizontal)
                 
                 // Tab item contents
                 VStack(alignment: .center, spacing: 5) {
@@ -84,6 +96,6 @@ struct CustomTabItem: View {
 }
 
 #Preview {
-    @State var selectedTab = 0
+    @Previewable @State var selectedTab = 0
     CustomTabView(selectedTab: $selectedTab)
 }
