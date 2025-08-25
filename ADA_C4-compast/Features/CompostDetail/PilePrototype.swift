@@ -68,8 +68,8 @@ struct PileBandView: View {
 
         ZStack {
             base
-            LinearGradient(colors: [Color.white.opacity(0.5), .clear],
-                           startPoint: .topLeading, endPoint: .bottomTrailing)
+//            LinearGradient(colors: [Color.white.opacity(0.5), .clear],
+//                           startPoint: .topLeading, endPoint: .bottomTrailing)
 
             // Shredded texture overlay (masked to the same wavy shape)
             if isShredded {
@@ -84,7 +84,7 @@ struct PileBandView: View {
         .mask(WavyTopShape(phase: phase))
         .overlay(
             WavyTopShape(phase: phase)
-                .stroke(Color.white.opacity(1), lineWidth: 8)
+                .stroke(Color.white.opacity(1), lineWidth: 3)
         )
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
@@ -123,7 +123,7 @@ struct CompostCanvas: View {
 
     private let bandBaseHeight: CGFloat = 120
     private let overlapFactor: CGFloat = 0.7
-    private let initialOffset: CGFloat = 225
+    private let initialOffset: CGFloat = 240
     
     var body: some View {
         GeometryReader { geo in
@@ -168,7 +168,6 @@ struct CompostCanvas: View {
         }
     }
 }
-
     
 
 struct PilePrototype: View {
@@ -245,22 +244,17 @@ struct PilePrototype: View {
         var ratio: CGFloat = 0.0
         if greenAmount == 0 && brownAmount == 0 {
             ratio = 0.0
-            
             recommendation = "Hendy is happy with your current waste ratio!"
             
         } else {
             ratio = CGFloat(brownAmount) / CGFloat(greenAmount + brownAmount)
-            
             recommendation = "Your current waste ratio is \(Int(ratio * 100))%. Try to reduce your green waste."
         }
         return ratio
     }
     
-    
-    
     var body: some View {
         VStack {
-            
             //Header
             HStack{
                 Button(action: {
@@ -313,20 +307,20 @@ struct PilePrototype: View {
             HStack(alignment: .center, spacing: 20){
                 Image("compost/add-material-logo")
                 Text(recommendation)
-                    .padding(16)
+                    .padding(24)
                     .foregroundStyle(Color.black.opacity(0.8)   )
                     .background(
-                        RoundedRectangle(cornerRadius: 10)
+                        RoundedRectangle(cornerRadius: 20)
                             .fill(Color.white)
                             .stroke(Color.black.opacity(0.1))
                     )
-                    .frame(maxWidth: .infinity)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .transition(.move(edge: .top))
                 
                 Spacer()
             }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 24)
+            .padding(.horizontal)
+//            .padding(.vertical, 24)
             
             ZStack (alignment: .bottom) {
                 // Pile canvas
