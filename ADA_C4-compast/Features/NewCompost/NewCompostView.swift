@@ -259,6 +259,7 @@ struct NewContainerView: View {
 struct NewCompostView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Query private var compostMethods: [CompostMethod]
     
     @State var currentStep: Int = 1
     
@@ -346,7 +347,9 @@ struct NewCompostView: View {
             currentStep += 1
             return
         }
+        print("Here")
         guard isNameValid else { return }
+        print("HEEEREE name valid")
         
         AddNewCompost()
     }
@@ -354,38 +357,35 @@ struct NewCompostView: View {
     // Saving to SwiftData
     func AddNewCompost() {
         guard
-            let writtenName = name,
-            let methodName = selectedMethod,
-            let spaceName = selectedSpace,
-            let containerName = selectedContainer
+            let writtenName = name
+//            let methodName = selectedMethod,
+//            let spaceName = selectedSpace,
+//            let containerName = selectedContainer
         else {
             return
         }
+        print("Hereee adding new compost")
         
-        let methodId = Int(Date().timeIntervalSince1970)
-        
-        let method = CompostMethod(
-            compostMethodId: methodId,
-            name: methodName.title,
-            descriptionText: "\(spaceName) - \(containerName)",
-            compostDuration1: 30,
-            compostDuration2: 180,
-            spaceNeeded1: 1,
-            spaceNeeded2: 4,
-        )
+        guard let method = compostMethods.first(where: { $0.compostMethodId == 1 }) else {
+            print("❌ No predefined compost method found")
+            return
+        }
         
         let item = CompostItem(
             name: writtenName,
         )
-        item.compostMethodId = method // update method
-        modelContext.insert(method)
+        item.compostMethodId = method // 1 is hot compost (predefined)
         modelContext.insert(item)
-        
-        print("Created new compost item with id: \(item.compostItemId)")
-        print("method: \(method.name), \(method.descriptionText)")
-        print("item: \(item.name), \(item.temperatureCategory), \(item.moistureCategory)")
-        
-        dismiss()
+
+        do {
+            try modelContext.save()
+            print("✅ Successfully saved new compost item with id: \(item.compostItemId)")
+            print("item: \(item.name), \(item.temperatureCategory), \(item.moistureCategory)")
+            dismiss()
+        } catch {
+            print("❌ Failed to save: \(error)")
+            // Optionally show an alert to the user
+        }
     }
 }
 

@@ -20,7 +20,7 @@ struct CompostCard: View {
     
     let compostItem: CompostItem
     
-    private let compostMethod: String
+//    private let compostMethod: String
     private let temperatureCategory: String
     private let moistureCategory: String
     private let creationDate: Date
@@ -44,7 +44,7 @@ struct CompostCard: View {
     init(compostItem: CompostItem, alerts: [CompostAlert], navigationPath: Binding<NavigationPath>) {
         self.compostItem = compostItem
         self.alerts = alerts
-        self.compostMethod = compostItem.compostMethodId?.name ?? ""
+//        self.compostMethod = compostItem.compostMethodId?.name ?? ""
         self.temperatureCategory = compostItem.temperatureCategory
         self.creationDate = compostItem.creationDate
         self.isHealthy = compostItem.isHealthy
@@ -97,14 +97,14 @@ struct CompostCard: View {
                         }
                         
                         // Fixed Method
-                        HStack {
-                            Image(systemName: "arrow.3.trianglepath")
-                                .foregroundColor(.secondary)
-                                .font(.caption)
-                            Text(compostMethod)
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                        }
+//                        HStack {
+//                            Image(systemName: "arrow.3.trianglepath")
+//                                .foregroundColor(.secondary)
+//                                .font(.caption)
+//                            Text(compostMethod)
+//                                .font(.subheadline)
+//                                .foregroundColor(.secondary)
+//                        }
                     }
                     
                     Spacer()
