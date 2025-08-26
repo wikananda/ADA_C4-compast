@@ -144,12 +144,10 @@ let previewContainer: ModelContainer = {
             for: CompostItem.self, CompostMethod.self,
             configurations: ModelConfiguration(isStoredInMemoryOnly: true)
         )
-
-        // Creating dummy data
         let method = CompostMethod(
             compostMethodId: 1,
             name: "Hot Compost",
-            descriptionText: "Fast composting method",
+            descriptionText: "Fast composting method for active gardeners",
             compostDuration1: 30,
             compostDuration2: 180,
             spaceNeeded1: 1,
@@ -174,8 +172,7 @@ let previewContainer: ModelContainer = {
         item3.compostMethodId = method
         item3.creationDate = Date().addingTimeInterval(-5 * 24 * 60 * 60)
         item3.lastTurnedOver = Date().addingTimeInterval(-2 * 24 * 60 * 60)
-        
-        container.mainContext.insert(method)
+
         container.mainContext.insert(item1)
         container.mainContext.insert(item2)
         container.mainContext.insert(item3)
