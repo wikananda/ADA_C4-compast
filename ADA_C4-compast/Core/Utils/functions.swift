@@ -15,6 +15,15 @@ let dateFormatter: DateFormatter = {
 }()
 
 
+// MARK: - Date formatting helper
+extension Date {
+    func ddMMyyyy() -> String {
+        let f = DateFormatter()
+        f.dateFormat = "dd/MM/yyyy"
+        return f.string(from: self)
+    }
+}
+
 // MARK: - Math helpers
 @inlinable func clamp<T: Comparable>(_ x: T, _ lo: T, _ hi: T) -> T {
     min(max(x, lo), hi)

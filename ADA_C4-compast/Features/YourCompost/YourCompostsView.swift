@@ -130,7 +130,7 @@ struct YourCompostsView: View {
                         UpdateCompostView(compostItem: item, navigationPath: $navigationPath)
                     }
                 case .pilePrototype(let id):
-                    if let item = fetchCompost(by: id) {
+                    if let item = compostItems.first(where: { $0.compostItemId == id }) {
                         PilePrototype(compostItem: item)
                             .navigationBarBackButtonHidden(false)
                     } else {

@@ -7,14 +7,6 @@
 
 import SwiftUI
 
-// MARK: - Date formatting helper
-extension Date {
-    func ddMMyyyy() -> String {
-        let f = DateFormatter()
-        f.dateFormat = "dd/MM/yyyy"
-        return f.string(from: self)
-    }
-}
 
 // MARK: - Combined Update Sheet
 

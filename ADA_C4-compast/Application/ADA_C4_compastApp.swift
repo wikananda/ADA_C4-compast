@@ -18,6 +18,8 @@ struct ADA_C4_compastApp: App {
             CompostStack.self,
             CompostFrequency.self,
             CompostContainer.self,
+            PileBand.self,
+            TurnEvent.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
