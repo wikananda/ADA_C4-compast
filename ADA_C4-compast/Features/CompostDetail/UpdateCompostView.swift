@@ -7,6 +7,11 @@
 
 import SwiftUI
 
+enum CompostRoute: Hashable {
+    case pilePrototype(Int)   // compostItemId
+}
+
+
 struct UpdateCompostView: View {
     @Environment(\.modelContext) private var context
 //    let compostItem : CompostItem
@@ -230,7 +235,8 @@ struct UpdateCompostView: View {
                             
                             
                             Button(action: {
-                                navigationPath.append(CompostNavigation.pilePrototype(compostItem.compostItemId))
+                                navigationPath.append(CompostRoute.pilePrototype(compostItem.compostItemId))
+
                             }) {
                                 HStack(){
                                     Image(systemName: "plus")

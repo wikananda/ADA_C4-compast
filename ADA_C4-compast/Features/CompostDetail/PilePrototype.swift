@@ -148,6 +148,7 @@ struct CompostCanvas: View {
                                         bands[idx].isShredded.toggle()
                                         
                                         compostItem.recomputeAndStoreETA(in: modelContext)//Calculate if shredded
+                                        
 
                                     }
                                 }

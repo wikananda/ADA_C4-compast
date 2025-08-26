@@ -20,6 +20,14 @@ struct YourCompostsView: View {
     
     @State private var navigationPath = NavigationPath()
     
+    private func fetchCompost(by id: Int) -> CompostItem? {
+        let descriptor = FetchDescriptor<CompostItem>(
+            predicate: #Predicate { $0.compostItemId == id },
+            sortBy: []
+        )
+        return (try? modelContext.fetch(descriptor))?.first
+    }
+    
     var body: some View {
         NavigationStack(path: $navigationPath) {
             ScrollView {
@@ -78,11 +86,11 @@ struct YourCompostsView: View {
                             .padding(.horizontal, 14)
                             .padding(.vertical, 20)
                             .background(
-                                    RoundedRectangle(cornerRadius: 100)
-                                        .stroke(Color.secondary, lineWidth: 1.5)
-                                        .fill(Color("BrandGreenDark"))
-                                )
-                                
+                                RoundedRectangle(cornerRadius: 100)
+                                    .stroke(Color.secondary, lineWidth: 1.5)
+                                    .fill(Color("BrandGreenDark"))
+                            )
+                            
                         }
                         .padding(.top, 100)
                         
@@ -122,9 +130,12 @@ struct YourCompostsView: View {
                         UpdateCompostView(compostItem: item, navigationPath: $navigationPath)
                     }
                 case .pilePrototype(let id):
-                    // Handle pile prototype navigation
-                    // Replace with actual view when available
-                    Text("Pile Prototype View for ID: \(id)")
+                    if let item = fetchCompost(by: id) {
+                        PilePrototype(compostItem: item)
+                            .navigationBarBackButtonHidden(false)
+                    } else {
+                        Text("Compost not found")
+                    }
                 }
             }
         }
