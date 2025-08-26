@@ -152,7 +152,7 @@ struct UpdateCompostView: View {
                             case .harvested: return .harvested
                             }
                         }())
-
+                        
                     }
                     .padding(.top, 12)
                     
@@ -240,7 +240,7 @@ struct UpdateCompostView: View {
                     
                     // placeholder temperature and moisture
                     VStack(alignment: .leading, spacing: 12) {
-
+                        
                         // Header with formatted log date
                         HStack{
                             Text("Compost Log :  \(compostItem.lastLogged.ddMMyyyy())")
@@ -261,24 +261,24 @@ struct UpdateCompostView: View {
                         }
                         .padding(.top, 24)
                         
-
+                        
                         // Current status tiles (tap to open the combined sheet)
-        //                ZStack(alignment: .trailing) {
-        //                    Text("Temperature: \(compostItem.temperatureCategory)")
-        //                        .frame(maxWidth: .infinity, maxHeight: 60)
-        //                }
-        //                .background(Color.gray.opacity(0.15))
-        //                .cornerRadius(12)
-        //                .onTapGesture { vitalsSheetPresented.toggle() }
-        //
-        //                ZStack(alignment: .trailing) {
-        //                    Text("Moisture: \(compostItem.moistureCategory)")
-        //                        .frame(maxWidth: .infinity, maxHeight: 60)
-        //                }
-        //                .background(Color.gray.opacity(0.1))
-        //                .cornerRadius(12)
-        //                .onTapGesture { vitalsSheetPresented.toggle() }
-
+                        //                ZStack(alignment: .trailing) {
+                        //                    Text("Temperature: \(compostItem.temperatureCategory)")
+                        //                        .frame(maxWidth: .infinity, maxHeight: 60)
+                        //                }
+                        //                .background(Color.gray.opacity(0.15))
+                        //                .cornerRadius(12)
+                        //                .onTapGesture { vitalsSheetPresented.toggle() }
+                        //
+                        //                ZStack(alignment: .trailing) {
+                        //                    Text("Moisture: \(compostItem.moistureCategory)")
+                        //                        .frame(maxWidth: .infinity, maxHeight: 60)
+                        //                }
+                        //                .background(Color.gray.opacity(0.1))
+                        //                .cornerRadius(12)
+                        //                .onTapGesture { vitalsSheetPresented.toggle() }
+                        
                         // Actionable advice
                         VStack(alignment: .leading, spacing: 16){
                             let items = CompostKnowledge.advice(for: compostItem)
@@ -291,9 +291,9 @@ struct UpdateCompostView: View {
                                 .padding(.top, 6)
                                 
                             } else {
-
+                                
                                 ForEach(items) { issue in
-                                   AdviceCard(issue: issue)
+                                    AdviceCard(issue: issue)
                                 }
                             }
                             
@@ -308,7 +308,7 @@ struct UpdateCompostView: View {
                                         .fontWeight(.bold)
                                 }
                                 .foregroundStyle(Color.white).onTapGesture { vitalsSheetPresented.toggle() }
-
+                                
                             }
                             .padding(16)
                             .frame(maxWidth: .infinity ,maxHeight: 50)
@@ -322,24 +322,40 @@ struct UpdateCompostView: View {
                                 .fill(Color.white)
                         )
                     }
+                    .padding(.bottom, 100)
                 }
                 
-
+                
                 Spacer()
                 
                 
-                Button(action: {
-                    
-                }) {
-                    Text(compostItem.harvestedAt != nil ? "SAVED" : "SAVE")
+                VStack{
+                    Button(action: {
+                        
+                    }) {
+                        Text(compostItem.harvestedAt != nil ? "SAVED" : "SAVE")
                             .fontWeight(.bold)
                             .frame(maxWidth: .infinity, maxHeight: 60)
                             .foregroundStyle(Color.white)
+                    }
+                    .padding(16)
+                    .frame(maxWidth: .infinity, maxHeight: 60)
+                    .background(Color("BrandGreenDark"))
+                    .clipShape(Capsule())
                 }
-                .padding(16)
-                .frame(maxWidth: .infinity, maxHeight: 60)
-                .background(Color("BrandGreenDark"))
-                .clipShape(Capsule())
+                .padding(.horizontal, 10)
+                .padding(.top, 48)
+                .padding(.bottom, 0)
+                .background(
+                    LinearGradient(
+                        stops: [
+                            Gradient.Stop(color: .white, location: 0.00),
+                            Gradient.Stop(color: .white.opacity(0), location: 1.00),
+                        ],
+                        startPoint: UnitPoint(x: 0.5, y: 1),
+                        endPoint: UnitPoint(x: 0.5, y: 0)
+                    )
+                )
             }
             
             
