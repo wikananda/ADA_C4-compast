@@ -69,10 +69,13 @@ final class CompostItem {
     var temperatureCategory: String
     var moistureCategory: String
     var creationDate: Date
-    var isHealthy: Bool
+    var isHealthy: Bool 
     
     var lastTurnedOver: Date
     var lastLogged: Date
+    
+    var harvestedAt: Date?  // nil = not harvested, otherwise show “Harvested”
+
     
     // Relationship
     var compostMethodId: CompostMethod?
@@ -82,6 +85,12 @@ final class CompostItem {
 
     @Relationship(deleteRule: .cascade, inverse: \PileBand.compostItemId)
     var pileBands: [PileBand] = []
+    
+    enum Status {
+            case healthy
+            case needAction
+            case harvested
+    }
     
     init(name: String) {
         self.compostItemId = UUID().hashValue
@@ -93,6 +102,16 @@ final class CompostItem {
         self.lastTurnedOver = Date()
         self.lastLogged = Date()
     }
+    
+    var compostStatus: Status {
+          if harvestedAt != nil {
+              return .harvested
+          } else if isHealthy {
+              return .healthy
+          } else {
+              return .needAction
+          }
+      }
 }
 
 extension CompostItem {

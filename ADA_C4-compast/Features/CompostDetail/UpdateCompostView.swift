@@ -52,6 +52,34 @@ struct UpdateCompostView: View {
         Calendar.current.dateComponents([.day], from: createdAt, to: Date()).day ?? 0
     }
     
+    // Menu states
+    @State private var showRenameAlert = false
+    @State private var renameText = ""
+    @State private var showDeleteConfirm = false
+    @State private var isMarkingHarvested = false
+
+    
+    private func markAsHarvested() {
+        compostItem.harvestedAt = Date()
+        try? context.save()
+    }
+
+    private func renameCompost() {
+        let trimmed = renameText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        compostItem.name = trimmed
+        compost_name = trimmed  // keep your local state in sync
+        try? context.save()
+    }
+
+    private func deleteCompost() {
+        context.delete(compostItem)
+        try? context.save()
+        dismiss()
+    }
+
+
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 24){
             
@@ -61,6 +89,7 @@ struct UpdateCompostView: View {
                     dismiss()
                 }){
                     Image(systemName: "chevron.left")
+                        .font(.system(size: 22))
                 }
                 .foregroundStyle(Color("BrandGreenDark"))
                 
@@ -72,11 +101,38 @@ struct UpdateCompostView: View {
                 
                 Spacer()
                 
-                Button(action: {
-                }){
+//                Button(action: {
+//                }){
+//                    Image(systemName: "ellipsis.circle")
+//                        .font(.system(size: 22))
+//                }
+//                .foregroundStyle(Color("BrandGreenDark"))
+                
+                Menu {
+                    Button {
+                        markAsHarvested()
+                    } label: {
+                        Label("Mark As Harvested", systemImage: "checkmark.circle")
+                    }
+
+                    Button {
+                        renameText = compostItem.name
+                        showRenameAlert = true
+                    } label: {
+                        Label("Rename Compost", systemImage: "pencil")
+                    }
+
+                    Button(role: .destructive) {
+                        showDeleteConfirm = true
+                    } label: {
+                        Label("Delete Compost", systemImage: "trash")
+                    }
+                } label: {
                     Image(systemName: "ellipsis.circle")
+                        .font(.system(size: 22))
+                        .foregroundStyle(Color("BrandGreenDark"))
                 }
-                .foregroundStyle(Color("BrandGreenDark"))
+
             }
             
             ZStack (alignment: .bottom){
@@ -89,15 +145,14 @@ struct UpdateCompostView: View {
                         
                         Spacer()
                         
-                        Text(status ? "Healthy" : "Need Action")
-                            .padding(.horizontal,18)
-                            .padding(.vertical,8)
-                            .background(
-                                RoundedRectangle(cornerRadius: 100)
-                                    .fill(status ? Color("Status/Success") : Color("Status/Warning"))
-                            )
-                            .foregroundStyle(Color.white)
-                            .font(.caption)
+                        StatusChip(type: {
+                            switch compostItem.compostStatus {
+                            case .healthy: return .healthy
+                            case .needAction: return .needAction
+                            case .harvested: return .harvested
+                            }
+                        }())
+
                     }
                     .padding(.top, 12)
                     
@@ -274,12 +329,12 @@ struct UpdateCompostView: View {
                 
                 
                 Button(action: {
+                    
                 }) {
-                    HStack(){
-                        Text("SAVE")
+                    Text(compostItem.harvestedAt != nil ? "SAVED" : "SAVE")
                             .fontWeight(.bold)
-                    }
-                    .foregroundStyle(Color.white)
+                            .frame(maxWidth: .infinity, maxHeight: 60)
+                            .foregroundStyle(Color.white)
                 }
                 .padding(16)
                 .frame(maxWidth: .infinity, maxHeight: 60)
@@ -296,6 +351,24 @@ struct UpdateCompostView: View {
         .sheet(isPresented: $vitalsSheetPresented) {
             UpdateCompostVitalsSheet(compostItem: compostItem)
         }
+        .alert("Rename Compost", isPresented: $showRenameAlert) {
+            TextField("Compost name", text: $renameText)
+            Button("Cancel", role: .cancel) {}
+            Button("Rename") { renameCompost() }
+        } message: {
+            Text("Enter a new name for this compost pile.")
+        }
+
+        // Delete confirmation
+        .confirmationDialog("Delete Compost",
+                            isPresented: $showDeleteConfirm,
+                            titleVisibility: .visible) {
+            Button("Delete", role: .destructive) { deleteCompost() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Are you sure you want to delete this compost? This action cannot be undone.")
+        }
+
 
 //        .sheet(isPresented: $tempSheetIsPresented) {
 //            UpdateTemperatureView(selectedTemp: $selectedTemp, compostItem: compostItem)
@@ -366,6 +439,40 @@ struct AdviceCard: View {
         }
     }
 }
+
+struct StatusChip: View {
+    enum ChipType {
+        case healthy, needAction, harvested
+    }
+
+    let type: ChipType
+
+    var body: some View {
+        Text(label)
+            .padding(.horizontal,18)
+            .padding(.vertical,8)
+            .background(RoundedRectangle(cornerRadius: 100).fill(color))
+            .foregroundStyle(.white)
+            .font(.caption)
+    }
+
+    private var label: String {
+        switch type {
+        case .healthy: return "Healthy"
+        case .needAction: return "Need Action"
+        case .harvested: return "Harvested"
+        }
+    }
+
+    private var color: Color {
+        switch type {
+        case .healthy: return Color("Status/Success")
+        case .needAction: return Color("Status/Warning")
+        case .harvested: return .blue
+        }
+    }
+}
+
 
 
 #Preview{
