@@ -72,6 +72,9 @@ final class CompostItem {
     var isHealthy: Bool
     var lastLogged: Date
     var harvestedAt: Date?
+    
+    var estimatedHarvestAt: Date? // auto-recomputed
+
 
     // Relationships
     var compostMethodId: CompostMethod?
@@ -124,6 +127,8 @@ extension CompostItem {
         let event = TurnEvent(date: Date())
         event.compostItem = self
         turnEvents.append(event)
+        event.compostItem?.recomputeAndStoreETA(in: context)
+        
         try? context.save()
     }
 }
@@ -215,3 +220,6 @@ final class TurnEvent {
         self.date = date
     }
 }
+
+
+

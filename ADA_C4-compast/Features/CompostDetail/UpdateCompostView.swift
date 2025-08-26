@@ -197,7 +197,10 @@ struct UpdateCompostView: View {
                             VStack(alignment: .center){
                                 Image(systemName: "checkmark.circle")
                                     .foregroundStyle(Color("Status/Success"))
-                                Text("17 Feb 2025") //still a placeholder
+//                                Text("17 Feb 2025") //still a placeholder
+                                    Text(compostItem.estimatedHarvestAt?.ddMMyyyy() ?? "—")
+                                        .font(.headline).padding(.top, 4)
+
                                     .font(.headline)
                                     .padding(.top, 4)
                                 Text("Est. Harvest")
@@ -408,6 +411,7 @@ struct UpdateCompostView: View {
     
     func MixCompost() {
         compostItem.turnNow(in: context)
+
         try? context.save()
     }
 }

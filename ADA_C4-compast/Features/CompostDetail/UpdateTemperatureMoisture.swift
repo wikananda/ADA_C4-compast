@@ -27,8 +27,8 @@ struct UpdateCompostVitalsSheet: View {
     @State private var selectedMoist: Option?
     @State private var showCheck = false
 
-//    let compostItem: CompostItem
-    @Bindable var compostItem: CompostItem   // ← observe edits live
+    let compostItem: CompostItem
+//    @Bindable var compostItem: CompostItem
 
     var backgroundColor: Color = Color(.systemGroupedBackground)
 
@@ -146,10 +146,12 @@ struct UpdateCompostVitalsSheet: View {
             return
         }
 
-        // step == 1 → save
         compostItem.temperatureCategory = selectedTemp?.title ?? compostItem.temperatureCategory
         compostItem.moistureCategory = selectedMoist?.title ?? compostItem.moistureCategory
         compostItem.lastLogged = Date()
+        
+        compostItem.recomputeAndStoreETA(in: context) //calculate
+
         try? context.save()
 
         // show success

@@ -120,6 +120,9 @@ struct BandView: View {
 // The canvas that stacks bands from bottom up
 struct CompostCanvas: View {
     @Binding var bands: [PileBand]
+    @Environment(\.modelContext) private var modelContext
+
+    let compostItem: CompostItem
 
     private let bandBaseHeight: CGFloat = 120
     private let overlapFactor: CGFloat = 0.7
@@ -143,6 +146,9 @@ struct CompostCanvas: View {
                                 onTap: {
                                     withAnimation(.spring(response: 0.3, dampingFraction: 0.9)) {
                                         bands[idx].isShredded.toggle()
+                                        
+                                        compostItem.recomputeAndStoreETA(in: modelContext)//Calculate if shredded
+
                                     }
                                 }
                             )
@@ -173,6 +179,7 @@ struct CompostCanvas: View {
 struct PilePrototype: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    
     let compostItem: CompostItem
     
     @State private var ratio: CGFloat = 0.0
@@ -203,6 +210,9 @@ struct PilePrototype: View {
         print("bands count: \(bands.count)")
         if type == .green { greenAmount += 1 } else { brownAmount += 1 }
         ratio = calculateRatio()
+        
+        compostItem.recomputeAndStoreETA(in: modelContext)
+
     }
 
     private func loadExistingStacks() {
@@ -279,6 +289,7 @@ struct PilePrototype: View {
                 Button(action: {
                     // do finish action
                     saveCompostStacks()
+                    
                     dismiss()
                 }) {
                     Text("Finish")
@@ -324,7 +335,7 @@ struct PilePrototype: View {
             
             ZStack (alignment: .bottom) {
                 // Pile canvas
-                CompostCanvas(bands: $bands)   // <-- binding
+                CompostCanvas(bands: $bands, compostItem: compostItem)   // <-- binding
                     .frame(maxHeight: .infinity)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .overlay(
@@ -371,6 +382,7 @@ struct PilePrototype: View {
                             label: "+ Green",
                             color: Color("BrandGreenDark", default: Color.green),
                             actions: { withAnimation(){addMaterial(.green)} }
+                            
                         )
                         
                         WasteCard(
