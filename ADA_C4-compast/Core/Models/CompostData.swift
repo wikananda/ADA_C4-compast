@@ -72,6 +72,7 @@ final class CompostItem {
     var isHealthy: Bool
     
     var lastTurnedOver: Date
+    var lastLogged: Date
     
     // Relationship
     var compostMethodId: CompostMethod?
@@ -90,6 +91,7 @@ final class CompostItem {
         self.creationDate = Date()
         self.isHealthy = true
         self.lastTurnedOver = Date()
+        self.lastLogged = Date()
     }
 }
 

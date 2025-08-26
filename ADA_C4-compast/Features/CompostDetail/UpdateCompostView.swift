@@ -9,12 +9,14 @@ import SwiftUI
 
 struct UpdateCompostView: View {
     @Environment(\.modelContext) private var context
-    let compostItem : CompostItem
+//    let compostItem : CompostItem
+    @Bindable var compostItem: CompostItem
     @Environment(\.dismiss) private var dismiss
     
     // Navigation
-    @State private var tempSheetIsPresented: Bool = false
-    @State private var moistureSheetIsPresented: Bool = false
+//    @State private var tempSheetIsPresented: Bool = false
+//    @State private var moistureSheetIsPresented: Bool = false
+    @State private var vitalsSheetPresented: Bool = false
     
     //Compost identity
     @State private var compost_name : String
@@ -31,6 +33,7 @@ struct UpdateCompostView: View {
     @Binding private var navigationPath: NavigationPath
     
     init(compostItem: CompostItem, navigationPath: Binding<NavigationPath>) {
+        self._compostItem = Bindable(compostItem)
         self.compostItem = compostItem
         self.compost_name = compostItem.name
 //        self.compost_method = compostItem.compostMethodId?.name ?? ""
@@ -76,146 +79,213 @@ struct UpdateCompostView: View {
                 .foregroundStyle(Color("BrandGreenDark"))
             }
             
-            //Compost Title
-            HStack(alignment: .center){
-                Text(compost_name)
-                    .font(.title3)
-                    .fontWeight(.bold)
+            ZStack (alignment: .bottom){
+                ScrollView{
+                    //Compost Title
+                    HStack(alignment: .center){
+                        Text(compost_name)
+                            .font(.title3)
+                            .fontWeight(.bold)
+                        
+                        Spacer()
+                        
+                        Text(status ? "Healthy" : "Need Action")
+                            .padding(.horizontal,18)
+                            .padding(.vertical,8)
+                            .background(
+                                RoundedRectangle(cornerRadius: 100)
+                                    .fill(status ? Color("Status/Success") : Color("Status/Warning"))
+                            )
+                            .foregroundStyle(Color.white)
+                            .font(.caption)
+                    }
+                    .padding(.top, 12)
+                    
+                    //Compost Temperature
+                    VStack(spacing: 24){
+                        HStack(alignment: .center){
+                            VStack(alignment: .center){
+                                Image(systemName: "arrow.trianglehead.2.clockwise")
+                                    .foregroundStyle(Color("Status/Success"))
+                                Text(turned_over == 0 ? "Today" : "\(turned_over) days ago")
+                                    .font(.headline)
+                                    .padding(.top, 4)
+                                Text("Last turned")
+                                    .font(.subheadline)
+                            }
+                            
+                            Spacer()
+                            
+                            VStack(alignment: .center){
+                                Image(systemName: "calendar")
+                                    .foregroundStyle(Color("Status/Success"))
+                                Text("\(age) day")
+                                    .font(.headline)
+                                    .padding(.top, 4)
+                                Text("Age")
+                                    .font(.subheadline)
+                            }
+                            
+                            Spacer()
+                            
+                            VStack(alignment: .center){
+                                Image(systemName: "checkmark.circle")
+                                    .foregroundStyle(Color("Status/Success"))
+                                Text("17 Feb 2025") //still a placeholder
+                                    .font(.headline)
+                                    .padding(.top, 4)
+                                Text("Est. Harvest")
+                                    .font(.subheadline)
+                                
+                            }
+                        }
+                        
+                        HStack(spacing: 0){
+                            Button(action: {
+                                MixCompost()
+                            }) {
+                                HStack(){
+                                    Image(systemName: "arrow.trianglehead.2.clockwise")
+                                    Text("Turn Compost")
+                                        .font(.caption)
+                                        .fontWeight(.bold)
+                                }
+                                .foregroundStyle(Color.white)
+                            }
+                            .padding(16)
+                            .frame(maxWidth: .infinity ,maxHeight: 50)
+                            .background(Color("compost/PileDirt"))
+                            .clipShape(Capsule())
+                            
+                            Spacer()
+                            
+                            
+                            Button(action: {
+                                navigationPath.append(CompostNavigation.pilePrototype(compostItem.compostItemId))
+                            }) {
+                                HStack(){
+                                    Image(systemName: "plus")
+                                    Text("Add Material")
+                                        .font(.caption)
+                                        .fontWeight(.bold)
+                                }
+                                .foregroundStyle(Color.white)
+                            }
+                            .padding(16)
+                            .frame(maxWidth: .infinity ,maxHeight: 50)
+                            .background(Color("BrandGreenDark"))
+                            .clipShape(Capsule())
+                        }
+                    }
+                    .padding(24)
+                    .background(
+                        RoundedRectangle(cornerRadius: 24)
+                            .fill(Color.white)
+                    )
+                    
+                    // placeholder temperature and moisture
+                    VStack(alignment: .leading, spacing: 12) {
+
+                        // Header with formatted log date
+                        HStack{
+                            Text("Compost Log :  \(compostItem.lastLogged.ddMMyyyy())")
+                                .font(.headline)
+                                .foregroundStyle(Color("BrandGreenDark"))
+                            
+                            Spacer()
+                            
+                            Text(compostItem.lastLogged > Date().addingTimeInterval(-60*60*24) ? "Updated" : "Not Updated")
+                                .padding(.horizontal,18)
+                                .padding(.vertical,8)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 100)
+                                        .fill(compostItem.lastLogged > Date().addingTimeInterval(-60*60*24) ? Color("Status/Success"): Color("Status/Warning"))
+                                )
+                                .foregroundStyle(Color.white)
+                                .font(.caption)
+                        }
+                        .padding(.top, 24)
+                        
+
+                        // Current status tiles (tap to open the combined sheet)
+        //                ZStack(alignment: .trailing) {
+        //                    Text("Temperature: \(compostItem.temperatureCategory)")
+        //                        .frame(maxWidth: .infinity, maxHeight: 60)
+        //                }
+        //                .background(Color.gray.opacity(0.15))
+        //                .cornerRadius(12)
+        //                .onTapGesture { vitalsSheetPresented.toggle() }
+        //
+        //                ZStack(alignment: .trailing) {
+        //                    Text("Moisture: \(compostItem.moistureCategory)")
+        //                        .frame(maxWidth: .infinity, maxHeight: 60)
+        //                }
+        //                .background(Color.gray.opacity(0.1))
+        //                .cornerRadius(12)
+        //                .onTapGesture { vitalsSheetPresented.toggle() }
+
+                        // Actionable advice
+                        VStack(alignment: .leading, spacing: 16){
+                            let items = CompostKnowledge.advice(for: compostItem)
+                            if items.isEmpty {
+                                HStack(alignment: .top, spacing: 8) {
+                                    Image(systemName: "checkmark.seal.fill").foregroundStyle(.green)
+                                    Text("All good! Your compost looks healthy.")
+                                        .foregroundStyle(.secondary)
+                                }
+                                .padding(.top, 6)
+                                
+                            } else {
+
+                                ForEach(items) { issue in
+                                   AdviceCard(issue: issue)
+                                }
+                            }
+                            
+                            
+                            Button(action: {
+                                navigationPath.append(CompostNavigation.pilePrototype(compostItem.compostItemId))
+                            }) {
+                                HStack(){
+                                    Image(systemName: "plus")
+                                    Text("Update Log")
+                                        .font(.caption)
+                                        .fontWeight(.bold)
+                                }
+                                .foregroundStyle(Color.white).onTapGesture { vitalsSheetPresented.toggle() }
+
+                            }
+                            .padding(16)
+                            .frame(maxWidth: .infinity ,maxHeight: 50)
+                            .background(Color("BrandGreenDark"))
+                            .clipShape(Capsule())
+                        }
+                        
+                        .padding(24)
+                        .background(
+                            RoundedRectangle(cornerRadius: 24)
+                                .fill(Color.white)
+                        )
+                    }
+                }
                 
+
                 Spacer()
                 
-                Text(status ? "Healthy" : "Need Action")
-                    .padding(.horizontal,18)
-                    .padding(.vertical,8)
-                    .background(
-                        RoundedRectangle(cornerRadius: 100)
-                            .fill(status ? Color("Status/Success") : Color("Status/Warning"))
-                    )
+                
+                Button(action: {
+                }) {
+                    HStack(){
+                        Text("SAVE")
+                            .fontWeight(.bold)
+                    }
                     .foregroundStyle(Color.white)
-                    .font(.caption)
+                }
+                .padding(16)
+                .frame(maxWidth: .infinity, maxHeight: 60)
+                .background(Color("BrandGreenDark"))
+                .clipShape(Capsule())
             }
-            .padding(.top, 12)
-            
-            //Compost Temperature
-            VStack(spacing: 24){
-                HStack(alignment: .center){
-                    VStack(alignment: .center){
-                        Image(systemName: "arrow.trianglehead.2.clockwise")
-                            .foregroundStyle(Color("Status/Success"))
-                        Text(turned_over == 0 ? "Today" : "\(turned_over) days ago")
-                            .font(.headline)
-                            .padding(.top, 4)
-                        Text("Last turned")
-                            .font(.subheadline)
-                    }
-                    
-                    Spacer()
-                    
-                    VStack(alignment: .center){
-                        Image(systemName: "calendar")
-                            .foregroundStyle(Color("Status/Success"))
-                        Text("\(age) day")
-                            .font(.headline)
-                            .padding(.top, 4)
-                        Text("Age")
-                            .font(.subheadline)
-                    }
-                    
-                    Spacer()
-                    
-                    VStack(alignment: .center){
-                        Image(systemName: "checkmark.circle")
-                            .foregroundStyle(Color("Status/Success"))
-                        Text("17 Feb 2025")
-                            .font(.headline)
-                            .padding(.top, 4)
-                        Text("Est. Harvest")
-                            .font(.subheadline)
-                        
-                    }
-                }
-                
-                HStack(spacing: 4){
-                    Button(action: {
-                        MixCompost()
-                    }) {
-                        HStack(){
-                            Image(systemName: "arrow.trianglehead.2.clockwise")
-                            Text("Turn Compost")
-                                .font(.caption)
-                                .fontWeight(.bold)
-                        }
-                        .foregroundStyle(Color.white)
-                    }
-                    .padding(16)
-                    .frame(maxWidth: .infinity ,maxHeight: 50)
-                    .background(Color.black.opacity(0.5))
-                    .clipShape(Capsule())
-                    
-                    Spacer()
-                    
-                    
-                    Button(action: {
-                        navigationPath.append(CompostNavigation.pilePrototype(compostItem.compostItemId))
-                    }) {
-                        HStack(){
-                            Image(systemName: "plus")
-                            Text("Add Material")
-                                .font(.caption)
-                                .fontWeight(.bold)
-                        }
-                        .foregroundStyle(Color.white)
-                    }
-                    .padding(16)
-                    .frame(maxWidth: .infinity ,maxHeight: 50)
-                    .background(Color("BrandGreen"))
-                    .clipShape(Capsule())
-                }
-            }
-            .padding(24)
-            .background(
-                RoundedRectangle(cornerRadius: 24)
-                    .fill(Color.white)
-            )
-            
-            // placeholder temperature and moisture
-            VStack (alignment: .leading, spacing: 50) {
-                HStack {
-                    Text("Total Green: \(compostItem.totalGreen)")
-                    Text("Total Brown: \(compostItem.totalBrown)")
-                }
-                ZStack(alignment: .trailing) {
-                    Text("Temperature: \(compostItem.temperatureCategory)")
-                }
-                .frame(maxWidth: .infinity, maxHeight: 100)
-                .background(Color.gray)
-                .cornerRadius(10)
-                .onTapGesture { tempSheetIsPresented.toggle() }
-                
-                ZStack(alignment: .trailing) {
-                    Text("Moisture: \(compostItem.moistureCategory)")
-                }
-                .frame(maxWidth: .infinity, maxHeight: 100)
-                .background(Color.gray.opacity(0.5))
-                .cornerRadius(10)
-                .onTapGesture { moistureSheetIsPresented.toggle() }
-            }
-            
-            Spacer()
-            
-            
-            Button(action: {
-            }) {
-                HStack(){
-                    Text("SAVE")
-                        .fontWeight(.bold)
-                }
-                .foregroundStyle(Color.white)
-            }
-            .padding(16)
-            .frame(maxWidth: .infinity, maxHeight: 60)
-            .background(Color("BrandGreen"))
-            .clipShape(Capsule())
             
             
             
@@ -223,12 +293,16 @@ struct UpdateCompostView: View {
         .padding(.horizontal, 24)
         .background(Color("Status/Background"))
         .navigationBarHidden(true)
-        .sheet(isPresented: $tempSheetIsPresented) {
-            UpdateTemperatureView(selectedTemp: $selectedTemp, compostItem: compostItem)
+        .sheet(isPresented: $vitalsSheetPresented) {
+            UpdateCompostVitalsSheet(compostItem: compostItem)
         }
-        .sheet(isPresented: $moistureSheetIsPresented) {
-            UpdateMoistureView(selectedMoist: $selectedMoisture, compostItem: compostItem)
-        }
+
+//        .sheet(isPresented: $tempSheetIsPresented) {
+//            UpdateTemperatureView(selectedTemp: $selectedTemp, compostItem: compostItem)
+//        }
+//        .sheet(isPresented: $moistureSheetIsPresented) {
+//            UpdateMoistureView(selectedMoist: $selectedMoisture, compostItem: compostItem)
+//        }
     }
       
     
@@ -237,6 +311,62 @@ struct UpdateCompostView: View {
         try? context.save()
     }
 }
+
+// MARK: - Advice Card
+
+struct AdviceCard: View {
+    let issue: CompostProblem
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                Image(systemName: iconFor(issue.category))
+//                    .foregroundStyle(Color("Status/Danger"))
+                    .foregroundStyle(.red)
+                Text(issue.title)
+                    .font(.headline)
+//                    .foregroundStyle(Color("Status/Danger"))
+                    .foregroundStyle(.red)
+            }
+//            Text(issue.issue)
+//                .font(.subheadline)
+//                .foregroundStyle(.secondary)
+
+            Divider().opacity(0.5)
+
+            Label {
+                Text(issue.solution)
+                    .font(.subheadline)
+                    .fixedSize(horizontal: false, vertical: true) // allow wrapping
+                    .foregroundStyle(.secondary)
+            } icon: {
+                Image(systemName: "lightbulb")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            if let tip = issue.tip, !tip.isEmpty {
+                Label(tip, systemImage: "info.circle")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(.bottom, 24)
+//        .padding(16)
+//        .background(RoundedRectangle(cornerRadius: 16).fill(Color.white))
+//        .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 4)
+    }
+
+    private func iconFor(_ cat: CompostCategory) -> String {
+        switch cat {
+        case .moisture: return "drop"
+        case .temperature: return "thermometer"
+        case .balance: return "scalemass"
+        case .sizing: return "scissors"
+        case .aeration: return "wind"
+        }
+    }
+}
+
 
 #Preview{
     // Dummy for visualization
@@ -262,3 +392,4 @@ struct UpdateCompostView: View {
     
     return UpdateCompostView(compostItem: compost, navigationPath: $navigationPath)
 }
+

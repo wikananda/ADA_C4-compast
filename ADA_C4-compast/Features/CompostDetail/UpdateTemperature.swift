@@ -47,6 +47,7 @@ struct UpdateMoistureView: View {
                 Spacer()
                 Button(action: {
                     compostItem.moistureCategory = selectedMoist?.title ?? "Dry"
+                    compostItem.lastLogged = Date()
                     try? context.save()
                     dismiss()
                 }) {
@@ -90,15 +91,18 @@ struct UpdateTemperatureView: View {
     private let options: [Option] = [
         .init(icon: "square.split.bottomrightquarter.fill",
               title: "Cold",
-              subtitle: "(< 38°C) Still in room temperature. Not good.",
+              subtitle: "(< 38°C) Room temperature",
+//              subtitle: "(< 38°C) Still in room temperature. Not good.",
               tint: .orange),
         .init(icon: "square.dashed.inset.filled",
               title: "Warm",
-              subtitle: "(38°C - 65°C) Bacteria is thriving at this temperature",
+              subtitle: "(38°C - 65°C) Warm feeling",
+//              subtitle: "(38°C - 65°C) Bacteria is thriving at this temperature",
               tint: .green),
         .init(icon: "ruler",
               title: "Hot",
-              subtitle: "(> 65°C) Bacteria will die! Add more brown waste, or add more water",
+              subtitle: "(> 65°C) Feels hot to touch",
+//              subtitle: "(> 65°C) Bacteria will die! Add more brown waste, or add more water",
               tint: .blue)
     ]
     var body: some View {
@@ -115,6 +119,7 @@ struct UpdateTemperatureView: View {
                 Spacer()
                 Button(action: {
                     compostItem.temperatureCategory = selectedTemp?.title ?? "Warm"
+                    compostItem.lastLogged = Date()
                     try? context.save()
                     dismiss()
                 }) {

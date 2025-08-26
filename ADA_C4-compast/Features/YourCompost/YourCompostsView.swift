@@ -112,20 +112,19 @@ struct YourCompostsView: View {
                     NewCompostView()
                 }
             }
-            .navigationDestination(for: CompostNavigation.self) { nav in
-                switch nav {
-                case .updateCompost(let itemId):
-                    if let item = compostItems.first(where: {$0.compostItemId == itemId}) {
+            .navigationDestination(for: CompostItem.self) { item in
+                UpdateCompostView(compostItem: item, navigationPath: $navigationPath)
+            }
+            .navigationDestination(for: CompostNavigation.self) { navigation in
+                switch navigation {
+                case .updateCompost(let id):
+                    if let item = compostItems.first(where: { $0.compostItemId == id }) {
                         UpdateCompostView(compostItem: item, navigationPath: $navigationPath)
-                    } else {
-                        Text("Compost Item not found")
                     }
-                case .pilePrototype(let itemId):
-                    if let item = compostItems.first(where: {$0.compostItemId == itemId}) {
-                        PilePrototype(compostItem: item)
-                    } else {
-                        Text("Compost item not found")
-                    }
+                case .pilePrototype(let id):
+                    // Handle pile prototype navigation
+                    // Replace with actual view when available
+                    Text("Pile Prototype View for ID: \(id)")
                 }
             }
         }
