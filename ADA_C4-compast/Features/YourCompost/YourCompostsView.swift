@@ -158,19 +158,19 @@ let previewContainer: ModelContainer = {
         )
         item1.compostMethodId = method
         item1.creationDate = Date().addingTimeInterval(-14 * 24 * 60 * 60)
-        item1.lastTurnedOver = Date().addingTimeInterval(-5 * 24 * 60 * 60)
+//        item1.lastTurnedOver = Date().addingTimeInterval(-5 * 24 * 60 * 60)
         
         let item2 = CompostItem(
             name: "Second pile"
         )
         item2.compostMethodId = method
         item2.creationDate = Date().addingTimeInterval(-7 * 24 * 60 * 60)
-        item2.lastTurnedOver = Date().addingTimeInterval(-3 * 24 * 60 * 60)
+//        item2.lastTurnedOver = Date().addingTimeInterval(-3 * 24 * 60 * 60)
         
         let item3 = CompostItem(name: "Third pile")
         item3.compostMethodId = method
         item3.creationDate = Date().addingTimeInterval(-5 * 24 * 60 * 60)
-        item3.lastTurnedOver = Date().addingTimeInterval(-2 * 24 * 60 * 60)
+//        item3.lastTurnedOver = Date().addingTimeInterval(-2 * 24 * 60 * 60)
 
         container.mainContext.insert(item1)
         container.mainContext.insert(item2)

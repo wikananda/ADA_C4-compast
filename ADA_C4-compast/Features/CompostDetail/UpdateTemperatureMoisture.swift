@@ -182,7 +182,8 @@ struct UpdateCompostVitalsSheet: View {
     compost.compostMethodId = method
     let threeDaysAgo = Date().addingTimeInterval(-3 * 24 * 60 * 60)
     compost.creationDate = threeDaysAgo
-    compost.lastTurnedOver = threeDaysAgo
+//    compost.lastTurnedOver = threeDaysAgo
+    compost.turnEvents = [TurnEvent(date: threeDaysAgo)]
     
     return UpdateCompostVitalsSheet(compostItem: compost)
 }

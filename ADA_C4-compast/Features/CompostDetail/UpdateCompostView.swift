@@ -45,9 +45,9 @@ struct UpdateCompostView: View {
     }
     
     // Calculated variables
-    private var turned_over: Int {
-        Calendar.current.dateComponents([.day], from: compostItem.lastTurnedOver, to: Date()).day ?? 0
-    }
+//    private var turned_over: Int {
+//        Calendar.current.dateComponents([.day], from: compostItem.lastTurnedOver, to: Date()).day ?? 0
+//    }
     private var age: Int {
         Calendar.current.dateComponents([.day], from: createdAt, to: Date()).day ?? 0
     }
@@ -78,6 +78,17 @@ struct UpdateCompostView: View {
         dismiss()
     }
 
+    private var turned_over_text: String {
+        if let days = compostItem.daysSinceLastTurn {
+            return days == 0 ? "Today" : "\(days) days ago"
+        } else {
+            return "Never"
+        }
+    }
+    
+    private var turn_count_text: String {
+        "\(compostItem.turnCount)"
+    }
 
     
     var body: some View {
@@ -162,7 +173,7 @@ struct UpdateCompostView: View {
                             VStack(alignment: .center){
                                 Image(systemName: "arrow.trianglehead.2.clockwise")
                                     .foregroundStyle(Color("Status/Success"))
-                                Text(turned_over == 0 ? "Today" : "\(turned_over) days ago")
+                                Text(turned_over_text)          // "Today" / "3 days ago" / "Never"
                                     .font(.headline)
                                     .padding(.top, 4)
                                 Text("Last turned")
@@ -396,7 +407,7 @@ struct UpdateCompostView: View {
       
     
     func MixCompost() {
-        compostItem.lastTurnedOver = Date()
+        compostItem.turnNow(in: context)
         try? context.save()
     }
 }
@@ -511,7 +522,8 @@ struct StatusChip: View {
     compost.compostMethodId = method // 1 is hot compost (predefined)
     let threeDaysAgo = Date().addingTimeInterval(-3 * 24 * 60 * 60)
     compost.creationDate = threeDaysAgo
-    compost.lastTurnedOver = threeDaysAgo
+//    compost.lastTurnedOver = threeDaysAgo
+    compost.turnEvents = [TurnEvent(date: threeDaysAgo)]
     
     return UpdateCompostView(compostItem: compost, navigationPath: $navigationPath)
 }
