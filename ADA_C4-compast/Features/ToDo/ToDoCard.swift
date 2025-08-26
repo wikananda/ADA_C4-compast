@@ -171,7 +171,7 @@ struct CompactTaskCard: View {
                 // Task Type with icon
                 HStack(spacing: 6) {
                     Image(systemName: "doc.text")
-                        .font(.system(size: 16))
+                        .font(.system(size: 18))
                         .foregroundColor(isUpcoming ? Color.gray.opacity(0.5) : Color(hex: "2D3E2D"))
                     
                     Text(task.taskType)
@@ -195,6 +195,7 @@ struct CompactTaskCard: View {
         )
         .opacity(isUpcoming ? 0.6 : 1.0)
         .onTapGesture(perform: onTap)
+        .transition(.blurReplace)
     }
 }
 
@@ -206,37 +207,37 @@ struct ExpandedTaskCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            HStack(alignment: .top, spacing: 20) {
+            HStack(alignment: .center, spacing: 16) {
                 // Large Completion Circle
                 Button(action: onToggle) {
                     ZStack {
                         Circle()
                             .fill(task.isCompleted ? Color(hex: "4A6741") : Color(hex: "D3D3D3"))
-                            .frame(width: 80, height: 80)
+                            .frame(width: 44, height: 44)
                         
                         if task.isCompleted {
                             Image(systemName: "checkmark")
-                                .font(.system(size: 40, weight: .bold))
+                                .font(.system(size: 20, weight: .bold))
                                 .foregroundColor(.white)
                         }
                     }
                 }
                 
-                VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: 6) {
                     // Task Type with icon
                     HStack(spacing: 8) {
                         Image(systemName: "doc.text")
-                            .font(.system(size: 24))
+                            .font(.system(size: 20))
                             .foregroundColor(Color(hex: "2D3E2D"))
                         
                         Text(task.taskType)
-                            .font(.system(size: 32, weight: .semibold))
+                            .font(.system(size: 20, weight: .semibold))
                             .foregroundColor(Color(hex: "2D3E2D"))
                     }
                     
                     // Compost Name
                     Text(task.compostName)
-                        .font(.system(size: 28, weight: .regular))
+                        .font(.system(size: 18, weight: .regular))
                         .foregroundColor(Color(hex: "4D4D4D"))
                 }
                 
@@ -268,12 +269,15 @@ struct ExpandedTaskCard: View {
                     .padding(.top, 10)
             }
         }
-        .padding(30)
+        .padding(.horizontal, 20)
+        .padding(.vertical, 18)
         .background(
             RoundedRectangle(cornerRadius: 25)
+                .stroke(style: StrokeStyle(lineWidth: 1))
                 .fill(task.isCompleted ? Color(hex: "C7CCC7") : Color(hex: "E8E8E8"))
         )
         .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
+        .transition(.blurReplace)
     }
 }
 
