@@ -18,7 +18,7 @@ struct UpdateCompostView: View {
     
     //Compost identity
     @State private var compost_name : String
-    @State private var compost_method : String
+//    @State private var compost_method : String
     @State private var status : Bool
     
     //Compost Stats
@@ -33,7 +33,7 @@ struct UpdateCompostView: View {
     init(compostItem: CompostItem, navigationPath: Binding<NavigationPath>) {
         self.compostItem = compostItem
         self.compost_name = compostItem.name
-        self.compost_method = compostItem.compostMethodId?.name ?? ""
+//        self.compost_method = compostItem.compostMethodId?.name ?? ""
         self.status = compostItem.isHealthy
         self.createdAt = compostItem.creationDate
         self.currentTemperatureCategory = compostItem.temperatureCategory
@@ -245,16 +245,17 @@ struct UpdateCompostView: View {
     let method = CompostMethod(
         compostMethodId: 1,
         name: "Hot Compost",
-        descriptionText: "",
+        descriptionText: "Fast composting method for active gardeners",
         compostDuration1: 30,
         compostDuration2: 180,
         spaceNeeded1: 1,
-        spaceNeeded2: 4,
+        spaceNeeded2: 4
     )
+    
     let compost = CompostItem(
         name: "Makmum Pile"
     )
-    compost.compostMethodId = method
+    compost.compostMethodId = method // 1 is hot compost (predefined)
     let threeDaysAgo = Date().addingTimeInterval(-3 * 24 * 60 * 60)
     compost.creationDate = threeDaysAgo
     compost.lastTurnedOver = threeDaysAgo
