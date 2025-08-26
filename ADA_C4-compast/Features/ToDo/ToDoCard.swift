@@ -45,7 +45,17 @@ struct CompostToDoListView: View {
     
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 30) {
+            VStack(alignment: .leading, spacing: 50) {
+                HStack (spacing: 10) {
+                    Image("compost/logo-dark-green")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(height: 32)
+                    Text("To Do")
+                        .font(.custom("KronaOne-Regular", size: 20))
+                        .foregroundStyle(Color("BrandGreenDark"))
+                }
+                
                 // Today Section
                 VStack(alignment: .leading, spacing: 16) {
                     SectionHeader(title: "Today", icon: "calendar")
@@ -74,6 +84,8 @@ struct CompostToDoListView: View {
                         }
                     }
                 }
+                Color.clear
+                    .frame(height: 75)
             }
             .padding()
         }
@@ -97,11 +109,11 @@ struct SectionHeader: View {
     var body: some View {
         HStack(spacing: 10) {
             Image(systemName: icon)
-                .font(.system(size: 20, weight: .medium))
+                .font(.system(size: 16, weight: .medium))
                 .foregroundColor(Color(hex: "2D3E2D"))
             
             Text(title)
-                .font(.system(size: 28, weight: .semibold))
+                .font(.system(size: 16, weight: .semibold))
                 .foregroundColor(Color(hex: "2D3E2D"))
         }
         .padding(.horizontal, 4)
@@ -156,39 +168,39 @@ struct CompactTaskCard: View {
                 ZStack {
                     Circle()
                         .fill(task.isCompleted ? Color(hex: "4A6741") : Color(hex: "D3D3D3"))
-                        .frame(width: 44, height: 44)
+                        .frame(width: 24, height: 24)
                     
                     if task.isCompleted {
                         Image(systemName: "checkmark")
-                            .font(.system(size: 20, weight: .bold))
+                            .font(.system(size: 12, weight: .bold))
                             .foregroundColor(.white)
                     }
                 }
             }
             .disabled(isUpcoming)
             
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 10) {
                 // Task Type with icon
-                HStack(spacing: 6) {
+                HStack(spacing: 10) {
                     Image(systemName: "doc.text")
-                        .font(.system(size: 18))
+                        .font(.system(size: 16))
                         .foregroundColor(isUpcoming ? Color.gray.opacity(0.5) : Color(hex: "2D3E2D"))
                     
                     Text(task.taskType)
-                        .font(.system(size: 20, weight: .semibold))
+                        .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(isUpcoming ? Color.gray.opacity(0.5) : Color(hex: "2D3E2D"))
                 }
                 
                 // Compost Name
                 Text(task.compostName)
-                    .font(.system(size: 18, weight: .regular))
+                    .font(.system(size: 16, weight: .regular))
                     .foregroundColor(isUpcoming ? Color.gray.opacity(0.5) : Color(hex: "4D4D4D"))
             }
             
             Spacer()
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 18)
+        .padding(.horizontal, 24)
+        .padding(.vertical, 24)
         .background(
             RoundedRectangle(cornerRadius: 20)
                 .fill(task.isCompleted ? Color(hex: "C7CCC7") : Color.white)
@@ -213,31 +225,31 @@ struct ExpandedTaskCard: View {
                     ZStack {
                         Circle()
                             .fill(task.isCompleted ? Color(hex: "4A6741") : Color(hex: "D3D3D3"))
-                            .frame(width: 44, height: 44)
+                            .frame(width: 24, height: 24)
                         
                         if task.isCompleted {
                             Image(systemName: "checkmark")
-                                .font(.system(size: 20, weight: .bold))
+                                .font(.system(size: 12, weight: .bold))
                                 .foregroundColor(.white)
                         }
                     }
                 }
                 
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: 10) {
                     // Task Type with icon
-                    HStack(spacing: 8) {
+                    HStack(spacing: 10) {
                         Image(systemName: "doc.text")
-                            .font(.system(size: 20))
+                            .font(.system(size: 16))
                             .foregroundColor(Color(hex: "2D3E2D"))
                         
                         Text(task.taskType)
-                            .font(.system(size: 20, weight: .semibold))
+                            .font(.system(size: 16, weight: .semibold))
                             .foregroundColor(Color(hex: "2D3E2D"))
                     }
                     
                     // Compost Name
                     Text(task.compostName)
-                        .font(.system(size: 18, weight: .regular))
+                        .font(.system(size: 16, weight: .regular))
                         .foregroundColor(Color(hex: "4D4D4D"))
                 }
                 
@@ -269,14 +281,15 @@ struct ExpandedTaskCard: View {
                     .padding(.top, 10)
             }
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 18)
+        .padding(.horizontal, 24)
+        .padding(.vertical, 24)
         .background(
             RoundedRectangle(cornerRadius: 25)
                 .stroke(style: StrokeStyle(lineWidth: 1))
                 .fill(task.isCompleted ? Color(hex: "C7CCC7") : Color(hex: "E8E8E8"))
         )
         .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
+        .onTapGesture(perform: onTap)
         .transition(.blurReplace)
     }
 }
