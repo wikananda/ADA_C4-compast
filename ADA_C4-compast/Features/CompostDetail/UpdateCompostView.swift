@@ -11,6 +11,27 @@ enum CompostRoute: Hashable {
     case pilePrototype(Int)   // compostItemId
 }
 
+extension Date {
+    func daysUntil(_ targetDate: Date) -> Int {
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.day], from: self, to: targetDate)
+        return components.day ?? 0
+    }
+}
+
+func daysRemainingText(from currentDate: Date, to targetDate: Date?) -> String {
+    guard let targetDate = targetDate else { return "—" }
+    
+    let daysRemaining = currentDate.daysUntil(targetDate)
+    
+    if daysRemaining > 0 {
+        return "\(daysRemaining) days left"
+    } else if daysRemaining == 0 {
+        return "Today"
+    } else {
+        return "\(abs(daysRemaining)) days overdue"
+    }
+}
 
 struct UpdateCompostView: View {
     @Environment(\.modelContext) private var context
@@ -36,6 +57,7 @@ struct UpdateCompostView: View {
     @State private var selectedMoisture: Option?
     
     @Binding private var navigationPath: NavigationPath
+//    var estimatedHarvestDate: Date?
     
     init(compostItem: CompostItem, navigationPath: Binding<NavigationPath>) {
         self._compostItem = Bindable(compostItem)
@@ -46,7 +68,7 @@ struct UpdateCompostView: View {
         self.createdAt = compostItem.creationDate
         self.currentTemperatureCategory = compostItem.temperatureCategory
         self._navigationPath = navigationPath
-
+//        self.estimatedHarvestDate = compostItem.harvestedAt
     }
     
     // Calculated variables
@@ -56,6 +78,14 @@ struct UpdateCompostView: View {
     private var age: Int {
         Calendar.current.dateComponents([.day], from: createdAt, to: Date()).day ?? 0
     }
+    
+//    private var estimatedHarvestDay: Int {
+//        if let estimatedHarvestDate = self.estimatedHarvestDate {
+//            return Calendar.current.dateComponents([.day], from: Date(), to: estimatedHarvestDate).day ?? 0
+//        } else {
+//            return 0
+//        }
+//    }
     
     // Menu states
     @State private var showRenameAlert = false
@@ -203,11 +233,10 @@ struct UpdateCompostView: View {
                                 Image(systemName: "checkmark.circle")
                                     .foregroundStyle(Color("Status/Success"))
 //                                Text("17 Feb 2025") //still a placeholder
-                                    Text(compostItem.estimatedHarvestAt?.ddMMyyyy() ?? "—")
-                                        .font(.headline).padding(.top, 4)
-
+                                Text(daysRemainingText(from: Date(), to: compostItem.estimatedHarvestAt))
                                     .font(.headline)
                                     .padding(.top, 4)
+
                                 Text("Est. Harvest")
                                     .font(.subheadline)
                                 
@@ -281,24 +310,6 @@ struct UpdateCompostView: View {
                         }
                         .padding(.top, 24)
                         
-                        
-                        // Current status tiles (tap to open the combined sheet)
-                        //                ZStack(alignment: .trailing) {
-                        //                    Text("Temperature: \(compostItem.temperatureCategory)")
-                        //                        .frame(maxWidth: .infinity, maxHeight: 60)
-                        //                }
-                        //                .background(Color.gray.opacity(0.15))
-                        //                .cornerRadius(12)
-                        //                .onTapGesture { vitalsSheetPresented.toggle() }
-                        //
-                        //                ZStack(alignment: .trailing) {
-                        //                    Text("Moisture: \(compostItem.moistureCategory)")
-                        //                        .frame(maxWidth: .infinity, maxHeight: 60)
-                        //                }
-                        //                .background(Color.gray.opacity(0.1))
-                        //                .cornerRadius(12)
-                        //                .onTapGesture { vitalsSheetPresented.toggle() }
-                        
                         // Actionable advice
                         VStack(alignment: .leading, spacing: 16){
                             let items = CompostKnowledge.advice(for: compostItem)
@@ -308,21 +319,6 @@ struct UpdateCompostView: View {
 
                             let moistureIssue = items.first(where: { $0.category == .moisture })
                             AdviceCard(category: .moisture, issue: moistureIssue)
-                            // if items.isEmpty {
-                            //     HStack(alignment: .top, spacing: 8) {
-                            //         Image(systemName: "checkmark.seal.fill").foregroundStyle(.green)
-                            //         Text("All good! Your compost looks healthy.")
-                            //             .foregroundStyle(.secondary)
-                            //     }
-                            //     .padding(.top, 6)
-                                
-                            // } else {
-                                
-                            //     ForEach(items) { issue in
-                            //         AdviceCard(issue: issue)
-                            //     }
-//                          }
-                            
                             
                             Button(action: {
                                 navigationPath.append(CompostNavigation.pilePrototype(compostItem.compostItemId))
