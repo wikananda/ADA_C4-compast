@@ -70,18 +70,26 @@ final class CompostItem {
     var moistureCategory: String
     var creationDate: Date
     var isHealthy: Bool
+    var lastLogged: Date
+    var harvestedAt: Date?
     
-    var lastTurnedOver: Date
-    
-    // Relationship
+    var estimatedHarvestAt: Date? // auto-recomputed
+
+
+    // Relationships
     var compostMethodId: CompostMethod?
-    
+
     @Relationship(deleteRule: .cascade, inverse: \CompostStack.compostItemId)
     var compostStacks: [CompostStack] = []
 
     @Relationship(deleteRule: .cascade, inverse: \PileBand.compostItemId)
     var pileBands: [PileBand] = []
-    
+
+    @Relationship(deleteRule: .cascade, inverse: \TurnEvent.compostItem)
+    var turnEvents: [TurnEvent] = []     // <<< NEW
+
+    enum Status { case healthy, needAction, harvested }
+
     init(name: String) {
         self.compostItemId = UUID().hashValue
         self.name = name
@@ -89,7 +97,41 @@ final class CompostItem {
         self.moistureCategory = "Dry"
         self.creationDate = Date()
         self.isHealthy = true
-        self.lastTurnedOver = Date()
+        self.lastLogged = Date()
+    }
+
+    // MARK: - Status
+    var compostStatus: Status {
+        if harvestedAt != nil { return .harvested }
+        return isHealthy ? .healthy : .needAction
+    }
+
+    // MARK: - Turn helpers
+    /// Number of times the pile has been turned.
+    var turnCount: Int { turnEvents.count }
+
+    /// Most recent turning date, if any.
+    var lastTurnedOver: Date? {
+        turnEvents.max(by: { $0.date < $1.date })?.date
+    }
+
+    /// Days since last turning (nil if never turned).
+    var daysSinceLastTurn: Int? {
+        guard let last = lastTurnedOver else { return nil }
+        return Calendar.current.dateComponents([.day], from: last, to: Date()).day
+    }
+}
+
+extension CompostItem {
+    func turnNow(in context: ModelContext) {
+        let event = TurnEvent(date: Date())
+        event.compostItem = self
+        turnEvents.append(event)
+        event.compostItem?.recomputeAndStoreETA(in: context)
+        
+        
+        
+        try? context.save()
     }
 }
 
@@ -166,3 +208,20 @@ final class CompostContainer {
         self.containerDescription = containerDescription
     }
 }
+
+@Model
+final class TurnEvent {
+    @Attribute(.unique) var turnEventId: Int
+    var date: Date
+
+    // Relationship
+    var compostItem: CompostItem?
+
+    init(date: Date = Date()) {
+        self.turnEventId = UUID().hashValue
+        self.date = date
+    }
+}
+
+
+

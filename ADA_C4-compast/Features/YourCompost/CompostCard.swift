@@ -110,14 +110,13 @@ struct CompostCard: View {
                     Spacer()
                     
                     // Status Badge
-                    Text(statusText)
-                        .font(.caption)
-                        .fontWeight(.medium)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(statusColor)
-                        .foregroundColor(.white)
-                        .clipShape(Capsule())
+                    StatusChip(type: {
+                        switch compostItem.compostStatus {
+                        case .healthy: return .healthy
+                        case .needAction: return .needAction
+                        case .harvested: return .harvested
+                        }
+                    }())
                 }
                 
                 // Metrics Section

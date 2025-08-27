@@ -8,20 +8,11 @@
 import SwiftUI
 
 
-
 // Which material was added
 enum MaterialType: String, Identifiable, Hashable {
     case green, brown
     var id: String { rawValue }
 }
-
-// One band = one bucket
-//struct PileBand: Identifiable {
-//    let id = UUID()
-//    let type: MaterialType
-//    var isShredded: Bool = false
-//}
-
 
 // A wavy shape for the band top
 struct WavyTopShape: Shape {
@@ -55,7 +46,6 @@ struct WavyTopShape: Shape {
     }
 }
 
-
 // One visual band (color + subtle pattern)
 struct PileBandView: View {
     let type: MaterialType
@@ -63,17 +53,16 @@ struct PileBandView: View {
     let isShredded: Bool
 
     var body: some View {
-        let base = type == .green ? Color("compost/PileGreen", default: Color.green.opacity(0.6))
-                                  : Color("compost/PileBrown", default: Color.brown.opacity(0.7))
+        let base = (type == .green)
+            ? Color("compost/PileGreen", fallback: Color.green.opacity(0.6))
+            : Color("compost/PileBrown", fallback: Color.brown.opacity(0.7))
 
         ZStack {
             base
-//            LinearGradient(colors: [Color.white.opacity(0.5), .clear],
-//                           startPoint: .topLeading, endPoint: .bottomTrailing)
 
             // Shredded texture overlay (masked to the same wavy shape)
             if isShredded {
-                Image("compost/shredded-overlay")
+                Image.named("compost/shredded-overlay")
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .opacity(1)
@@ -99,7 +88,6 @@ struct BandView: View {
     let onTap: () -> Void
 
     var body: some View {
-        let z = Double(totalBands - index)
         let materialType = MaterialType(rawValue: band.materialType) ?? .green
 
         PileBandView(
@@ -116,10 +104,12 @@ struct BandView: View {
     }
 }
 
-
 // The canvas that stacks bands from bottom up
 struct CompostCanvas: View {
     @Binding var bands: [PileBand]
+    @Environment(\.modelContext) private var modelContext
+
+    let compostItem: CompostItem
 
     private let bandBaseHeight: CGFloat = 120
     private let overlapFactor: CGFloat = 0.7
@@ -128,7 +118,7 @@ struct CompostCanvas: View {
     var body: some View {
         GeometryReader { geo in
             let overlap = bandBaseHeight * overlapFactor
-            let contentHeight = CGFloat(bands.count) * (bandBaseHeight - overlap) + overlap // bandBaseHeight + (N - 1) * (bandBaseHeight - overlap)
+            let contentHeight = CGFloat(bands.count) * (bandBaseHeight - overlap) + overlap
 
             ScrollView(.vertical, showsIndicators: true) {
                 VStack(spacing: 0) {
@@ -143,6 +133,7 @@ struct CompostCanvas: View {
                                 onTap: {
                                     withAnimation(.spring(response: 0.3, dampingFraction: 0.9)) {
                                         bands[idx].isShredded.toggle()
+                                        compostItem.recomputeAndStoreETA(in: modelContext)
                                     }
                                 }
                             )
@@ -152,27 +143,18 @@ struct CompostCanvas: View {
                         Color.clear.frame(height: initialOffset)
                     }
                 }
-                .frame(
-                    maxWidth: .infinity,
-                    alignment: .bottom
-                )
+                .frame(maxWidth: .infinity, alignment: .bottom)
                 .frame(height: max(geo.size.height, contentHeight + initialOffset), alignment: .bottom)
-//                .frame(
-//                    maxWidth: .infinity,
-//                    minHeight: geo.size.height,
-//                    idealHeight: contentHeight,
-//                    alignment: .bottom
-//                )
                 .padding(.vertical, 16)
             }
         }
     }
 }
-    
 
 struct PilePrototype: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    
     let compostItem: CompostItem
     
     @State private var ratio: CGFloat = 0.0
@@ -182,27 +164,29 @@ struct PilePrototype: View {
     
     @State private var dropZoneArea: CGRect = .zero
     
-    @State var recommendation: String = "This is a recommendation"
+    @State private var rec: BalanceRecommendation = computeBalanceRecommendation(browns: 0, greens: 0)
+
+    @discardableResult
+    func refreshBalance() -> CGFloat {
+        let total = max(greenAmount + brownAmount, 1)
+        let brownShare = CGFloat(brownAmount) / CGFloat(total)
+        rec = computeBalanceRecommendation(browns: brownAmount, greens: greenAmount)
+        return brownShare
+    }
     
     @State private var bands: [PileBand] = []
-    
     private var hasAnyMaterial: Bool { !bands.isEmpty }
 
-//    private let maxPerType = 10
     private func addMaterial(_ type: MaterialType) {
-//        let countForType = bands.filter { $0.materialType == type.rawValue }.count
-//        guard countForType < maxPerType else { return }
-        
         let pileBand = PileBand(
             materialType: type.rawValue,
             isShredded: false,
-            order: bands.count,
+            order: bands.count
         )
         bands.append(pileBand)
-//        bands.insert(pileBand, at: 0)
-        print("bands count: \(bands.count)")
         if type == .green { greenAmount += 1 } else { brownAmount += 1 }
-        ratio = calculateRatio()
+        ratio = refreshBalance()
+        compostItem.recomputeAndStoreETA(in: modelContext)
     }
 
     private func loadExistingStacks() {
@@ -215,69 +199,38 @@ struct PilePrototype: View {
             )
         }
         initialStackCount = bands.count
-
         greenAmount = stacks.reduce(0) { $0 + $1.greenAmount }
         brownAmount = stacks.reduce(0) { $0 + $1.brownAmount }
-        ratio = calculateRatio()
+        ratio = refreshBalance()
     }
 
     private func saveCompostStacks() {
-        // let existingStacks = compostItem.compostStacks
-        // existingStacks.forEach { modelContext.delete($0)}
         guard bands.count > initialStackCount else { return }
         for band in bands[initialStackCount...] {
             let stack = CompostStack(
                 brownAmount: band.materialType == "brown" ? 1 : 0,
-                greenAmount: band.materialType == "green" ? 1 : 0, 
+                greenAmount: band.materialType == "green" ? 1 : 0,
                 createdAt: Date(),
-                isShredded: band.isShredded,
+                isShredded: band.isShredded
             )
             stack.compostItemId = compostItem
             modelContext.insert(stack)
         }
         try? modelContext.save()
-        print("Saving...")
-    }
-    
-    // To calculate ratio of brown and green wastes
-    func calculateRatio() -> CGFloat {
-        var ratio: CGFloat = 0.0
-        if greenAmount == 0 && brownAmount == 0 {
-            ratio = 0.0
-            recommendation = "Hendy is happy with your current waste ratio!"
-            
-        } else {
-            ratio = CGFloat(brownAmount) / CGFloat(greenAmount + brownAmount)
-            recommendation = "Your current waste ratio is \(Int(ratio * 100))%. Try to reduce your green waste."
-        }
-        return ratio
     }
     
     var body: some View {
         VStack {
-            //Header
+            // Header
             HStack{
-                Button(action: {
-                    dismiss()
-                }){
+                Button(action: { dismiss() }) {
                     Image(systemName: "chevron.left")
                 }
-                .foregroundStyle(Color("BrandGreenDark"))
+                .foregroundStyle(Color("BrandGreenDark", fallback: Color(red: 0.10, green: 0.28, blue: 0.20)))
                 
                 Spacer()
                 
-                
-//                Button(action: {
-//                }){
-//                    Image(systemName: "book.pages")
-//                        .resizable()
-//                        .frame(width: 20, height: 28)
-//                }
-//                .foregroundStyle(Color("BrandGreenDark"))
-                
-                
                 Button(action: {
-                    // do finish action
                     saveCompostStacks()
                     dismiss()
                 }) {
@@ -288,134 +241,122 @@ struct PilePrototype: View {
                         .foregroundStyle(.white)
                 }
                 .background(hasAnyMaterial
-                            ? Color("BrandGreenDark", default: Color(red: 0.10, green: 0.28, blue: 0.20))
+                            ? Color("BrandGreenDark", fallback: Color(red: 0.10, green: 0.28, blue: 0.20))
                             : Color.gray.opacity(0.35))
                 .clipShape(Capsule())
                 .disabled(!hasAnyMaterial)
-
-                
             }
             .overlay(
                 Text("Add Material")
                     .bold(true)
                     .font(.custom("KronaOne-Regular", size: 16))
-                    .foregroundStyle(Color("BrandGreenDark")),
+                    .foregroundStyle(Color("BrandGreenDark", fallback: Color(red: 0.10, green: 0.28, blue: 0.20))),
                 alignment: .center
             )
             .padding()
             
-            HStack(alignment: .center, spacing: 20){
-                Image("compost/add-material-logo")
-                Text(recommendation)
-                    .padding(24)
-                    .foregroundStyle(Color.black.opacity(0.8)   )
-                    .background(
-                        RoundedRectangle(cornerRadius: 20)
-                            .fill(Color.white)
-                            .stroke(Color.black.opacity(0.1))
-                    )
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .transition(.move(edge: .top))
-                
-                Spacer()
-            }
-            .padding(.horizontal)
-//            .padding(.vertical, 24)
-            
-            ZStack (alignment: .bottom) {
-                // Pile canvas
-                CompostCanvas(bands: $bands)   // <-- binding
-                    .frame(maxHeight: .infinity)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.black.opacity(0.06), lineWidth: 1)
-                    )
-                // Drop zone icon (kept; we still capture its frame)
-                VStack(spacing: 32){
-                    HStack{
-                        Text("RATIO: \(Int(greenAmount)) / \(Int(brownAmount))")
-                            .fontWeight(.bold)
-                            .padding(.trailing, 16)
-                        
-                        Button(action:{}){
-                            Image(systemName: "questionmark")
-                                .foregroundStyle(.white)
+            ZStack(alignment: .top) {
+                ZStack(alignment: .bottom) {
+                    // Pile canvas
+                    CompostCanvas(bands: $bands, compostItem: compostItem)
+                        .frame(maxHeight: .infinity)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.black.opacity(0.06), lineWidth: 1)
+                        )
+                    
+                    // Controls
+                    VStack(spacing: 32){
+                        HStack{
+                            Text("RATIO: \(Int(greenAmount)) / \(Int(brownAmount))")
                                 .fontWeight(.bold)
-                        }
-                        .frame(width: 38, height: 38)
-                        .background(Color("BrandGreenDark"))
-                        .cornerRadius(100)
+                                .padding(.trailing, 16)
                             
-                        Spacer()
-                        
-                        Button(action: {
-                            withAnimation(){
-                                bands.removeAll()
-                                brownAmount = 0
-                                greenAmount = 0
-                                ratio = calculateRatio()
+                            Button(action:{}){
+                                Image(systemName: "questionmark")
+                                    .foregroundStyle(.white)
+                                    .fontWeight(.bold)
                             }
-                        }) {
-                            Text("Reset")
-                                .frame(width: 50, height: 10)
-                                .font(.body)
-                                .padding()
-                                .foregroundStyle(Color.white).background(Color("Status/Danger"))
-                                .cornerRadius(100)
+                            .frame(width: 38, height: 38)
+                            .background(Color("BrandGreenDark", fallback: Color(red: 0.10, green: 0.28, blue: 0.20)))
+                            .cornerRadius(100)
+                                
+                            Spacer()
+                            
+                            Button(action: {
+                                withAnimation(){
+                                    bands.removeAll()
+                                    brownAmount = 0
+                                    greenAmount = 0
+                                    ratio = refreshBalance()
+                                }
+                            }) {
+                                Text("Reset")
+                                    .frame(width: 50, height: 10)
+                                    .font(.body)
+                                    .padding()
+                                    .foregroundStyle(Color.white)
+                                    .background(Color.red)
+                                    .cornerRadius(100)
+                            }
+                        }
+                        HStack(spacing: 25) {
+                            WasteCard(
+                                dropZoneArea: $dropZoneArea,
+                                label: "+ Green",
+                                color: Color("BrandGreenDark", fallback: Color.green),
+                                actions: { withAnimation(){ addMaterial(.green) } }
+                            )
+                            
+                            WasteCard(
+                                dropZoneArea: $dropZoneArea,
+                                label: "+ Brown",
+                                color: Color("compost/PileBrown", fallback: Color.brown),
+                                actions: { withAnimation(){ addMaterial(.brown) } }
+                            )
                         }
                     }
-                    HStack(spacing: 25) {
-                        WasteCard(
-                            dropZoneArea: $dropZoneArea,
-                            label: "+ Green",
-                            color: Color("BrandGreenDark", default: Color.green),
-                            actions: { withAnimation(){addMaterial(.green)} }
-                        )
-                        
-                        WasteCard(
-                            dropZoneArea: $dropZoneArea,
-                            label: "+ Brown",
-                            color: Color("compost/PileBrown"),
-                            actions: { withAnimation(){addMaterial(.brown)} }
-                        )
-                    }
+                    .padding()
+                    .background(.ultraThinMaterial)
+                    .cornerRadius(20)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(Color("BrandGreenDark", fallback: Color(red: 0.10, green: 0.28, blue: 0.20)).opacity(0.5), lineWidth: 2)
+                    )
+                    .padding()
+                    .padding(.bottom, 20)
                 }
-                .padding()
-                .background(.ultraThinMaterial)
-                .cornerRadius(20)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color("BrandGreenDark").opacity(0.5), lineWidth: 2)
-                )
-                .padding()
-                .padding(.bottom, 20)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .ignoresSafeArea(edges: .bottom)
+                .padding(.top, 150)
+                
+                HStack(alignment: .top, spacing: 20){
+                    Image.named("compost/add-material-logo")
+                    BalanceRecommendationView(rec: rec)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .transition(.move(edge: .top))
+                    Spacer()
+                }
+                .padding(.horizontal)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .ignoresSafeArea(edges: .bottom)
-
-//            Spacer()
-            
         }
-        .background(Color("Status/AddCompostBG"))
+        .background(Color("Status/AddCompostBG", fallback: .gray.opacity(0.06)))
         .navigationBarHidden(true)
-        .onAppear {
-            loadExistingStacks()
-        }
+        .onAppear { loadExistingStacks() }
     }
 }
-
 
 // MARK: Custom Components
 
 struct WasteCard: View {
-    @State private var offset: CGSize = .zero // Calculating offset when button being dragged
+    @State private var offset: CGSize = .zero
     @State private var isPressed: Bool = false
     @Binding var dropZoneArea: CGRect
     
     var label: String = "btn"
     var color: Color = .gray
-    var actions: () -> Void // For accepting custom functions
+    var actions: () -> Void
     
     var body: some View {
         ZStack {
@@ -432,26 +373,19 @@ struct WasteCard: View {
         }
         .frame(maxWidth: .infinity)
         .offset(offset)
-        .onTapGesture {
-            actions()
-        }
+        .onTapGesture { actions() }
         .gesture(
-            // For dragging the card
             DragGesture(coordinateSpace: .global)
-                // Capturing the offset when still being dragged
-                .onChanged{ value in
+                .onChanged { value in
                     withAnimation(.spring(duration: 0.25, bounce: 0.35)) {
                         offset = value.translation
                         isPressed = true
                     }
                 }
-                // Checking if the final location is inside dropzone
                 .onEnded { value in
-                    let endPoint = value.location
-                    if dropZoneArea.contains(endPoint) {
+                    if dropZoneArea.contains(value.location) {
                         actions()
                     }
-
                     withAnimation(.spring(duration: 0.25, bounce: 0.35)) {
                         offset = .zero
                         isPressed = false
@@ -463,9 +397,8 @@ struct WasteCard: View {
 
 struct RatioBar: View {
     @Binding var ratio: CGFloat
-    
     var body: some View {
-        ZStack (alignment: .leading) {
+        ZStack(alignment: .leading) {
             Rectangle()
                 .frame(maxWidth: 400, maxHeight: 15)
                 .clipShape(Capsule())
@@ -475,7 +408,6 @@ struct RatioBar: View {
                 .frame(width: 400 * ratio)
                 .clipShape(Capsule())
                 .foregroundStyle(Color.brown)
-            
         }
     }
 }
@@ -497,7 +429,10 @@ struct RatioBar: View {
     compost.compostMethodId = method
     let threeDaysAgo = Date().addingTimeInterval(-3 * 24 * 60 * 60)
     compost.creationDate = threeDaysAgo
-    compost.lastTurnedOver = threeDaysAgo
+    compost.turnEvents = [TurnEvent(date: threeDaysAgo)]
     
     return PilePrototype(compostItem: compost)
 }
+
+
+

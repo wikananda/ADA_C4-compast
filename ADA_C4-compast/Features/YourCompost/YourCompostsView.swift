@@ -20,6 +20,14 @@ struct YourCompostsView: View {
     
     @State private var navigationPath = NavigationPath()
     
+    private func fetchCompost(by id: Int) -> CompostItem? {
+        let descriptor = FetchDescriptor<CompostItem>(
+            predicate: #Predicate { $0.compostItemId == id },
+            sortBy: []
+        )
+        return (try? modelContext.fetch(descriptor))?.first
+    }
+    
     var body: some View {
         NavigationStack(path: $navigationPath) {
             ScrollView {
@@ -78,11 +86,11 @@ struct YourCompostsView: View {
                             .padding(.horizontal, 14)
                             .padding(.vertical, 20)
                             .background(
-                                    RoundedRectangle(cornerRadius: 100)
-                                        .stroke(Color.secondary, lineWidth: 1.5)
-                                        .fill(Color("BrandGreenDark"))
-                                )
-                                
+                                RoundedRectangle(cornerRadius: 100)
+                                    .stroke(Color.secondary, lineWidth: 1.5)
+                                    .fill(Color("BrandGreenDark"))
+                            )
+                            
                         }
                         .padding(.top, 100)
                         
@@ -112,19 +120,21 @@ struct YourCompostsView: View {
                     NewCompostView()
                 }
             }
-            .navigationDestination(for: CompostNavigation.self) { nav in
-                switch nav {
-                case .updateCompost(let itemId):
-                    if let item = compostItems.first(where: {$0.compostItemId == itemId}) {
+            .navigationDestination(for: CompostItem.self) { item in
+                UpdateCompostView(compostItem: item, navigationPath: $navigationPath)
+            }
+            .navigationDestination(for: CompostNavigation.self) { navigation in
+                switch navigation {
+                case .updateCompost(let id):
+                    if let item = compostItems.first(where: { $0.compostItemId == id }) {
                         UpdateCompostView(compostItem: item, navigationPath: $navigationPath)
-                    } else {
-                        Text("Compost Item not found")
                     }
-                case .pilePrototype(let itemId):
-                    if let item = compostItems.first(where: {$0.compostItemId == itemId}) {
+                case .pilePrototype(let id):
+                    if let item = compostItems.first(where: { $0.compostItemId == id }) {
                         PilePrototype(compostItem: item)
+                            .navigationBarBackButtonHidden(false)
                     } else {
-                        Text("Compost item not found")
+                        Text("Compost not found")
                     }
                 }
             }
@@ -159,19 +169,19 @@ let previewContainer: ModelContainer = {
         )
         item1.compostMethodId = method
         item1.creationDate = Date().addingTimeInterval(-14 * 24 * 60 * 60)
-        item1.lastTurnedOver = Date().addingTimeInterval(-5 * 24 * 60 * 60)
+//        item1.lastTurnedOver = Date().addingTimeInterval(-5 * 24 * 60 * 60)
         
         let item2 = CompostItem(
             name: "Second pile"
         )
         item2.compostMethodId = method
         item2.creationDate = Date().addingTimeInterval(-7 * 24 * 60 * 60)
-        item2.lastTurnedOver = Date().addingTimeInterval(-3 * 24 * 60 * 60)
+//        item2.lastTurnedOver = Date().addingTimeInterval(-3 * 24 * 60 * 60)
         
         let item3 = CompostItem(name: "Third pile")
         item3.compostMethodId = method
         item3.creationDate = Date().addingTimeInterval(-5 * 24 * 60 * 60)
-        item3.lastTurnedOver = Date().addingTimeInterval(-2 * 24 * 60 * 60)
+//        item3.lastTurnedOver = Date().addingTimeInterval(-2 * 24 * 60 * 60)
 
         container.mainContext.insert(item1)
         container.mainContext.insert(item2)

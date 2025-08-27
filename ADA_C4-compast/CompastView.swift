@@ -10,6 +10,8 @@ import SwiftUI
 struct CompastView: View {
     @State private var selectedTab: Int = 0
     @State private var showingSplash: Bool = true
+    @StateObject private var taskStore = CompostTaskStore()
+
     
     var body: some View {
         ZStack(alignment: .bottom) {
