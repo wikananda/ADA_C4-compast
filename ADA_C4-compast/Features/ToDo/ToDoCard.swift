@@ -168,34 +168,6 @@ struct CompostToDoListView: View {
                     }
                     .padding(.vertical)
                 }
-//                VStack{
-//                    Button(action: {
-//                        regenerateTasks()
-//                        
-//                    }) {
-//                        Text("Refresh Task")
-//                            .fontWeight(.bold)
-//                            .frame(maxWidth: .infinity, maxHeight: 60)
-//                            .foregroundStyle(Color.white)
-//                    }
-//                    .padding(16)
-//                    .frame(maxWidth: .infinity, maxHeight: 60)
-//                    .background(Color("BrandGreenDark"))
-//                    .clipShape(Capsule())
-//                }
-//                .padding(.horizontal, 10)
-//                .padding(.top, 48)
-//                .padding(.bottom, 100)
-//                .background(
-//                    LinearGradient(
-//                        stops: [
-//                            Gradient.Stop(color: .white, location: 0.00),
-//                            Gradient.Stop(color: .white.opacity(0), location: 1.00),
-//                        ],
-//                        startPoint: UnitPoint(x: 0.5, y: 1),
-//                        endPoint: UnitPoint(x: 0.5, y: 0)
-//                    )
-//                )
             }
         }
         .background(Color(hex: "F5F5F5"))

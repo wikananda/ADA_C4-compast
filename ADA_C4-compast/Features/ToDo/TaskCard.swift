@@ -86,15 +86,15 @@ struct CompactTaskCard: View {
                     .font(.system(size: 16))
                     .foregroundColor(subColor)
 
-                if task.isOverdue {
-                    Text("Overdue")
-                        .font(.caption2).foregroundStyle(.white)
-                        .padding(.horizontal, 8).padding(.vertical, 4)
-                        .background(Capsule().fill(Color.red.opacity(0.9)))
-                } else {
-                    Text("Due \(relative(task.dueDate))")
-                        .font(.caption).foregroundColor(.secondary)
-                }
+//                if task.isOverdue {
+//                    Text("Overdue")
+//                        .font(.caption2).foregroundStyle(.white)
+//                        .padding(.horizontal, 8).padding(.vertical, 4)
+//                        .background(Capsule().fill(Color.red.opacity(0.9)))
+//                } else {
+//                    Text("Due \(relative(task.dueDate))")
+//                        .font(.caption).foregroundColor(.secondary)
+//                }
             }
 
             Spacer()
@@ -187,6 +187,7 @@ struct ExpandedTaskCard: View {
         )
         .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
         .transition(.blurReplace)
+        .onTapGesture(perform: onTap)
     }
 
     private func detailCopy(for type: CompostTaskType) -> String {
