@@ -220,7 +220,7 @@ struct UpdateCompostView: View {
                             }) {
                                 HStack(){
                                     Image(systemName: "arrow.trianglehead.2.clockwise")
-                                    Text("Turn Compost")
+                                    Text("Mix")
                                         .font(.caption)
                                         .fontWeight(.bold)
                                 }
@@ -235,7 +235,7 @@ struct UpdateCompostView: View {
                             
                             
                             Button(action: {
-                                navigationPath.append(CompostRoute.pilePrototype(compostItem.compostItemId))
+                                navigationPath.append(CompostNavigation.pilePrototype(compostItem.compostItemId))
 
                             }) {
                                 HStack(){

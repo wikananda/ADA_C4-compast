@@ -13,7 +13,7 @@ import UserNotifications
 
 // MARK: - Task Types
 enum CompostTaskType: String, Codable, CaseIterable {
-    case turnPile = "Turn the pile"
+    case turnPile = "Mix the pile"
     case updateLog = "Update Log"
     case checkHarvest = "Check if ready for harvest"
 }
