@@ -14,6 +14,27 @@ enum MaterialType: String, Identifiable, Hashable {
     var id: String { rawValue }
 }
 
+func gcd(_ a: Int, _ b: Int) -> Int {
+    guard a != 0 && b != 0 else {
+        return 0
+    }
+    
+    let remainder = abs(a) % abs(b)
+    if remainder != 0 {
+        return gcd(abs(b), remainder)
+    } else {
+        return abs(b)
+    }
+}
+
+func simplifyRatio(_ numerator: Int, _ denominator: Int) -> (Int, Int) {
+    let commonDivisor = gcd(numerator, denominator)
+    guard commonDivisor > 0 else {
+        return (0, 0)
+    }
+    return (numerator / commonDivisor, denominator / commonDivisor)
+}
+
 // A wavy shape for the band top
 struct WavyTopShape: Shape {
     var phase: CGFloat = 0
@@ -300,18 +321,24 @@ struct PilePrototype: View {
                     // Controls
                     VStack(spacing: 32){
                         HStack{
-                            Text("RATIO \(Int(greenAmount)) : \(Int(brownAmount))")
-                                .fontWeight(.bold)
-                                .padding(.trailing, 16)
-                            
-                            Button(action:{}){
-                                Image(systemName: "questionmark")
-                                    .foregroundStyle(.white)
+                            let simplifiedRatio = simplifyRatio(greenAmount, brownAmount)
+                            HStack(spacing: 0) {
+                                Text("RATIO")
                                     .fontWeight(.bold)
+                                    .padding(.trailing, 16)
+                                Text("\(simplifiedRatio.0) : \(simplifiedRatio.1)")
+                                    .fontWeight(.bold)
+                                    .padding(.trailing, 16)
                             }
-                            .frame(width: 38, height: 38)
-                            .background(Color("BrandGreenDark", fallback: Color(red: 0.10, green: 0.28, blue: 0.20)))
-                            .cornerRadius(100)
+                            
+//                            Button(action:{}){
+//                                Image(systemName: "questionmark")
+//                                    .foregroundStyle(.white)
+//                                    .fontWeight(.bold)
+//                            }
+//                            .frame(width: 38, height: 38)
+//                            .background(Color("BrandGreenDark", fallback: Color(red: 0.10, green: 0.28, blue: 0.20)))
+//                            .cornerRadius(100)
                                 
                             Spacer()
                             
@@ -349,7 +376,7 @@ struct PilePrototype: View {
                         }
                     }
                     .padding()
-                    .background(.ultraThinMaterial)
+                    .background(.thinMaterial)
                     .cornerRadius(20)
                     .overlay(
                         RoundedRectangle(cornerRadius: 20)
