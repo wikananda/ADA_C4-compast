@@ -189,6 +189,17 @@ struct PilePrototype: View {
         compostItem.recomputeAndStoreETA(in: modelContext)
     }
 
+    private func removeLastBand() {
+        guard let last = bands.popLast() else { return }
+        if last.materialType == "green" {
+            greenAmount = max(0, greenAmount - 1)
+        } else {
+            brownAmount = max(0, brownAmount - 1)
+        }
+        ratio = refreshBalance()
+        compostItem.recomputeAndStoreETA(in: modelContext)
+    }
+
     private func loadExistingStacks() {
         let stacks = compostItem.compostStacks.sorted { $0.createdAt < $1.createdAt }
         bands = stacks.enumerated().map { idx, s in
@@ -265,11 +276,31 @@ struct PilePrototype: View {
                             RoundedRectangle(cornerRadius: 12)
                                 .stroke(Color.black.opacity(0.06), lineWidth: 1)
                         )
+                        .overlay(alignment: .topTrailing) {
+                            if !bands.isEmpty {
+                                Button(action: {
+                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                                        removeLastBand()
+                                    }
+                                }) {
+//                                    Text("\(Image(systemName: "minus"))")
+                                    Image(systemName: "minus")
+                                        .frame(width: 32, height: 32)
+                                        .font(.system(size: 28))
+                                        .bold(true)
+                                        .padding()
+                                        .background(Color.black.opacity(0.5))
+                                        .foregroundStyle(.white)
+                                        .clipShape(Circle())
+                                }
+                                .padding()
+                            }
+                        }
                     
                     // Controls
                     VStack(spacing: 32){
                         HStack{
-                            Text("RATIO: \(Int(greenAmount)) / \(Int(brownAmount))")
+                            Text("RATIO \(Int(greenAmount)) : \(Int(brownAmount))")
                                 .fontWeight(.bold)
                                 .padding(.trailing, 16)
                             

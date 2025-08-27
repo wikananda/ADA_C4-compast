@@ -125,56 +125,106 @@ func computeBalanceRecommendation(browns b: Int, greens g: Int) -> BalanceRecomm
 //Recommendation View
 struct BalanceRecommendationView: View {
     let rec: BalanceRecommendation
+    @State private var showInfo: Bool = false
 
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            Image(systemName: icon)
-                .font(.title3.weight(.semibold))
-                .foregroundStyle(color)
-                .padding(.top, 2)
-
-            VStack(alignment: .leading, spacing: 6) {
-                Text(rec.title)
-                    .font(.headline)
+        ZStack (alignment: .topLeading) {
+            HStack(alignment: .top, spacing: 12) {
+                Image(systemName: icon)
+                    .font(.title3.weight(.semibold))
                     .foregroundStyle(color)
-
-                Text(rec.message)
-                    .font(.subheadline)
-                    .foregroundStyle(.primary)
-
-                if let need = rec.neededText {
-                    Label(need, systemImage: "plus.circle")
+                    .padding(.top, 2)
+                
+                VStack(alignment: .leading, spacing: 6) {
+                    // Text(rec.title)
+                    //     .font(.headline)
+                    //     .foregroundStyle(color)
+                    
+                    HStack(spacing: 10) {
+                        Text(rec.title)
+                            .font(.headline)
+                            .foregroundStyle(color)
+                            .onTapGesture{
+                                if !rec.message.isEmpty {
+                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) { showInfo = true }
+                                }
+                            }
+                        Button {
+                            if !rec.message.isEmpty {
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) { showInfo = true }
+                            }
+                        } label: {
+                            Image(systemName: "questionmark.circle")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(.secondary)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    
+                    if let need = rec.neededText {
+                        Label(need, systemImage: "plus.circle")
+                            .font(.subheadline)
+                            .foregroundStyle(.primary)
+                            .labelStyle(.titleAndIcon)
+                    }
+                    
+                    // Progress toward ideal (2.5 within 2.0–3.0)
+                    ProgressView(value: rec.progressToIdeal01) {
+                        Text("Toward ideal 2.5")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .progressViewStyle(.linear)
+                }
+            }
+            .padding(16)
+            .background(RoundedRectangle(cornerRadius: 16).fill(Color.white))
+            .overlay(
+                RoundedRectangle(cornerRadius: 16).stroke(color.opacity(0.15), lineWidth: 1)
+            )
+            .shadow(color: .black.opacity(0.04), radius: 8, x: 0, y: 3)
+            
+            if showInfo && !rec.message.isEmpty {
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack {
+                        Text(rec.title)
+                            .font(.headline)
+                            .foregroundStyle(color)
+                        Spacer()
+                        Button {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) { showInfo = false }
+                        } label: {
+                            Image(systemName: "xmark.circle")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    Text(rec.message)
                         .font(.subheadline)
                         .foregroundStyle(.primary)
-                        .labelStyle(.titleAndIcon)
-                }
-
-                if let tip = rec.tip, !tip.isEmpty {
-                    Label {
-                        Text(tip)
-                            .fixedSize(horizontal: false, vertical: true)
-                    } icon: {
-                        Image(systemName: "info.circle")
-                    }
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                }
-
-                // Progress toward ideal (2.5 within 2.0–3.0)
-                ProgressView(value: rec.progressToIdeal01) {
-                    Text("Toward ideal 2.5")
-                        .font(.caption)
+                    if let tip = rec.tip, !tip.isEmpty {
+                        Label {
+                            Text(tip)
+                                .fixedSize(horizontal: false, vertical: true)
+                        } icon: {
+                            Image(systemName: "info.circle")
+                        }
+                        .font(.footnote)
                         .foregroundStyle(.secondary)
+                    }
                 }
-                .progressViewStyle(.linear)
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(.ultraThinMaterial)
+                        .stroke(Color("BrandGreenDark").opacity(0.5))
+                        .tint(.black)
+                )
+                .offset(x: 36, y: -56)
+                .zIndex(1)
             }
         }
-        .padding(16)
-        .background(RoundedRectangle(cornerRadius: 16).fill(Color.white))
-        .overlay(
-            RoundedRectangle(cornerRadius: 16).stroke(color.opacity(0.15), lineWidth: 1)
-        )
-        .shadow(color: .black.opacity(0.04), radius: 8, x: 0, y: 3)
     }
 
     private var color: Color {
