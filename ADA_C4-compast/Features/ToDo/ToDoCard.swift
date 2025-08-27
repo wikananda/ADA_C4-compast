@@ -109,12 +109,36 @@ struct CompostToDoListView: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            // Tabs
-            Picker("", selection: $selectedTab) {
-                ForEach(Tab.allCases, id: \.self) { t in Text(t.rawValue) }
+            // Tabs and title
+            VStack(alignment: .leading, spacing: 20) {
+                HStack (spacing: 10) {
+                    Image("compost/logo-dark-green")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(height: 32)
+                    Text("To Do")
+                        .font(.custom("KronaOne-Regular", size: 20))
+                        .foregroundStyle(Color("BrandGreenDark"))
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        regenerateTasks()
+                    }) {
+                        Text("\(Image(systemName: "arrow.clockwise"))")
+                            .font(.system(size: 24))
+                            .foregroundStyle(Color("BrandGreenDark"))
+                    }
+                }
+                .padding()
+                
+                Picker("", selection: $selectedTab) {
+                    ForEach(Tab.allCases, id: \.self) { t in Text(t.rawValue) }
+                }
+                .pickerStyle(.segmented)
+                .padding(.horizontal)
             }
-            .pickerStyle(.segmented)
-            .padding(.horizontal)
+            
 
             ZStack(alignment: .bottom){
                 ScrollView {
@@ -144,34 +168,34 @@ struct CompostToDoListView: View {
                     }
                     .padding(.vertical)
                 }
-                VStack{
-                    Button(action: {
-                        regenerateTasks()
-                        
-                    }) {
-                        Text("Refresh Task")
-                            .fontWeight(.bold)
-                            .frame(maxWidth: .infinity, maxHeight: 60)
-                            .foregroundStyle(Color.white)
-                    }
-                    .padding(16)
-                    .frame(maxWidth: .infinity, maxHeight: 60)
-                    .background(Color("BrandGreenDark"))
-                    .clipShape(Capsule())
-                }
-                .padding(.horizontal, 10)
-                .padding(.top, 48)
-                .padding(.bottom, 100)
-                .background(
-                    LinearGradient(
-                        stops: [
-                            Gradient.Stop(color: .white, location: 0.00),
-                            Gradient.Stop(color: .white.opacity(0), location: 1.00),
-                        ],
-                        startPoint: UnitPoint(x: 0.5, y: 1),
-                        endPoint: UnitPoint(x: 0.5, y: 0)
-                    )
-                )
+//                VStack{
+//                    Button(action: {
+//                        regenerateTasks()
+//                        
+//                    }) {
+//                        Text("Refresh Task")
+//                            .fontWeight(.bold)
+//                            .frame(maxWidth: .infinity, maxHeight: 60)
+//                            .foregroundStyle(Color.white)
+//                    }
+//                    .padding(16)
+//                    .frame(maxWidth: .infinity, maxHeight: 60)
+//                    .background(Color("BrandGreenDark"))
+//                    .clipShape(Capsule())
+//                }
+//                .padding(.horizontal, 10)
+//                .padding(.top, 48)
+//                .padding(.bottom, 100)
+//                .background(
+//                    LinearGradient(
+//                        stops: [
+//                            Gradient.Stop(color: .white, location: 0.00),
+//                            Gradient.Stop(color: .white.opacity(0), location: 1.00),
+//                        ],
+//                        startPoint: UnitPoint(x: 0.5, y: 1),
+//                        endPoint: UnitPoint(x: 0.5, y: 0)
+//                    )
+//                )
             }
         }
         .background(Color(hex: "F5F5F5"))
@@ -183,6 +207,7 @@ struct CompostToDoListView: View {
     }
 
     private func regenerateTasks() {
+        print("refreshing task...")
         allTasks = CompostTaskEngine.buildTasks(for: compostItems)
     }
 
@@ -273,7 +298,7 @@ struct CompostToDoListView_Previews: PreviewProvider {
         return NavigationView {
 //            CompostToDoListView(composts: [a,b,c])
             CompostToDoListView()
-                .navigationTitle("To Do")
+//                .navigationTitle("To Do")
         }
     }
 }

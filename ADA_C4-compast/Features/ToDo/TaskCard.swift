@@ -14,10 +14,10 @@ struct SectionHeader: View {
     var body: some View {
         HStack(spacing: 10) {
             Image(systemName: icon)
-                .font(.system(size: 20, weight: .medium))
+                .font(.system(size: 16, weight: .medium))
                 .foregroundColor(Color(hex: "2D3E2D"))
             Text(title)
-                .font(.system(size: 28, weight: .semibold))
+                .font(.system(size: 16, weight: .semibold))
                 .foregroundColor(Color(hex: "2D3E2D"))
         }
         .padding(.horizontal, 4)
@@ -63,10 +63,10 @@ struct CompactTaskCard: View {
                 ZStack {
                     Circle()
                         .fill(task.isCompleted ? Color(hex: "4A6741") : Color(hex: "D3D3D3"))
-                        .frame(width: 44, height: 44)
+                        .frame(width: 24, height: 24)
                     if task.isCompleted {
                         Image(systemName: "checkmark")
-                            .font(.system(size: 20, weight: .bold))
+                            .font(.system(size: 12, weight: .bold))
                             .foregroundColor(.white)
                     }
                 }
@@ -76,14 +76,14 @@ struct CompactTaskCard: View {
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 6) {
                     Image(systemName: iconFor(task.type))
-                        .font(.system(size: 18))
+                        .font(.system(size: 16))
                         .foregroundColor(fgColor)
                     Text(task.type.rawValue)
-                        .font(.system(size: 20, weight: .semibold))
+                        .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(fgColor)
                 }
                 Text(task.compostName)
-                    .font(.system(size: 18))
+                    .font(.system(size: 16))
                     .foregroundColor(subColor)
 
                 if task.isOverdue {
@@ -99,8 +99,8 @@ struct CompactTaskCard: View {
 
             Spacer()
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 18)
+        .padding(.horizontal, 24)
+        .padding(.vertical, 24)
         .background(
             RoundedRectangle(cornerRadius: 20)
                 .fill(task.isCompleted ? Color(hex: "C7CCC7") : Color.white)
@@ -139,10 +139,10 @@ struct ExpandedTaskCard: View {
                     ZStack {
                         Circle()
                             .fill(task.isCompleted ? Color(hex: "4A6741") : Color(hex: "D3D3D3"))
-                            .frame(width: 44, height: 44)
+                            .frame(width: 24, height: 24)
                         if task.isCompleted {
                             Image(systemName: "checkmark")
-                                .font(.system(size: 20, weight: .bold))
+                                .font(.system(size: 12, weight: .bold))
                                 .foregroundColor(.white)
                         }
                     }
@@ -150,14 +150,14 @@ struct ExpandedTaskCard: View {
                 VStack(alignment: .leading, spacing: 6) {
                     HStack(spacing: 8) {
                         Image(systemName: "doc.text")
-                            .font(.system(size: 20))
+                            .font(.system(size: 16))
                             .foregroundColor(Color(hex: "2D3E2D"))
                         Text(task.type.rawValue)
-                            .font(.system(size: 20, weight: .semibold))
+                            .font(.system(size: 16, weight: .semibold))
                             .foregroundColor(Color(hex: "2D3E2D"))
                     }
                     Text(task.compostName)
-                        .font(.system(size: 18))
+                        .font(.system(size: 16))
                         .foregroundColor(Color(hex: "4D4D4D"))
                 }
                 Spacer()
@@ -178,8 +178,8 @@ struct ExpandedTaskCard: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 18)
+        .padding(.horizontal, 24)
+        .padding(.vertical, 24)
         .background(
             RoundedRectangle(cornerRadius: 25)
                 .stroke(style: StrokeStyle(lineWidth: 1))
