@@ -58,7 +58,7 @@ struct YourCompostsView: View {
                                 .frame(width: 32, height: 32)
                         )
                     }
-                    .padding()
+                    .padding(.vertical)
                     
                     // Getting the compost item data
                     if compostItems.isEmpty {

@@ -393,7 +393,7 @@ let compostData = [
 
 // MARK: - Main Tab View
 struct CompostMainTabView: View {
-    @State private var selectedTab = 2
+    @State private var selectedTab = 3
     
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -430,7 +430,18 @@ struct SettingsView: View {
     @State private var notifications = false
     
     var body: some View {
-        VStack(spacing: 8) { // Use VStack to remove List's background
+        VStack(alignment: .leading, spacing: 8) { // Use VStack to remove List's background
+            HStack (spacing: 10) {
+                Image("compost/logo-dark-green")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(height: 32)
+                Text("My Compost")
+                    .font(.custom("KronaOne-Regular", size: 20))
+                    .foregroundStyle(Color("BrandGreenDark"))
+            }
+            .padding()
+            .padding(.bottom, 20)
             NavigationLink(destination: HelpView()) {
                 HStack {
                     Image(systemName: "questionmark.circle")
@@ -542,9 +553,9 @@ struct SettingsView: View {
             
             Spacer()
         }
-        .padding(.top, 28)
-        .navigationTitle("Settings")
-        .navigationBarTitleDisplayMode(.large)
+//        .padding(.top, 28)
+//        .navigationTitle("Settings")
+//        .navigationBarTitleDisplayMode(.large)
     }
 }
 
