@@ -408,6 +408,10 @@ struct UpdateCompostView: View {
         
         compostItem.turnNow(in: context)
         try? context.save()
+        
+        showAlert = true
+        alertTitle = "You mixed the compost!"
+        alertMessage = "Very great! Keep up the good work!"
     }
 }
 
