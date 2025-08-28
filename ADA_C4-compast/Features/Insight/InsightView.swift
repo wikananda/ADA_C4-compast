@@ -12,13 +12,13 @@ struct InsightData {
 }
 
 struct InsightView: View {
-    
-    private var insightData: [
-        InsightData(title: "Compost Harvested"),
-        InsightData(title: "Trees Planted"),
-        InsightData(title: "CO2e Avoided"),
-    ]
-    
+//    
+//    private var insightData: [
+//        InsightData(title: "Compost Harvested"),
+//        InsightData(title: "Trees Planted"),
+//        InsightData(title: "CO2e Avoided"),
+//    ]
+//    
     
     
     var body: some View {
@@ -41,7 +41,7 @@ struct InsightView: View {
             VStack(alignment: .leading, spacing: 32) {
                 
                 
-                HStack(alignment: .center, spacing: 20) {
+                HStack(alignment: .center, spacing: 0) {
                     
                     HStack(alignment: .center, spacing: 20){
                         ZStack(alignment: .center){
@@ -50,13 +50,15 @@ struct InsightView: View {
                                 .foregroundStyle(Color.white)
                                 .font(.system(size: 24))
                             
-                        }.frame(width: 58, height: 58)
+                        }.frame(width: 48, height: 48)
                             .background(
                                 Circle()
                                     .fill(Color("BrandGreenDark"))
                             )
                         
                         Text("Organic waste rescued from landfills")
+                            .foregroundStyle(Color.black.opacity(0.7))
+                        
                     }
                     
                     Spacer()
@@ -69,6 +71,9 @@ struct InsightView: View {
                                 
                         }
                     }
+                    Spacer()
+                    
+                    Image(systemName: "chevron.right")
                     
                     
                 }
@@ -155,7 +160,7 @@ struct InsightCard: View {
         }
         .frame(maxWidth: .infinity)
         .padding()
-        .background(Color("Status/AddCompostBG2"))
+        .background(Color("Status/AddCompostBG3"))
         .cornerRadius(20)
     
     }

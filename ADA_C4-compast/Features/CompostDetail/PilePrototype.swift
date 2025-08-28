@@ -129,6 +129,7 @@ struct BandView: View {
 struct CompostCanvas: View {
     @Binding var bands: [PileBand]
     @Environment(\.modelContext) private var modelContext
+    @State private var isInfoVisible = false
 
     let compostItem: CompostItem
 
@@ -331,14 +332,17 @@ struct PilePrototype: View {
                                     .padding(.trailing, 16)
                             }
                             
-//                            Button(action:{}){
-//                                Image(systemName: "questionmark")
-//                                    .foregroundStyle(.white)
-//                                    .fontWeight(.bold)
-//                            }
-//                            .frame(width: 38, height: 38)
-//                            .background(Color("BrandGreenDark", fallback: Color(red: 0.10, green: 0.28, blue: 0.20)))
-//                            .cornerRadius(100)
+                            Button(action:{
+                                isInfoVisible.toggle()
+                                
+                            }){
+                                Image(systemName: "questionmark")
+                                    .foregroundStyle(.white)
+                                    .fontWeight(.bold)
+                            }
+                            .frame(width: 38, height: 38)
+                            .background(Color("BrandGreenDark", fallback: Color(red: 0.10, green: 0.28, blue: 0.20)))
+                            .cornerRadius(100)
                                 
                             Spacer()
                             
@@ -402,6 +406,10 @@ struct PilePrototype: View {
         .background(Color("Status/AddCompostBG", fallback: .gray.opacity(0.06)))
         .navigationBarHidden(true)
         .onAppear { loadExistingStacks() }
+        .sheet(isPresented: $isInfoVisible) {
+            CompostOnboardInfo()
+        }
+//        .sheet
     }
 }
 
