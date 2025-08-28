@@ -144,7 +144,7 @@ struct StepperFlowProgressView: View {
             ForEach(1...totalSteps, id: \.self) { step in
                 Rectangle()
                     .frame(height: 8)
-                    .foregroundColor(step <= currentStep ? .blue : .gray)
+                    .foregroundColor(step <= currentStep ? Color("BrandGreenDark") : Color.black.opacity(0.25))
                     .clipShape(Capsule())
             }
         }
