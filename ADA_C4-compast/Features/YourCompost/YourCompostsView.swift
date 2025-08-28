@@ -30,95 +30,103 @@ struct YourCompostsView: View {
     
     var body: some View {
         NavigationStack(path: $navigationPath) {
-            ScrollView {
-                LazyVStack (spacing: 25) {
-                    HStack(alignment: .center, spacing: 0) {
-                        HStack (spacing: 10) {
-                            Image("compost/logo-dark-green")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(height: 32)
-                            Text("My Compost")
-                                .font(.custom("KronaOne-Regular", size: 20))
-                                .foregroundStyle(Color("BrandGreenDark"))
-                        }
-                        // Placeholder button to add new item
-                        
-                        Spacer()
-                        
-                        Button(action: { showingNewCompost = true} ) {
-                            Image(systemName: "plus")
-                                .resizable()
-                                .frame(width: 16, height: 16)
-                                .bold(true)
-                                .foregroundStyle(.white)
-                        }
-                        .background(
-                            Circle().fill(Color("BrandGreenDark"))
-                                .frame(width: 32, height: 32)
-                        )
+            
+            ZStack(alignment: .topLeading){
+                HStack(alignment: .center, spacing: 0) {
+                    HStack (spacing: 10) {
+                        Image("compost/logo-dark-green")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(height: 32)
+                        Text("My Compost")
+                            .font(.custom("KronaOne-Regular", size: 20))
+                            .foregroundStyle(Color("BrandGreenDark"))
                     }
-                    .padding(.vertical)
+                    // Placeholder button to add new item
                     
-                    // Getting the compost item data
-                    if compostItems.isEmpty {
-                        VStack(spacing: 48){
-                            Image("compost/my-compost")
-                                .frame(maxWidth: .infinity)
-                                .aspectRatio(contentMode: .fit)
-                            VStack{
-                                Text("You haven't create any pile.")
-                                    .font(.title2).fontWeight(.bold)
-                                Text("Get started by creating one!").font(.subheadline)
-                            }
-                            
-                            Button(action: { showingNewCompost = true} ) {
-                                HStack(spacing: 16){
-                                    Image(systemName: "plus")
-                                        .resizable()
-                                        .frame(width: 20, height: 20)
-                                    Text("Create Compost Pile")
-                                        .font(.headline)
-                                }.foregroundStyle(.white)
+                    Spacer()
+                    
+                    Button(action: { showingNewCompost = true} ) {
+                        Image(systemName: "plus")
+                            .resizable()
+                            .frame(width: 16, height: 16)
+                            .bold(true)
+                            .foregroundStyle(.white)
+                    }
+                    .background(
+                        Circle().fill(Color("BrandGreenDark"))
+                            .frame(width: 32, height: 32)
+                    )
+                }
+                .padding()
+                .padding(.horizontal)
+                .zIndex(1)
+                .background(.thinMaterial)
+                
+                ScrollView {
+                    LazyVStack (spacing: 25) {
+                        
+                        // Getting the compost item data
+                        if compostItems.isEmpty {
+                            VStack(spacing: 48){
+                                Image("compost/my-compost")
+                                    .frame(maxWidth: .infinity)
+                                    .aspectRatio(contentMode: .fit)
+                                VStack{
+                                    Text("You haven't create any pile.")
+                                        .font(.title2).fontWeight(.bold)
+                                    Text("Get started by creating one!").font(.subheadline)
+                                }
+                                
+                                Button(action: { showingNewCompost = true} ) {
+                                    HStack(spacing: 16){
+                                        Image(systemName: "plus")
+                                            .resizable()
+                                            .frame(width: 20, height: 20)
+                                        Text("Create Compost Pile")
+                                            .font(.headline)
+                                    }.foregroundStyle(.white)
+                                    
+                                }
+                                .frame(width: 280)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 20)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 100)
+                                        .stroke(Color.secondary, lineWidth: 1.5)
+                                        .fill(Color("BrandGreenDark"))
+                                )
                                 
                             }
-                            .frame(width: 280)
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 20)
-                            .background(
-                                RoundedRectangle(cornerRadius: 100)
-                                    .stroke(Color.secondary, lineWidth: 1.5)
-                                    .fill(Color("BrandGreenDark"))
-                            )
+                            .padding(.top, 100)
                             
-                        }
-                        .padding(.top, 100)
-                        
-                    } else {
-                        ForEach(compostItems) { item in
-                            CompostCard(
-                                compostItem: item,
-                                alerts: [],
-                                navigationPath: $navigationPath
-                            )
-                            // when press hold, show menu
-                            .contextMenu {
-                                Button(role: .destructive) {
-                                    modelContext.delete(item)
-                                    try? modelContext.save()
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
+                        } else {
+                            ForEach(compostItems) { item in
+                                CompostCard(
+                                    compostItem: item,
+                                    alerts: [],
+                                    navigationPath: $navigationPath
+                                )
+                                // when press hold, show menu
+                                .contextMenu {
+                                    Button(role: .destructive) {
+                                        modelContext.delete(item)
+                                        try? modelContext.save()
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
                                 }
                             }
                         }
+                        Color.clear
+                            .frame(height: 100)
                     }
-                    Color.clear
-                        .frame(height: 100)
+                    .padding(.top, 80)
+                    .sheet(isPresented: $showingNewCompost) {
+                        NewCompostView()
+                    }
                 }
                 .padding(.horizontal)
-                .sheet(isPresented: $showingNewCompost) {
-                    NewCompostView()
-                }
             }
             .navigationDestination(for: CompostItem.self) { item in
                 UpdateCompostView(compostItem: item, navigationPath: $navigationPath)
