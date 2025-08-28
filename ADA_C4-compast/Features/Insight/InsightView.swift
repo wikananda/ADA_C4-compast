@@ -13,13 +13,11 @@ struct InsightData {
 
 struct InsightView: View {
     
-    private var insightData: [
+    private var insightData: [InsightData] = [
         InsightData(title: "Compost Harvested"),
         InsightData(title: "Trees Planted"),
         InsightData(title: "CO2e Avoided"),
     ]
-    
-    
     
     var body: some View {
         ZStack(alignment: .topLeading){
@@ -39,10 +37,7 @@ struct InsightView: View {
             .padding()
             
             VStack(alignment: .leading, spacing: 32) {
-                
-                
                 HStack(alignment: .center, spacing: 20) {
-                    
                     HStack(alignment: .center, spacing: 20){
                         ZStack(alignment: .center){
                             
@@ -69,14 +64,11 @@ struct InsightView: View {
                                 
                         }
                     }
-                    
-                    
                 }
                 .frame(maxWidth: .infinity)
                 .padding()
                 .background(Color("Status/AddCompostBG"))
                 .cornerRadius(20)
-                
                 
                 VStack (spacing: 32){
                     HStack(){
@@ -85,7 +77,6 @@ struct InsightView: View {
                         
                         Spacer()
                     }.frame(maxWidth: .infinity)
-                    
                     
                     VStack(spacing: 20){
                         InsightCard()
@@ -111,8 +102,6 @@ struct InsightView: View {
                     .background(Color("BrandGreenDark"))
                     .clipShape(Capsule())
                 }
-                
-                
             }
             .padding()
             .frame(maxHeight: .infinity)
@@ -129,7 +118,7 @@ struct InsightCard: View {
     
     var body: some View {
     
-        HStack(){
+        HStack {
             HStack(alignment: .center, spacing: 20){
                 ZStack(alignment: .center){
                     
