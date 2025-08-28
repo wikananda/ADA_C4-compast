@@ -61,6 +61,11 @@ struct UpdateCompostView: View {
     @State private var renameText = ""
     @State private var showDeleteConfirm = false
     
+    // Alerts
+    @State private var showAlert: Bool = false
+    @State private var alertTitle: String = ""
+    @State private var alertMessage: String = ""
+    
     init(compostItem: CompostItem, navigationPath: Binding<NavigationPath>) {
         self._compostItem = Bindable(compostItem)
         self.compostItem = compostItem
@@ -94,6 +99,13 @@ struct UpdateCompostView: View {
     }
     private var isPileEmpty: Bool {                    // ✅ block Mix if empty
         compostItem.compostStacks.isEmpty
+    }
+    
+    private var hasBeenTurnedToday: Bool {
+        guard let lastTurnedDate = compostItem.lastTurnedOver else { return false }
+        
+        let calendar = Calendar.current
+        return calendar.isDate(Date(), inSameDayAs: lastTurnedDate)
     }
     
     // MARK: - Actions
@@ -235,7 +247,7 @@ struct UpdateCompostView: View {
                 Button(action: { MixCompost() }) {
                     HStack {
                         Image(systemName: "arrow.trianglehead.2.clockwise")
-                        Text("Mix")
+                        Text(hasBeenTurnedToday ? "Already mixed!" : "Mix")
                             .font(.caption)
                             .fontWeight(.bold)
                     }
@@ -244,9 +256,20 @@ struct UpdateCompostView: View {
                 }
                 .padding(16)
                 .frame(maxWidth: .infinity, maxHeight: 50)
-                .background(isPileEmpty ? Color.gray.opacity(0.35) : Color("compost/PileDirt"))
+                .background(isPileEmpty ? Color.gray.opacity(0.35) : (hasBeenTurnedToday ? Color.gray.opacity(0.35) : Color("compost/PileDirt")))
                 .clipShape(Capsule())
+                .overlay(
+                    Capsule()
+                        .stroke(hasBeenTurnedToday ? Color.gray : Color.clear, lineWidth: 2)
+                )
                 .disabled(isPileEmpty)                             // ✅
+                .alert(alertTitle, isPresented: $showAlert) {
+                    Button("Ok", role: .cancel) {
+                        Text("Ok")
+                    }
+                } message: {
+                    Text(alertMessage)
+                }
                 
                 Spacer()
                 
@@ -368,11 +391,27 @@ struct UpdateCompostView: View {
         )
     }
     
-    // MARK: - Mix Compost (blocked when empty) ✅
+    // MARK: - Mix Compost (blocked when empty, only once a day)
     func MixCompost() {
-        guard !isPileEmpty else { return } // hard block if empty
+        guard !isPileEmpty else {
+            showAlert = true
+            alertTitle = "Pile is still empty"
+            alertMessage = "Fill your pile first before you can start mixing it."
+            return
+        } // hard block if empty
+        guard !hasBeenTurnedToday else {
+            showAlert = true
+            alertTitle = "Pile already mixed"
+            alertMessage = "You just need to mix the pile once a day."
+            return
+        } // hard block if already turneed today
+        
         compostItem.turnNow(in: context)
         try? context.save()
+        
+        showAlert = true
+        alertTitle = "You mixed the compost!"
+        alertMessage = "Very great! Keep up the good work!"
     }
 }
 
