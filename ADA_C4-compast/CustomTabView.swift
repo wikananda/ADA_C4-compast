@@ -30,9 +30,17 @@ struct CustomTabView: View {
             )
             Spacer()
             CustomTabItem(
+                iconName: "chart.xyaxis.line",
+                label: "Insight",
+                index: 2,
+                selectedIndex: $selectedTab,
+                ns: tabNS
+            )
+            Spacer()
+            CustomTabItem(
                 iconName: "gearshape.fill",
                 label: "Settings",
-                index: 2,
+                index: 3,
                 selectedIndex: $selectedTab,
                 ns: tabNS
             )
