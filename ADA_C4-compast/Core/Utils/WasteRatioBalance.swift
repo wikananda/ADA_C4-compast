@@ -192,7 +192,6 @@ struct BalanceRecommendationView: View {
                             .foregroundStyle(color)
                         Spacer()
                         Button {
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) { showInfo = false }
                         } label: {
                             Image(systemName: "xmark.circle")
                                 .font(.subheadline)
@@ -223,6 +222,9 @@ struct BalanceRecommendationView: View {
                 )
                 .offset(x: 36, y: -56)
                 .zIndex(1)
+                .onTapGesture{
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) { showInfo = false }
+                }
             }
         }
     }

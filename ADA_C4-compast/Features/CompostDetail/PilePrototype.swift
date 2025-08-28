@@ -129,7 +129,6 @@ struct BandView: View {
 struct CompostCanvas: View {
     @Binding var bands: [PileBand]
     @Environment(\.modelContext) private var modelContext
-    @State private var isInfoVisible = false
 
     let compostItem: CompostItem
 
@@ -176,6 +175,8 @@ struct CompostCanvas: View {
 struct PilePrototype: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    
+    @State private var isInfoVisible = false
     
     let compostItem: CompostItem
     

@@ -20,12 +20,13 @@ struct CompostOnboardInfo: View {
                 Button(action: {
                     
                     dismiss()
-                }) {
-                    Text("Next")
-                }
+                    }) {
+                        Text("Next")
+                    }
+                
                 .frame(maxWidth: .infinity)
                 .frame(height: 50)
-                .background(Color("BrandGreenDark")
+                .background(Color("BrandGreenDark"))
                 .foregroundStyle(.white)
                 .clipShape(Capsule())
                 .padding(.horizontal, 16)
