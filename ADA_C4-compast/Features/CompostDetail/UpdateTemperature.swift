@@ -52,6 +52,7 @@ struct UpdateMoistureView: View {
                     dismiss()
                 }) {
                     Text("Next")
+                        .frame(maxWidth: .infinity)
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 50)
@@ -124,6 +125,7 @@ struct UpdateTemperatureView: View {
                     dismiss()
                 }) {
                     Text("Next")
+                        .frame(maxWidth: .infinity)
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 50)

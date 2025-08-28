@@ -82,7 +82,6 @@ struct InsightView: View {
                 .background(Color("Status/AddCompostBG"))
                 .cornerRadius(20)
                 
-                
                 VStack (spacing: 32){
                     HStack(){
                         Text("That's equivalent to")
@@ -90,7 +89,6 @@ struct InsightView: View {
                         
                         Spacer()
                     }.frame(maxWidth: .infinity)
-                    
                     
                     VStack(spacing: 20){
                         InsightCard()
@@ -116,8 +114,6 @@ struct InsightView: View {
                     .background(Color("BrandGreenDark"))
                     .clipShape(Capsule())
                 }
-                
-                
             }
             .padding()
             .frame(maxHeight: .infinity)
@@ -134,7 +130,7 @@ struct InsightCard: View {
     
     var body: some View {
     
-        HStack(){
+        HStack {
             HStack(alignment: .center, spacing: 20){
                 ZStack(alignment: .center){
                     

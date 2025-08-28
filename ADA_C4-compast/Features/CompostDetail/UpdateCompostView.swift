@@ -254,6 +254,7 @@ struct UpdateCompostView: View {
                                         .fontWeight(.bold)
                                 }
                                 .foregroundStyle(Color.white)
+                                .frame(maxWidth: .infinity)
                             }
                             .padding(16)
                             .frame(maxWidth: .infinity ,maxHeight: 50)
@@ -274,6 +275,7 @@ struct UpdateCompostView: View {
                                         .fontWeight(.bold)
                                 }
                                 .foregroundStyle(Color.white)
+                                .frame(maxWidth: .infinity)
                             }
                             .padding(16)
                             .frame(maxWidth: .infinity ,maxHeight: 50)
@@ -321,7 +323,7 @@ struct UpdateCompostView: View {
                             AdviceCard(category: .moisture, issue: moistureIssue)
                             
                             Button(action: {
-                                navigationPath.append(CompostNavigation.pilePrototype(compostItem.compostItemId))
+                                vitalsSheetPresented.toggle()
                             }) {
                                 HStack(){
                                     Image(systemName: "plus")
@@ -329,7 +331,8 @@ struct UpdateCompostView: View {
                                         .font(.caption)
                                         .fontWeight(.bold)
                                 }
-                                .foregroundStyle(Color.white).onTapGesture { vitalsSheetPresented.toggle() }
+                                .frame(maxWidth: .infinity)
+                                .foregroundStyle(Color.white)
                                 
                             }
                             .padding(16)
