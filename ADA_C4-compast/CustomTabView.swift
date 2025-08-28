@@ -46,9 +46,9 @@ struct CustomTabView: View {
             )
 
         }
-        .frame(maxWidth: 300, maxHeight: 60, alignment: .top)
-        .padding(.vertical, 9)
-        .padding(.horizontal, 10)
+        .frame(maxWidth: 350, maxHeight: 60, alignment: .top)
+        .padding(.vertical, 5)
+        .padding(.horizontal, 5)
         .background(.ultraThinMaterial)
         .clipShape(Capsule())
         .overlay(
@@ -95,7 +95,7 @@ struct CustomTabItem: View {
                     Text(label)
                         .frame(maxWidth: 75)
                         .multilineTextAlignment(.center)
-                        .font(.caption2)
+                        .font(.system(size: 10))
                 }
             }
             .foregroundStyle(isSelected ? .black : .gray)

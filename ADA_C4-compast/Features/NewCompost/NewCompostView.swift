@@ -318,8 +318,10 @@ struct NewCompostView: View {
                 Button(action: ButtonAction) {
                     if (currentStep == steps.count){
                         Text("Let's Go")
+                            .frame(maxWidth: .infinity)
                     } else {
                         Text("Next")
+                            .frame(maxWidth: .infinity)
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -328,10 +330,11 @@ struct NewCompostView: View {
                 .bold(true)
                 .foregroundStyle(.white)
                 .clipShape(Capsule())
-                .background(
-                    Color.white
-                        .clipShape(Capsule())
-                )
+//                .buttonStyle(PlainButtonStyle())
+//                .background(
+//                    Color.white
+//                        .clipShape(Capsule())
+//                )
             }
             .padding()
             .padding(.bottom, 25)

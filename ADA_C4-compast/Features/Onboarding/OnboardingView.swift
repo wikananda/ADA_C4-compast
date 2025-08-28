@@ -135,10 +135,10 @@ struct StepperFlowView: View {
                 }) {
                     if (currentStep == steps.count){
                         Text("Let's Go")
-                        
-                        
+                            .frame(maxWidth: .infinity)
                     } else {
                         Text("Next")
+                            .frame(maxWidth: .infinity)
                     }
                 }
                 .frame(maxWidth: .infinity)

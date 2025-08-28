@@ -20,8 +20,8 @@ struct CompastView: View {
                 case 0:
                     YourCompostsView()
                 case 1:
-//                    CompostToDoListView()
-                    CompostToDoListView(composts: [CompostItem(name: "pile")])
+                    CompostToDoListView()
+//                    CompostToDoListView(composts: [CompostItem(name: "pile")])
                 case 2:
                     SettingsView()
                     

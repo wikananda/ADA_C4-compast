@@ -417,39 +417,42 @@ struct WasteCard: View {
     var actions: () -> Void
     
     var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 100)
-                .fill(color)
-                .scaleEffect(isPressed ? 1.25 : 1)
-                .overlay {
-                    Text(label)
-                        .foregroundStyle(.white)
-                        .font(.title2)
-                        .fontWeight(.bold)
-                }
-                .frame(maxWidth: .infinity, maxHeight: 80)
+        Button(action: { actions() }) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 100)
+                    .fill(color)
+                    .scaleEffect(isPressed ? 1.25 : 1)
+                    .overlay {
+                        Text(label)
+                            .foregroundStyle(.white)
+                            .font(.title2)
+                            .fontWeight(.bold)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: 80)
+            }
+            .frame(maxWidth: .infinity)
+            .offset(offset)
+//            .onTapGesture { actions() }
+            .buttonStyle(PlainButtonStyle())
+//            .gesture(
+//                DragGesture(coordinateSpace: .global)
+//                    .onChanged { value in
+//                        withAnimation(.spring(duration: 0.25, bounce: 0.35)) {
+//                            offset = value.translation
+//                            isPressed = true
+//                        }
+//                    }
+//                    .onEnded { value in
+//                        if dropZoneArea.contains(value.location) {
+//                            actions()
+//                        }
+//                        withAnimation(.spring(duration: 0.25, bounce: 0.35)) {
+//                            offset = .zero
+//                            isPressed = false
+//                        }
+//                    }
+//            )
         }
-        .frame(maxWidth: .infinity)
-        .offset(offset)
-        .onTapGesture { actions() }
-        .gesture(
-            DragGesture(coordinateSpace: .global)
-                .onChanged { value in
-                    withAnimation(.spring(duration: 0.25, bounce: 0.35)) {
-                        offset = value.translation
-                        isPressed = true
-                    }
-                }
-                .onEnded { value in
-                    if dropZoneArea.contains(value.location) {
-                        actions()
-                    }
-                    withAnimation(.spring(duration: 0.25, bounce: 0.35)) {
-                        offset = .zero
-                        isPressed = false
-                    }
-                }
-        )
     }
 }
 

@@ -144,7 +144,7 @@ struct YourCompostsView: View {
 
 #Preview {
     YourCompostsView()
-//        .modelContainer(previewContainer)
+        .modelContainer(previewContainer)
 }
 
 @MainActor
