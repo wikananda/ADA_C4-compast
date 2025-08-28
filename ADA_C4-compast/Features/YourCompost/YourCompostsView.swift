@@ -121,7 +121,7 @@ struct YourCompostsView: View {
                         Color.clear
                             .frame(height: 100)
                     }
-                    .padding(.top, 80)
+                    .padding(.top, 100)
                     .sheet(isPresented: $showingNewCompost) {
                         NewCompostView()
                     }
