@@ -41,6 +41,14 @@ struct CompostCard: View {
         isHealthy ? Color("Status/Success") : Color("Status/Danger")
     }
     
+    
+    // Empty pile?
+    private var isPileEmpty: Bool { compostItem.compostStacks.isEmpty }
+    
+    // Display strings with empty-state fallback
+    private var tempDisplay: String { isPileEmpty ? "—" : temperatureCategory }
+    private var moistDisplay: String { isPileEmpty ? "—" : moistureCategory }
+    
     init(compostItem: CompostItem, alerts: [CompostAlert], navigationPath: Binding<NavigationPath>) {
         self.compostItem = compostItem
         self.alerts = alerts
@@ -119,26 +127,29 @@ struct CompostCard: View {
                     }())
                 }
                 
-                // Metrics Section
-                HStack(spacing: 20) {
-                    MetricView(
-                        icon: "thermometer",
-                        value: "\(temperatureCategory)",
-                        label: "Temperature"
-                    )
-                    
-                    MetricView(
-                        icon: "drop.fill",
-                        value: "\(moistureCategory)",
-                        label: "Moisture"
-                    )
-                    
-                    MetricView(
-                        icon: "calendar",
-                        value: "\(age) Day\(age != 1 ? "s" : "")",
-                        label: "Age"
-                    )
-                }
+                // Metrics Section (preserved layout + empty state)
+               HStack(spacing: 12) {
+                   MetricView(
+                       icon: "thermometer",
+                       value: tempDisplay,
+                       label: "Temperature",
+                       isEmpty: isPileEmpty
+                   )
+                   
+                   MetricView(
+                       icon: "drop.fill",
+                       value: moistDisplay,
+                       label: "Moisture",
+                       isEmpty: isPileEmpty
+                   )
+                   
+                   MetricView(
+                       icon: "calendar",
+                       value: "\(age) Day\(age == 1 ? "" : "s")",
+                       label: "Age",
+                       isEmpty: false
+                   )
+               }
                 
                 // Update Button
                 Button(action: {
@@ -212,6 +223,7 @@ struct MetricView: View {
     let icon: String
     let value: String
     let label: String
+    var isEmpty: Bool = false
     
     var body: some View {
         VStack(spacing: 8) {
@@ -234,6 +246,18 @@ struct MetricView: View {
             }
         }
         .frame(maxWidth: .infinity)
+        .padding(6)
+        .background(
+            // Keep your card’s flat white look by default,
+            // while showing a dotted outline only for the empty state.
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color(.systemBackground))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(style: StrokeStyle(lineWidth: 1, dash: isEmpty ? [5, 5] : []))
+                        .foregroundColor(isEmpty ? Color.secondary.opacity(0.6) : .clear)
+                )
+        )
     }
 }
 
