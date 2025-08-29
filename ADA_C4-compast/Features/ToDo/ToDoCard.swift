@@ -8,6 +8,12 @@
 import SwiftUI
 import SwiftData
 
+struct SimpleSection: Identifiable {
+    let id = UUID()
+    let title: String          // "Today", "Tomorrow", "Upcoming"
+    let tasks: [CompostTask]
+}
+
 
 // MARK: - Grouping: Month -> Day -> Tasks
 
@@ -96,17 +102,50 @@ struct CompostToDoListView: View {
     @State private var selectedTab: Tab = .current
 
     enum Tab: String, CaseIterable { case current = "Current", history = "History" }
-
+    
     // Grouped sections
-    var currentSections: [MonthSection] {
+    var currentBuckets: [SimpleSection] {
         let current = allTasks.filter { !$0.isCompleted }
-        return groupTasksByMonthThenDay(current, use: .current)
+        return bucketizeCurrentTasks(current)
     }
     var historySections: [MonthSection] {
         let past = allTasks.filter { $0.isCompleted }
         return groupTasksByMonthThenDay(past, use: .history)
     }
 
+    func bucketizeCurrentTasks(_ tasks: [CompostTask]) -> [SimpleSection] {
+        let cal = Calendar.current
+        let now = Date()
+        let todayKey = cal.startOfDay(for: now)
+        guard let tomorrowKey = cal.date(byAdding: .day, value: 1, to: todayKey) else {
+            // Fallback: put everything in Upcoming if we can’t compute tomorrow
+            return [
+                SimpleSection(title: "Today", tasks: tasks.filter { cal.isDateInToday($0.dueDate) }.sorted { $0.dueDate < $1.dueDate }),
+                SimpleSection(title: "Tomorrow", tasks: tasks.filter { cal.isDateInTomorrow($0.dueDate) }.sorted { $0.dueDate < $1.dueDate }),
+                SimpleSection(title: "Upcoming", tasks: tasks.filter { !cal.isDateInToday($0.dueDate) && !cal.isDateInTomorrow($0.dueDate) }.sorted { $0.dueDate < $1.dueDate })
+            ]
+        }
+
+        let todayTasks = tasks.filter { cal.isDate($0.dueDate, inSameDayAs: todayKey) }
+                              .sorted { $0.dueDate < $1.dueDate }
+
+        let tomorrowTasks = tasks.filter { cal.isDate($0.dueDate, inSameDayAs: tomorrowKey) }
+                                 .sorted { $0.dueDate < $1.dueDate }
+
+        let upcomingTasks = tasks.filter {
+            let d0 = cal.startOfDay(for: $0.dueDate)
+            return d0 > tomorrowKey
+        }.sorted { $0.dueDate < $1.dueDate }
+
+        return [
+            SimpleSection(title: "Today", tasks: todayTasks),
+            SimpleSection(title: "Tomorrow", tasks: tomorrowTasks),
+            SimpleSection(title: "Upcoming", tasks: upcomingTasks)
+        ]
+    }
+
+
+    
     var body: some View {
         VStack(spacing: 12) {
             // Tabs and title
@@ -143,31 +182,50 @@ struct CompostToDoListView: View {
             ZStack(alignment: .bottom){
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
-                        // Month loop
-                        ForEach(selectedTab == .current ? currentSections : historySections) { month in
-                            MonthHeader(title: month.title)
-                                .padding(.horizontal)
-
-                            // Day loop within month
-                            ForEach(month.days) { day in
-                                SectionHeaderDate(title: day.title, icon: "calendar")
+                        if selectedTab == .current {
+                            // Simplified: Today / Tomorrow / Upcoming
+                            ForEach(currentBuckets) { bucket in
+                                SectionHeaderDate(title: bucket.title, icon: "calendar")
                                     .padding(.horizontal)
 
                                 VStack(spacing: 12) {
-                                    ForEach(day.tasks) { task in
+                                    ForEach(bucket.tasks) { task in
                                         TaskCard(
                                             task: task,
-                                            isUpcoming: (selectedTab == .current) ? (task.dueDate > Date()) : false,
+                                            isUpcoming: (bucket.title == "Upcoming") || (bucket.title == "Tomorrow"),
                                             onToggle: { markCompleted(task) }
                                         )
                                     }
                                 }
                                 .padding(.horizontal)
                             }
+                        } else {
+                            // History: keep Month -> Day sections
+                            ForEach(historySections) { month in
+                                MonthHeader(title: month.title)
+                                    .padding(.horizontal)
+
+                                ForEach(month.days) { day in
+                                    SectionHeaderDate(title: day.title, icon: "calendar")
+                                        .padding(.horizontal)
+
+                                    VStack(spacing: 12) {
+                                        ForEach(day.tasks) { task in
+                                            TaskCard(
+                                                task: task,
+                                                isUpcoming: false,
+                                                onToggle: { /* no-op or toggle if you want to allow undo */ }
+                                            )
+                                        }
+                                    }
+                                    .padding(.horizontal)
+                                }
+                            }
                         }
                     }
                     .padding(.vertical)
                 }
+
             }
         }
         .background(Color(hex: "F5F5F5"))
@@ -221,8 +279,11 @@ struct SectionHeaderDate: View {
             Text(title)
                 .font(.system(size: 20, weight: .semibold))
                 .foregroundColor(Color(hex: "2D3E2D"))
+            
+            Spacer()
         }
         .padding(.top, 6)
+        .frame(maxWidth: .infinity)
     }
 }
 
