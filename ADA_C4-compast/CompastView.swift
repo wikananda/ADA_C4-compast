@@ -23,7 +23,7 @@ struct CompastView: View {
                     CompostToDoListView()
 //                    CompostToDoListView(composts: [CompostItem(name: "pile")])
                 case 2:
-                    SettingsView()
+                    InsightView()
                     
                 case 3:
                     SettingsView()

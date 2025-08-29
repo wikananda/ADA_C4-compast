@@ -68,37 +68,40 @@ struct YourCompostsView: View {
                         
                         // Getting the compost item data
                         if compostItems.isEmpty {
-                            VStack(spacing: 48){
-                                Image("compost/my-compost")
-                                    .frame(maxWidth: .infinity)
+                            VStack(spacing: 50){
+                                Image("onboarding/guys-making-compost")
+                                    .resizable()
+                                    .frame(maxWidth: 300, maxHeight: 300)
                                     .aspectRatio(contentMode: .fit)
-                                VStack{
-                                    Text("You haven't create any pile.")
-                                        .font(.title2).fontWeight(.bold)
-                                    Text("Get started by creating one!").font(.subheadline)
-                                }
-                                
-                                Button(action: { showingNewCompost = true} ) {
-                                    HStack(spacing: 16){
-                                        Image(systemName: "plus")
-                                            .resizable()
-                                            .frame(width: 20, height: 20)
-                                        Text("Create Compost Pile")
-                                            .font(.headline)
-                                    }.foregroundStyle(.white)
+                                VStack(spacing: 28) {
+                                    VStack{
+                                        Text("You haven't create any pile.")
+                                            .font(.title2).fontWeight(.bold)
+                                        Text("Get started by creating one!").font(.subheadline)
+                                    }
                                     
+                                    Button(action: { showingNewCompost = true} ) {
+                                        HStack(spacing: 16){
+                                            Image(systemName: "plus")
+                                                .resizable()
+                                                .frame(width: 20, height: 20)
+                                            Text("Create Compost Pile")
+                                                .font(.headline)
+                                        }.foregroundStyle(.white)
+                                        
+                                    }
+                                    .frame(width: 280)
+                                    .padding(.horizontal, 14)
+                                    .padding(.vertical, 20)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 100)
+                                            .stroke(Color.secondary, lineWidth: 1.5)
+                                            .fill(Color("BrandGreenDark"))
+                                    )
                                 }
-                                .frame(width: 280)
-                                .padding(.horizontal, 14)
-                                .padding(.vertical, 20)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 100)
-                                        .stroke(Color.secondary, lineWidth: 1.5)
-                                        .fill(Color("BrandGreenDark"))
-                                )
                                 
                             }
-                            .padding(.top, 100)
+                            .padding(.top, 75)
                             
                         } else {
                             ForEach(compostItems) { item in
@@ -152,7 +155,7 @@ struct YourCompostsView: View {
 
 #Preview {
     YourCompostsView()
-        .modelContainer(previewContainer)
+//        .modelContainer(previewContainer)
 }
 
 @MainActor

@@ -120,7 +120,7 @@ struct OptionListScreen: View {
 struct NewNameView: View {
     @Binding var name: String?
     var body: some View {
-        VStack( spacing: 100) {
+        VStack( spacing: 150) {
             VStack(alignment: .leading){
                 Text("Compost Name")
                     .font(.headline)
@@ -141,12 +141,39 @@ struct NewNameView: View {
             }
             .padding(.horizontal, 32)
             
-            Image("onboarding/guy-doing-compost")
+            Image("onboarding/guys-doing-compost")
                 .resizable()
                 .frame(maxWidth: .infinity, alignment: .center)
                 .aspectRatio(contentMode: .fit)
                 .ignoresSafeArea(.container, edges: .bottom)
         }
+    }
+}
+
+struct NewCompostReadyView: View {
+    var name: String?
+    var body: some View {
+        VStack(spacing: 100) {
+            VStack(alignment: .center, spacing: 20){
+                Text("Your \(name ?? "") compost is ready!")
+                    .frame(width: 300)
+                    .multilineTextAlignment(.center)
+                    .font(.largeTitle.bold())
+                    .foregroundStyle(Color("BrandGreenDark"))
+                Text("Start composting today!")
+                    .font(.headline)
+                    .foregroundColor(.gray)
+            }
+            .padding(.horizontal, 32)
+            
+            Image("onboarding/guys-making-compost")
+                .resizable()
+                .frame(maxWidth: .infinity, alignment: .center)
+                .aspectRatio(contentMode: .fit)
+                .ignoresSafeArea(.container, edges: .bottom)
+                
+        }
+        .ignoresSafeArea(.container, edges:.bottom)
     }
 }
 
@@ -279,6 +306,9 @@ struct NewCompostView: View {
                 title: "New Compost",
                 content: AnyView(NewNameView(name: $name))
             ),
+            StepperFlow(
+                title: "", content: AnyView(NewCompostReadyView())
+            )
         ]
     }
     
