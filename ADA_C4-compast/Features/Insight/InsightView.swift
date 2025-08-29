@@ -12,13 +12,27 @@ struct InsightData {
 }
 
 struct InsightView: View {
-//    
-//    private var insightData: [
-//        InsightData(title: "Compost Harvested"),
-//        InsightData(title: "Trees Planted"),
-//        InsightData(title: "CO2e Avoided"),
+    
+//    let insightData = [
+//        InsightCard(
+//            title: "Compost Harvested",
+//            icon: "leaf.fill",
+//            data: "45",
+//            measurement: "kg"
+//        ),
+//        InsightCard(
+//            title: "Trees Planted",
+//            icon: "tree.fill",
+//            data: "11,3",
+//            measurement: "trees"
+//        ),
+//        InsightCard(
+//            title: "CO2e Avoided",
+//            icon: "globe.asia.australia.fill",
+//            data: "45",
+//            measurement: "10 kg"
+//        ),
 //    ]
-//    
     
     
     var body: some View {
@@ -91,9 +105,24 @@ struct InsightView: View {
                     }.frame(maxWidth: .infinity)
                     
                     VStack(spacing: 20){
-                        InsightCard()
-                        InsightCard()
-                        InsightCard()
+                        InsightCard(
+                            icon: "leaf.fill",
+                            title: "Compost Harvested",
+                            data: "45",
+                            measurement: "kg"
+                        )
+                        InsightCard(
+                            icon: "tree.fill",
+                            title: "Trees Planted",
+                            data: "11,3",
+                            measurement: "trees"
+                        )
+                        InsightCard(
+                            icon: "globe.asia.australia.fill",
+                            title: "CO2e Avoided",
+                            data: "45",
+                            measurement: "10 kg"
+                        )
                     }
                     
                     Button(action: {
