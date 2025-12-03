@@ -28,14 +28,14 @@ struct CustomTabView: View {
                 selectedIndex: $selectedTab,
                 ns: tabNS
             )
-            Spacer()
-            CustomTabItem(
-                iconName: "chart.xyaxis.line",
-                label: "Insight",
-                index: 2,
-                selectedIndex: $selectedTab,
-                ns: tabNS
-            )
+//            Spacer()
+//            CustomTabItem(
+//                iconName: "chart.xyaxis.line",
+//                label: "Insight",
+//                index: 2,
+//                selectedIndex: $selectedTab,
+//                ns: tabNS
+//            )
             Spacer()
             CustomTabItem(
                 iconName: "gearshape.fill",

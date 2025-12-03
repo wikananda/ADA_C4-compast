@@ -552,6 +552,15 @@ struct SettingsView: View {
             .padding(.vertical, 10)
             
             Spacer()
+            
+            VStack (alignment: .center) {
+                Link("Contact us <3", destination: URL(string: "https://linktr.ee/compast_ada")!)
+                    .font(.body)
+                    .foregroundStyle(Color("BrandGreen"))
+                    .underline()
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.bottom, 110)
         }
 //        .padding(.top, 28)
 //        .navigationTitle("Settings")

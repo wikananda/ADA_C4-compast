@@ -65,6 +65,7 @@ struct UpdateCompostView: View {
     @State private var showAlert: Bool = false
     @State private var alertTitle: String = ""
     @State private var alertMessage: String = ""
+    @State private var showSaveAlert: Bool = false
     
     init(compostItem: CompostItem, navigationPath: Binding<NavigationPath>) {
         self._compostItem = Bindable(compostItem)
@@ -366,7 +367,7 @@ struct UpdateCompostView: View {
     
     private var bottomSaveBar: some View {
         VStack {
-            Button(action: {}) {
+            Button(action: { showSaveAlert = true }) {
                 Text(compostItem.harvestedAt != nil ? "SAVED" : "SAVE")
                     .fontWeight(.bold)
                     .frame(maxWidth: .infinity, maxHeight: 60)
@@ -376,6 +377,11 @@ struct UpdateCompostView: View {
             .frame(maxWidth: .infinity, maxHeight: 60)
             .background(Color("BrandGreenDark"))
             .clipShape(Capsule())
+            .alert("Compost Updated!", isPresented: $showSaveAlert) {
+                Button("Ok") { dismiss() }
+            } message: {
+                Text("Your compost has been successfully updated!")
+            }
         }
         .padding(.horizontal, 10)
         .padding(.bottom, 0)

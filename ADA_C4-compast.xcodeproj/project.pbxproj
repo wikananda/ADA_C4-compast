@@ -24,7 +24,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		0AE3418F2E4B32E900B2DA09 /* ADA_C4-compast.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ADA_C4-compast.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		0AE3418F2E4B32E900B2DA09 /* Compast.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Compast.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0AE3419C2E4B32EA00B2DA09 /* ADA_C4-compastTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ADA_C4-compastTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0AE341A62E4B32EA00B2DA09 /* ADA_C4-compastUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ADA_C4-compastUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -85,7 +85,7 @@
 		0AE341902E4B32E900B2DA09 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				0AE3418F2E4B32E900B2DA09 /* ADA_C4-compast.app */,
+				0AE3418F2E4B32E900B2DA09 /* Compast.app */,
 				0AE3419C2E4B32EA00B2DA09 /* ADA_C4-compastTests.xctest */,
 				0AE341A62E4B32EA00B2DA09 /* ADA_C4-compastUITests.xctest */,
 			);
@@ -114,7 +114,7 @@
 			packageProductDependencies = (
 			);
 			productName = "ADA_C4-compast";
-			productReference = 0AE3418F2E4B32E900B2DA09 /* ADA_C4-compast.app */;
+			productReference = 0AE3418F2E4B32E900B2DA09 /* Compast.app */;
 			productType = "com.apple.product-type.application";
 		};
 		0AE3419B2E4B32EA00B2DA09 /* ADA_C4-compastTests */ = {
@@ -414,7 +414,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.ADA-C4-Team7.Compast";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Compast;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -445,7 +445,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.ADA-C4-Team7.Compast";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Compast;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
