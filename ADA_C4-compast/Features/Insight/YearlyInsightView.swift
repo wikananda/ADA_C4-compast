@@ -44,9 +44,25 @@ struct YearlyInsightView: View {
                     
                     
                     VStack(spacing: 20){
-                        InsightCard()
-                        InsightCard()
-                        InsightCard()
+                        InsightCard(
+                            icon: "arrow.3.trianglepath",
+                            title: "Waste Rescued",
+                            data: "45",
+                            measurement: "kg"
+                        )
+                        InsightCard(
+                            icon: "tree.fill",
+                            title: "Trees Planted",
+                            data: "11,3",
+                            measurement: "trees"
+                        )
+                        InsightCard(
+                            icon: "globe.asia.australia.fill",
+                            title: "CO2e Avoided",
+                            data: "45",
+                            measurement: "10 kg"
+                        )
+                        
                     }
                     
                     Button(action: {
