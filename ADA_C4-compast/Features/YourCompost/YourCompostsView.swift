@@ -9,28 +9,32 @@ import SwiftUI
 import SwiftData
 
 enum CompostNavigation: Hashable {
+    case detail(Int)
     case updateCompost(Int)
     case pilePrototype(Int)
 }
 
 struct YourCompostsView: View {
     @Query(sort: \CompostItem.creationDate, order: .reverse) private var compostItems: [CompostItem]
-    @State private var showingNewCompost: Bool = false
     @Environment(\.modelContext) private var modelContext
-    
-    @State private var navigationPath = NavigationPath()
-    
+
+    // MARK: - ViewModel
+    @State private var viewModel: YourCompostsViewModel
+
+    init() {
+        // ViewModel will be properly initialized in onAppear with modelContext
+        _viewModel = State(initialValue: YourCompostsViewModel(
+            modelContext: ModelContext(try! ModelContainer(for: CompostItem.self))
+        ))
+    }
+
     private func fetchCompost(by id: Int) -> CompostItem? {
-        let descriptor = FetchDescriptor<CompostItem>(
-            predicate: #Predicate { $0.compostItemId == id },
-            sortBy: []
-        )
-        return (try? modelContext.fetch(descriptor))?.first
+        viewModel.fetchCompost(byId: id)
     }
     
     var body: some View {
-        NavigationStack(path: $navigationPath) {
-            
+        NavigationStack(path: $viewModel.navigationPath) {
+
             ZStack(alignment: .topLeading){
                 HStack(alignment: .center, spacing: 0) {
                     HStack (spacing: 10) {
@@ -43,10 +47,10 @@ struct YourCompostsView: View {
                             .foregroundStyle(Color("BrandGreenDark"))
                     }
                     // Placeholder button to add new item
-                    
+
                     Spacer()
-                    
-                    Button(action: { showingNewCompost = true} ) {
+
+                    Button(action: { viewModel.presentNewCompost() }) {
                         Image(systemName: "plus")
                             .resizable()
                             .frame(width: 16, height: 16)
@@ -62,12 +66,12 @@ struct YourCompostsView: View {
                 .padding(.horizontal)
                 .zIndex(1)
                 .background(.thinMaterial)
-                
+
                 ScrollView {
                     LazyVStack (spacing: 25) {
-                        
+
                         // Getting the compost item data
-                        if compostItems.isEmpty {
+                        if !viewModel.hasComposts {
                             VStack(spacing: 50){
                                 Image("onboarding/guys-making-compost")
                                     .resizable()
@@ -79,8 +83,8 @@ struct YourCompostsView: View {
                                             .font(.title2).fontWeight(.bold)
                                         Text("Get started by creating one!").font(.subheadline)
                                     }
-                                    
-                                    Button(action: { showingNewCompost = true} ) {
+
+                                    Button(action: { viewModel.presentNewCompost() }) {
                                         HStack(spacing: 16){
                                             Image(systemName: "plus")
                                                 .resizable()
@@ -88,7 +92,7 @@ struct YourCompostsView: View {
                                             Text("Create Compost Pile")
                                                 .font(.headline)
                                         }.foregroundStyle(.white)
-                                        
+
                                     }
                                     .frame(width: 280)
                                     .padding(.horizontal, 14)
@@ -99,22 +103,21 @@ struct YourCompostsView: View {
                                             .fill(Color("BrandGreenDark"))
                                     )
                                 }
-                                
+
                             }
                             .padding(.top, 75)
-                            
+
                         } else {
-                            ForEach(compostItems) { item in
+                            ForEach(viewModel.compostItems) { item in
                                 CompostCard(
                                     compostItem: item,
                                     alerts: [],
-                                    navigationPath: $navigationPath
+                                    navigationPath: $viewModel.navigationPath
                                 )
                                 // when press hold, show menu
                                 .contextMenu {
                                     Button(role: .destructive) {
-                                        modelContext.delete(item)
-                                        try? modelContext.save()
+                                        viewModel.deleteCompost(item)
                                     } label: {
                                         Label("Delete", systemImage: "trash")
                                     }
@@ -125,23 +128,23 @@ struct YourCompostsView: View {
                             .frame(height: 100)
                     }
                     .padding(.top, 100)
-                    .sheet(isPresented: $showingNewCompost) {
+                    .sheet(isPresented: $viewModel.showingNewCompost) {
                         NewCompostView()
                     }
                 }
                 .padding(.horizontal)
             }
             .navigationDestination(for: CompostItem.self) { item in
-                UpdateCompostView(compostItem: item, navigationPath: $navigationPath)
+                UpdateCompostView(compostItem: item, navigationPath: $viewModel.navigationPath)
             }
             .navigationDestination(for: CompostNavigation.self) { navigation in
                 switch navigation {
-                case .updateCompost(let id):
-                    if let item = compostItems.first(where: { $0.compostItemId == id }) {
-                        UpdateCompostView(compostItem: item, navigationPath: $navigationPath)
+                case .detail(let id), .updateCompost(let id):
+                    if let item = viewModel.fetchCompost(byId: id) {
+                        UpdateCompostView(compostItem: item, navigationPath: $viewModel.navigationPath)
                     }
                 case .pilePrototype(let id):
-                    if let item = compostItems.first(where: { $0.compostItemId == id }) {
+                    if let item = viewModel.fetchCompost(byId: id) {
                         PilePrototype(compostItem: item)
                             .navigationBarBackButtonHidden(false)
                     } else {
@@ -149,6 +152,14 @@ struct YourCompostsView: View {
                     }
                 }
             }
+        }
+        .onAppear {
+            // Re-initialize with correct context and sync items
+            viewModel = YourCompostsViewModel(modelContext: modelContext)
+            viewModel.updateItems(compostItems)
+        }
+        .onChange(of: compostItems) { _, newItems in
+            viewModel.updateItems(newItems)
         }
     }
 }

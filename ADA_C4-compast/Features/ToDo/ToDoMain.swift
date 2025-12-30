@@ -6,26 +6,25 @@
 //
 
 import SwiftUI
+import SwiftData
 
-// MARK: - DATA MODELS
-struct ToDoItem: Identifiable {
-    let id = UUID()
-    var title: String
-    var isCompleted: Bool = false
-}
-
-// New struct to group tasks by a specific date
-struct DailyTasks: Identifiable {
-    let id = UUID()
-    var date: Date
-    var tasks: [ToDoItem]
-}
-
+// ToDoItem and DailyTasks are defined in ToDoViewModel.swift
 
 // MARK: - MAIN TO-DO VIEW
 struct ToDoMainView: View {
-    @State var dailyTaskGroups: [DailyTasks]
-    
+    @Query private var compostItems: [CompostItem]
+    @Environment(\.modelContext) private var modelContext
+
+    // MARK: - ViewModel
+    @State private var viewModel: ToDoViewModel
+
+    init() {
+        // ViewModel will be properly initialized in onAppear with modelContext
+        _viewModel = State(initialValue: ToDoViewModel(
+            modelContext: ModelContext(try! ModelContainer(for: CompostItem.self))
+        ))
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             // MARK: - Header
@@ -49,7 +48,7 @@ struct ToDoMainView: View {
             .background(Color(.systemBackground)) // Give header a solid background
 
             // MARK: - Conditional Content
-            if dailyTaskGroups.isEmpty {
+            if !viewModel.hasTasks {
                 // Show empty state if there are no task groups
                 Spacer()
                 EmptyStateView()
@@ -58,14 +57,21 @@ struct ToDoMainView: View {
                 // Show the list of daily task cards
                 ScrollView {
                     VStack(spacing: 20) {
-                        ForEach($dailyTaskGroups) { $dailyTasks in
-                            DailyTaskCardView(dailyTasks: $dailyTasks)
+                        ForEach(Array(viewModel.dailyTaskGroups.enumerated()), id: \.element.id) { groupIndex, dailyTasks in
+                            DailyTaskCardView(
+                                dailyTasks: Binding(
+                                    get: { viewModel.dailyTaskGroups[groupIndex] },
+                                    set: { viewModel.dailyTaskGroups[groupIndex] = $0 }
+                                ),
+                                viewModel: viewModel,
+                                groupIndex: groupIndex
+                            )
                         }
                     }
                     .padding()
                 }
             }
-            
+
             // MARK: - Navigation Bar
             HStack {
                 Spacer()
@@ -93,6 +99,14 @@ struct ToDoMainView: View {
         }
         .background(Color(.systemGray6)) // Set a background for the whole screen
         .edgesIgnoringSafeArea(.bottom)
+        .onAppear {
+            // Re-initialize with correct context
+            viewModel = ToDoViewModel(modelContext: modelContext)
+            viewModel.updateCompostItems(compostItems)
+        }
+        .onChange(of: compostItems) { _, newItems in
+            viewModel.updateCompostItems(newItems)
+        }
     }
 }
 
@@ -100,13 +114,15 @@ struct ToDoMainView: View {
 // MARK: - COLLAPSIBLE DAILY TASK CARD
 struct DailyTaskCardView: View {
     @Binding var dailyTasks: DailyTasks
+    var viewModel: ToDoViewModel
+    var groupIndex: Int
     @State private var isExpanded: Bool = true // Each card manages its own state
 
     var body: some View {
         VStack(spacing: 0) {
             // MARK: - Card Header (Date & Collapse Button)
             HStack {
-                Text(formatDate(dailyTasks.date))
+                Text(viewModel.formatDate(dailyTasks.date))
                     .font(.title3)
                     .fontWeight(.bold)
                 Spacer()
@@ -121,13 +137,20 @@ struct DailyTaskCardView: View {
                     isExpanded.toggle()
                 }
             }
-            
+
             // MARK: - Collapsible Task List
             if isExpanded {
                 Divider()
                 VStack(spacing: 0) {
-                    ForEach($dailyTasks.tasks) { $task in
-                        TaskRowView(task: $task)
+                    ForEach(Array(dailyTasks.tasks.enumerated()), id: \.element.id) { taskIndex, task in
+                        TaskRowView(
+                            task: task,
+                            onToggle: {
+                                withAnimation {
+                                    viewModel.toggleTaskCompletion(groupIndex: groupIndex, taskIndex: taskIndex)
+                                }
+                            }
+                        )
                         // Add a divider unless it's the last item
                         if task.id != dailyTasks.tasks.last?.id {
                             Divider().padding(.leading)
@@ -141,44 +164,27 @@ struct DailyTaskCardView: View {
         .cornerRadius(12)
         .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
     }
-
-    // Helper function to format the date display
-    private func formatDate(_ date: Date) -> String {
-        let calendar = Calendar.current
-        if calendar.isDateInToday(date) {
-            return "Today"
-        } else if calendar.isDateInTomorrow(date) {
-            return "Tomorrow"
-        } else {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "EEEE, MMM d" // e.g., "Saturday, Aug 26"
-            return formatter.string(from: date)
-        }
-    }
 }
 
 
 // MARK: - TASK ROW VIEW
 struct TaskRowView: View {
-    @Binding var task: ToDoItem
-    
+    var task: ToDoItem
+    var onToggle: () -> Void
+
     var body: some View {
         HStack(spacing: 15) {
-            Button(action: {
-                withAnimation {
-                    task.isCompleted.toggle()
-                }
-            }) {
+            Button(action: onToggle) {
                 Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
                     .foregroundColor(task.isCompleted ? .green : .gray)
                     .font(.title2)
             }
             .buttonStyle(PlainButtonStyle())
-            
+
             Text(task.title)
                 .strikethrough(task.isCompleted, color: .gray)
                 .foregroundColor(task.isCompleted ? .gray : .primary)
-            
+
             Spacer()
         }
         .padding(.vertical, 12)
@@ -212,32 +218,10 @@ struct EmptyStateView: View {
 
 
 // MARK: - PREVIEWS
-struct ToDoMainView_Previews: PreviewProvider {
-    
-    // Create dummy data with different dates
-    static let dummyDailyTasks: [DailyTasks] = [
-        // Tasks for Today
-        DailyTasks(date: Date(), tasks: [
-            ToDoItem(title: "Turn the compost pile"),
-            ToDoItem(title: "Add kitchen scraps (greens)", isCompleted: true)
-        ]),
-        // Tasks for Tomorrow
-        DailyTasks(date: Calendar.current.date(byAdding: .day, value: 1, to: Date())!, tasks: [
-            ToDoItem(title: "Check moisture level"),
-            ToDoItem(title: "Add shredded newspaper (browns)")
-        ]),
-        // Tasks for 3 days from now
-        DailyTasks(date: Calendar.current.date(byAdding: .day, value: 3, to: Date())!, tasks: [
-            ToDoItem(title: "Measure temperature of the pile"),
-            ToDoItem(title: "Sift finished compost")
-        ])
-    ]
-    
-    static var previews: some View {
-        ToDoMainView(dailyTaskGroups: dummyDailyTasks)
-            .previewDisplayName("Daily Tasks")
-        
-        ToDoMainView(dailyTaskGroups: [])
-            .previewDisplayName("Empty State")
-    }
+#Preview("Daily Tasks") {
+    ToDoMainView()
+}
+
+#Preview("Empty State") {
+    ToDoMainView()
 }
