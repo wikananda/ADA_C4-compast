@@ -21,11 +21,7 @@ struct CompastView: View {
                     YourCompostsView()
                 case 1:
                     CompostToDoListView()
-//                    CompostToDoListView(composts: [CompostItem(name: "pile")])
-//                case 2:
-//                    InsightView()
-                    
-                case 2:
+                case 3:
                     SettingsView()
                 default:
                     YourCompostsView()

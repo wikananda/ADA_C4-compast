@@ -8,113 +8,7 @@
 import SwiftUI
 import SwiftData
 
-
-struct Option: Identifiable, Hashable {
-    let id = UUID()
-    let icon: String
-    let title: String
-    let subtitle: String
-    let tint: Color
-}
-
-/// Card row that matches the reference style
-struct OptionCard: View {
-    let option: Option
-    @Binding var selected: Option?
-
-    private var isSelected: Bool { selected == option }
-    private var accent: Color { Color("BrandGreen") }
-
-    var body: some View {
-        Button {
-            selected = option
-        } label: {
-            HStack(spacing: 14) {
-                // Leading icon badge
-                ZStack {
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(option.tint.opacity(0.25), lineWidth: 2)
-                        .background(RoundedRectangle(cornerRadius: 10)
-                            .fill(option.tint.opacity(0.08)))
-                    Image(systemName: option.icon)
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(option.tint)
-                }
-                .frame(width: 36, height: 36)
-
-                // Title & subtitle
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(option.title)
-                        .font(.headline)
-                        .foregroundStyle(.primary)
-                    Text(option.subtitle)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-
-                Spacer()
-
-                // Radio → check
-                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                    .font(.system(size: 22, weight: .semibold))
-                    .foregroundStyle(isSelected ? accent : .secondary.opacity(0.4))
-            }
-            .padding(16)
-            .contentShape(RoundedRectangle(cornerRadius: 20))
-            .background(
-                // base card + selected tint like the mock
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(isSelected ? accent.opacity(0.08) : .white)
-                    .shadow(color: .black.opacity(0.06), radius: 12, y: 4)
-            )
-            .overlay(
-                // selected border
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(isSelected ? accent : .clear, lineWidth: 2)
-            )
-        }
-        .buttonStyle(.plain)
-        .animation(.spring(response: 0.25, dampingFraction: 0.9), value: isSelected)
-    }
-}
-
-
-// Convenience to read a named color with fallback
-extension Color {
-    init(_ name: String, default fallback: Color) {
-        self = Color(name, bundle: .main) ?? fallback
-    }
-}
-
-
-// Common layout for “list of options” screens
-struct OptionListScreen: View {
-    let title: String
-    let options: [Option]
-    var backgroundColor: Color = Color(.systemGroupedBackground)
-    var paddingTop: CGFloat = 100
-    var paddingBottom: CGFloat = 120
-    @Binding var selected: Option?
-    
-    var body: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 16) {
-                Text(title)
-                    .font(.largeTitle.bold())
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.bottom, 12)
-                
-                ForEach(options) { opt in
-                    OptionCard(option: opt, selected: $selected)
-                }
-            }
-            .padding(.horizontal, 20)
-            .padding(.top, paddingTop)
-            .padding(.bottom, paddingBottom) // room for sticky button
-        }
-        .background(backgroundColor)
-    }
-}
+// Option, OptionCard, and OptionListScreen are now in Shared/Components
 
 // MARK: New Compost Sub-Onboarding Views
 struct NewNameView: View {
@@ -286,73 +180,71 @@ struct NewContainerView: View {
 struct NewCompostView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    @Query private var compostMethods: [CompostMethod]
-    
-    @State var currentStep: Int = 1
-    
-    @State var name: String?
-    @State var selectedMethod: Option?
-    @State var selectedSpace: Option?
-    @State var selectedContainer: Option?
-    
-    private var isNameValid: Bool {
-        guard let name = name else { return false }
-        return !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+
+    // MARK: - ViewModel
+    @State private var viewModel: NewCompostViewModel
+
+    init() {
+        // ViewModel will be properly initialized in onAppear with modelContext
+        _viewModel = State(initialValue: NewCompostViewModel(
+            modelContext: ModelContext(try! ModelContainer(for: CompostItem.self))
+        ))
     }
-    
+
+    // Legacy computed properties delegating to ViewModel
+    private var isNameValid: Bool { viewModel.isNameValid }
+
     private var steps: [StepperFlow] {
         [
             StepperFlow(
                 title: "New Compost",
-                content: AnyView(NewNameView(name: $name))
+                content: AnyView(NewNameView(name: $viewModel.name))
             ),
             StepperFlow(
-                title: "", content: AnyView(NewCompostReadyView())
+                title: "", content: AnyView(NewCompostReadyView(name: viewModel.name))
             )
         ]
     }
     
     var body: some View {
         ZStack (alignment: .bottom) {
-            steps[currentStep - 1].content // Onboarding content
+            steps[viewModel.currentStep - 1].content // Onboarding content
             VStack(alignment: .leading) {
                 // Header Titles and Back buttons
                 HStack {
                     Button(action: {
-                        if currentStep > 1 {
-                            currentStep -= 1
-                            return
+                        if viewModel.goBack() {
+                            dismiss()
                         }
-                        dismiss()
-                    } ) {
+                    }) {
                         HStack {
                             Image(systemName: "chevron.left")
                         }
-                        .foregroundStyle(Color("BrandGreenDark"))                    }
+                        .foregroundStyle(Color("BrandGreenDark"))
+                    }
                     .frame(maxWidth:100, alignment: .leading)
-                    
+
                     Spacer()
                 }
                 .overlay(
-                    Text(steps[currentStep - 1].title)
+                    Text(viewModel.stepTitle)
                         .bold(true)
                         .font(.custom("KronaOne-Regular", size: 16))
                         .foregroundStyle(Color("BrandGreenDark")),
                     alignment: .center
                 )
-                
+
                 // The progress bar of onboarding
-                
+
                 Spacer()
-                
-                Button(action: ButtonAction) {
-                    if (currentStep == steps.count){
-                        Text("Let's Go")
-                            .frame(maxWidth: .infinity)
-                    } else {
-                        Text("Next")
-                            .frame(maxWidth: .infinity)
+
+                Button(action: {
+                    if viewModel.handleButtonAction() {
+                        dismiss()
                     }
+                }) {
+                    Text(viewModel.buttonTitle)
+                        .frame(maxWidth: .infinity)
                 }
                 .frame(maxWidth: .infinity)
                 .padding()
@@ -360,11 +252,6 @@ struct NewCompostView: View {
                 .bold(true)
                 .foregroundStyle(.white)
                 .clipShape(Capsule())
-//                .buttonStyle(PlainButtonStyle())
-//                .background(
-//                    Color.white
-//                        .clipShape(Capsule())
-//                )
             }
             .padding()
             .padding(.bottom, 25)
@@ -372,52 +259,9 @@ struct NewCompostView: View {
         .ignoresSafeArea(.container, edges: .bottom)
         .ignoresSafeArea(.keyboard)
         .background(Color.clear)
-    }
-    
-    // For the button function
-    func ButtonAction() {
-        if currentStep < steps.count {
-            currentStep += 1
-            return
-        }
-        print("Here")
-        guard isNameValid else { return }
-        print("HEEEREE name valid")
-        
-        AddNewCompost()
-    }
-    
-    // Saving to SwiftData
-    func AddNewCompost() {
-        guard
-            let writtenName = name
-//            let methodName = selectedMethod,
-//            let spaceName = selectedSpace,
-//            let containerName = selectedContainer
-        else {
-            return
-        }
-        print("Hereee adding new compost")
-        
-        guard let method = compostMethods.first(where: { $0.compostMethodId == 1 }) else {
-            print("❌ No predefined compost method found")
-            return
-        }
-        
-        let item = CompostItem(
-            name: writtenName,
-        )
-        item.compostMethodId = method // 1 is hot compost (predefined)
-        modelContext.insert(item)
-
-        do {
-            try modelContext.save()
-            print("✅ Successfully saved new compost item with id: \(item.compostItemId)")
-            print("item: \(item.name), \(item.temperatureCategory), \(item.moistureCategory)")
-            dismiss()
-        } catch {
-            print("❌ Failed to save: \(error)")
-            // Optionally show an alert to the user
+        .onAppear {
+            // Re-initialize with correct context
+            viewModel = NewCompostViewModel(modelContext: modelContext)
         }
     }
 }

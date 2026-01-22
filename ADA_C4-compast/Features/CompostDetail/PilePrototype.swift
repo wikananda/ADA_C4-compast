@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+import SwiftData
 
 // Which material was added
 enum MaterialType: String, Identifiable, Hashable {
@@ -175,82 +175,39 @@ struct CompostCanvas: View {
 struct PilePrototype: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    
-    @State private var isInfoVisible = false
-    
-    let compostItem: CompostItem
-    
-    @State private var ratio: CGFloat = 0.0
-    @State private var greenAmount: Int = 0
-    @State private var brownAmount: Int = 0
-    @State private var initialStackCount = 0
-    
-    @State private var dropZoneArea: CGRect = .zero
-    
-    @State private var rec: BalanceRecommendation = computeBalanceRecommendation(browns: 0, greens: 0)
 
-    @discardableResult
-    func refreshBalance() -> CGFloat {
-        let total = max(greenAmount + brownAmount, 1)
-        let brownShare = CGFloat(brownAmount) / CGFloat(total)
-        rec = computeBalanceRecommendation(browns: brownAmount, greens: greenAmount)
-        return brownShare
+    // MARK: - ViewModel
+    @State private var viewModel: PilePrototypeViewModel
+
+    let compostItem: CompostItem
+
+    init(compostItem: CompostItem) {
+        self.compostItem = compostItem
+        _viewModel = State(initialValue: PilePrototypeViewModel(
+            compostItem: compostItem,
+            modelContext: ModelContext(try! ModelContainer(for: CompostItem.self))
+        ))
     }
-    
-    @State private var bands: [PileBand] = []
-    private var hasAnyMaterial: Bool { !bands.isEmpty }
+
+    // Legacy computed properties that delegate to ViewModel
+    private var hasAnyMaterial: Bool { viewModel.hasAnyMaterial }
+    private var bands: [PileBand] {
+        get { viewModel.bands }
+    }
+    private var greenAmount: Int { viewModel.greenAmount }
+    private var brownAmount: Int { viewModel.brownAmount }
+    private var rec: BalanceRecommendation { viewModel.recommendation }
 
     private func addMaterial(_ type: MaterialType) {
-        let pileBand = PileBand(
-            materialType: type.rawValue,
-            isShredded: false,
-            order: bands.count
-        )
-        bands.append(pileBand)
-        if type == .green { greenAmount += 1 } else { brownAmount += 1 }
-        ratio = refreshBalance()
-        compostItem.recomputeAndStoreETA(in: modelContext)
+        viewModel.addMaterial(type)
     }
 
     private func removeLastBand() {
-        guard let last = bands.popLast() else { return }
-        if last.materialType == "green" {
-            greenAmount = max(0, greenAmount - 1)
-        } else {
-            brownAmount = max(0, brownAmount - 1)
-        }
-        ratio = refreshBalance()
-        compostItem.recomputeAndStoreETA(in: modelContext)
-    }
-
-    private func loadExistingStacks() {
-        let stacks = compostItem.compostStacks.sorted { $0.createdAt < $1.createdAt }
-        bands = stacks.enumerated().map { idx, s in
-            PileBand(
-                materialType: s.greenAmount == 1 ? "green" : "brown",
-                isShredded: s.isShredded,
-                order: idx
-            )
-        }
-        initialStackCount = bands.count
-        greenAmount = stacks.reduce(0) { $0 + $1.greenAmount }
-        brownAmount = stacks.reduce(0) { $0 + $1.brownAmount }
-        ratio = refreshBalance()
+        viewModel.removeLastBand()
     }
 
     private func saveCompostStacks() {
-        guard bands.count > initialStackCount else { return }
-        for band in bands[initialStackCount...] {
-            let stack = CompostStack(
-                brownAmount: band.materialType == "brown" ? 1 : 0,
-                greenAmount: band.materialType == "green" ? 1 : 0,
-                createdAt: Date(),
-                isShredded: band.isShredded
-            )
-            stack.compostItemId = compostItem
-            modelContext.insert(stack)
-        }
-        try? modelContext.save()
+        viewModel.saveCompostStacks()
     }
     
     var body: some View {
@@ -292,7 +249,7 @@ struct PilePrototype: View {
             ZStack(alignment: .top) {
                 ZStack(alignment: .bottom) {
                     // Pile canvas
-                    CompostCanvas(bands: $bands, compostItem: compostItem)
+                    CompostCanvas(bands: $viewModel.bands, compostItem: compostItem)
                         .frame(maxHeight: .infinity)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .overlay(
@@ -334,8 +291,7 @@ struct PilePrototype: View {
                             }
                             
                             Button(action:{
-                                isInfoVisible.toggle()
-                                
+                                viewModel.showInfo()
                             }){
                                 Image(systemName: "questionmark")
                                     .foregroundStyle(.white)
@@ -349,10 +305,7 @@ struct PilePrototype: View {
                             
                             Button(action: {
                                 withAnimation(){
-                                    bands.removeAll()
-                                    brownAmount = 0
-                                    greenAmount = 0
-                                    ratio = refreshBalance()
+                                    viewModel.resetPile()
                                 }
                             }) {
                                 Text("Reset")
@@ -366,17 +319,17 @@ struct PilePrototype: View {
                         }
                         HStack(spacing: 25) {
                             WasteCard(
-                                dropZoneArea: $dropZoneArea,
+                                dropZoneArea: $viewModel.dropZoneArea,
                                 label: "+ Green",
                                 color: Color("BrandGreenDark", fallback: Color.green),
-                                actions: { withAnimation(){ addMaterial(.green) } }
+                                actions: { withAnimation(){ viewModel.addMaterial(.green) } }
                             )
-                            
+
                             WasteCard(
-                                dropZoneArea: $dropZoneArea,
+                                dropZoneArea: $viewModel.dropZoneArea,
                                 label: "+ Brown",
                                 color: Color("compost/PileBrown", fallback: Color.brown),
-                                actions: { withAnimation(){ addMaterial(.brown) } }
+                                actions: { withAnimation(){ viewModel.addMaterial(.brown) } }
                             )
                         }
                     }
@@ -406,8 +359,15 @@ struct PilePrototype: View {
         }
         .background(Color("Status/AddCompostBG", fallback: .gray.opacity(0.06)))
         .navigationBarHidden(true)
-        .onAppear { loadExistingStacks() }
-        .sheet(isPresented: $isInfoVisible) {
+        .onAppear {
+            // Re-initialize with correct context
+            viewModel = PilePrototypeViewModel(
+                compostItem: compostItem,
+                modelContext: modelContext
+            )
+            viewModel.loadExistingStacks()
+        }
+        .sheet(isPresented: $viewModel.isInfoVisible) {
             CompostOnboardInfo()
         }
 //        .sheet
