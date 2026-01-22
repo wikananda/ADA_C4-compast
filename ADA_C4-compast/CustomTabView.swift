@@ -40,7 +40,7 @@ struct CustomTabView: View {
             CustomTabItem(
                 iconName: "gearshape.fill",
                 label: "Settings",
-                index: 3,
+                index: 2,
                 selectedIndex: $selectedTab,
                 ns: tabNS
             )
