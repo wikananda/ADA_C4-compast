@@ -21,7 +21,7 @@ struct CompastView: View {
                     YourCompostsView()
                 case 1:
                     CompostToDoListView()
-                case 3:
+                case 2:
                     SettingsView()
                 default:
                     YourCompostsView()

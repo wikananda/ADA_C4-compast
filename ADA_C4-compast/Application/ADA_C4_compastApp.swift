@@ -44,7 +44,7 @@ struct ADA_C4_compastApp: App {
             NavigationStack {
                 CompastView()
             }
-            .modelContainer(sharedModelContainer)
+//            .modelContainer(sharedModelContainer)
         }
     }
 }
