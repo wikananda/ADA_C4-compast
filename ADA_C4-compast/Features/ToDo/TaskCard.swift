@@ -77,24 +77,30 @@ struct CompactTaskCard: View {
                 HStack(spacing: 6) {
                     Image(systemName: iconFor(task.type))
                         .font(.system(size: 16))
-                        .foregroundColor(fgColor)
-                    Text(task.type.rawValue)
+                        .foregroundColor(task.type == .compostMilestone ? Color(hex: "D4A017") : fgColor)
+                    Text(task.type == .compostMilestone ? (task.note ?? task.type.rawValue) : task.type.rawValue)
                         .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(fgColor)
+                        .foregroundColor(task.type == .compostMilestone ? Color(hex: "D4A017") : fgColor)
+                        .lineLimit(2)
                 }
                 Text(task.compostName)
                     .font(.system(size: 16))
                     .foregroundColor(subColor)
 
-//                if task.isOverdue {
-//                    Text("Overdue")
-//                        .font(.caption2).foregroundStyle(.white)
-//                        .padding(.horizontal, 8).padding(.vertical, 4)
-//                        .background(Capsule().fill(Color.red.opacity(0.9)))
-//                } else {
-//                    Text("Due \(relative(task.dueDate))")
-//                        .font(.caption).foregroundColor(.secondary)
-//                }
+                if task.isOverdue && !isUpcoming && !task.isCompleted {
+                    Text("Overdue")
+                        .font(.caption2).foregroundStyle(.white)
+                        .padding(.horizontal, 8).padding(.vertical, 4)
+                        .background(Capsule().fill(Color.red.opacity(0.9)))
+                }
+
+                // Show actionable note for balance ratio tasks
+                if task.type == .balanceRatio, let note = task.note, !isUpcoming && !task.isCompleted {
+                    Text(note)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .lineLimit(2)
+                }
             }
 
             Spacer()
@@ -118,6 +124,8 @@ struct CompactTaskCard: View {
         case .turnPile: return "arrow.trianglehead.2.clockwise"
         case .updateLog: return "doc.text"
         case .checkHarvest: return "checkmark.seal"
+        case .balanceRatio: return "scalemass"
+        case .compostMilestone: return "star.fill"
         }
     }
     private func relative(_ date: Date) -> String {
@@ -195,9 +203,13 @@ struct ExpandedTaskCard: View {
         case .turnPile:
             return "Keep it breathing — turn to distribute heat and moisture."
         case .updateLog:
-            return "Your compost grows best when you check in — update today’s log."
+            return "Your compost grows best when you check in — update today's log."
         case .checkHarvest:
             return "It could be ready! Look for dark, crumbly texture and earthy smell."
+        case .balanceRatio:
+            return task.note ?? "Your brown/green ratio is off balance. Adjust your materials for faster composting."
+        case .compostMilestone:
+            return task.note ?? "Your compost has reached a new milestone!"
         }
     }
 }

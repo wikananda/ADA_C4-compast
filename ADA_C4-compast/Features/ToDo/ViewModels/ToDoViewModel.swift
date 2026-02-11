@@ -86,44 +86,32 @@ final class ToDoViewModel {
         regenerateTasks()
     }
 
-    /// Regenerates tasks from compost items
+    /// Regenerates tasks from compost items using the CompostTaskEngine
     func regenerateTasks() {
         var groups: [DailyTasks] = []
-        let calendar = Calendar.current
+        let tasks = CompostTaskEngine.buildTasks(for: compostItems)
 
-        // Generate tasks for each active compost
-        for compost in compostItems where compost.harvestedAt == nil {
-            // Check if compost needs turning (example: every 3 days)
-            if let lastTurned = compost.turnEvents.last?.date {
-                let daysSinceTurn = calendar.dateComponents([.day], from: lastTurned, to: Date()).day ?? 0
-                if daysSinceTurn >= 3 {
-                    // Add turn task for today
-                    addTaskToGroup(&groups, date: Date(), task: ToDoItem(
-                        title: "Turn the \(compost.name) pile",
-                        compostName: compost.name
-                    ))
-                }
-            } else {
-                // Never turned, suggest turning today
-                addTaskToGroup(&groups, date: Date(), task: ToDoItem(
-                    title: "Turn the \(compost.name) pile",
-                    compostName: compost.name
-                ))
+        for task in tasks {
+            let title: String
+            switch task.type {
+            case .turnPile:
+                title = "Turn the \(task.compostName) pile"
+            case .updateLog:
+                title = "Update log for \(task.compostName)"
+            case .checkHarvest:
+                title = "Check if \(task.compostName) is ready to harvest"
+            case .balanceRatio:
+                title = task.note ?? "Adjust ratio for \(task.compostName)"
+            case .compostMilestone:
+                title = task.note ?? "Milestone for \(task.compostName)"
             }
 
-            // Check moisture update needed
-//            if let lastUpdate = compost.compostVitals.last?.logDate {
-//                let daysSinceUpdate = calendar.dateComponents([.day], from: lastUpdate, to: Date()).day ?? 0
-//                if daysSinceUpdate >= 2 {
-//                    addTaskToGroup(&groups, date: Date(), task: ToDoItem(
-//                        title: "Check moisture level of \(compost.name)",
-//                        compostName: compost.name
-//                    ))
-//                }
-//            }
+            addTaskToGroup(&groups, date: task.dueDate, task: ToDoItem(
+                title: title,
+                compostName: task.compostName
+            ))
         }
 
-        // Sort groups by date
         dailyTaskGroups = groups.sorted { $0.date < $1.date }
     }
 
