@@ -13,13 +13,14 @@ import SwiftData
 // MARK: New Compost Sub-Onboarding Views
 struct NewNameView: View {
     @Binding var name: String?
+    var placeholder: String = "Name your compost..."
     var body: some View {
         VStack( spacing: 150) {
             VStack(alignment: .leading){
                 Text("Compost Name")
                     .font(.headline)
                     .foregroundStyle(Color("BrandGreenDark"))
-                TextField("Name your compost...", text: Binding(
+                TextField(placeholder, text: Binding(
                     get: { name ?? "" },
                     set: { name = $0.isEmpty ? nil : $0 }
                 ))
@@ -45,11 +46,11 @@ struct NewNameView: View {
 }
 
 struct NewCompostReadyView: View {
-    var name: String?
+    var name: String
     var body: some View {
         VStack(spacing: 100) {
             VStack(alignment: .center, spacing: 20){
-                Text("Your \(name ?? "") compost is ready!")
+                Text("Your \(name) compost is ready!")
                     .frame(width: 300)
                     .multilineTextAlignment(.center)
                     .font(.largeTitle.bold())
@@ -198,10 +199,10 @@ struct NewCompostView: View {
         [
             StepperFlow(
                 title: "New Compost",
-                content: AnyView(NewNameView(name: $viewModel.name))
+                content: AnyView(NewNameView(name: $viewModel.name, placeholder: viewModel.generatedName))
             ),
             StepperFlow(
-                title: "", content: AnyView(NewCompostReadyView(name: viewModel.name))
+                title: "", content: AnyView(NewCompostReadyView(name: viewModel.effectiveName))
             )
         ]
     }
@@ -233,6 +234,7 @@ struct NewCompostView: View {
                         .foregroundStyle(Color("BrandGreenDark")),
                     alignment: .center
                 )
+                .padding(.vertical, 16)
 
                 // The progress bar of onboarding
 
