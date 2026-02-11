@@ -29,7 +29,7 @@ struct ADA_C4_compastApp: App {
             // Seed initial data here
             let context = container.mainContext
             CompostMethodSeeder.seedInitialData(modelContext: context)
-            CompostItemSeeder.seedInitialItems(modelContext: context)
+//            CompostItemSeeder.seedInitialItems(modelContext: context)
             
             return container
         } catch {
@@ -44,7 +44,7 @@ struct ADA_C4_compastApp: App {
             NavigationStack {
                 CompastView()
             }
-//            .modelContainer(sharedModelContainer)
+            .modelContainer(sharedModelContainer)
         }
     }
 }
