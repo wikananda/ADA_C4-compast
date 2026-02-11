@@ -78,25 +78,24 @@ struct PileBandView: View {
             ? Color("compost/PileGreen", fallback: Color.green.opacity(0.6))
             : Color("compost/PileBrown", fallback: Color.brown.opacity(0.7))
 
-        ZStack {
-            base
-
-            // Shredded texture overlay (masked to the same wavy shape)
-            if isShredded {
-                Image.named("compost/shredded-overlay")
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .opacity(1)
-                    .mask(WavyTopShape(phase: phase))
-                    .allowsHitTesting(false)
-            }
-        }
-        .mask(WavyTopShape(phase: phase))
-        .overlay(
-            WavyTopShape(phase: phase)
-                .stroke(Color.white.opacity(1), lineWidth: 3)
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        base
+            .overlay(
+                Group {
+                    // Shredded texture overlay (masked to the same wavy shape)
+                    if isShredded {
+                        Image.named("compost/shredded-overlay")
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .allowsHitTesting(false)
+                    }
+                }
+            )
+            .mask(WavyTopShape(phase: phase))
+            .overlay(
+                WavyTopShape(phase: phase)
+                    .stroke(Color.white.opacity(1), lineWidth: 3)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }
 
@@ -104,21 +103,21 @@ struct BandView: View {
     let band: PileBand
     let index: Int
     let bandHeight: CGFloat
-    let overlap: CGFloat
     let totalBands: Int
     let onTap: () -> Void
 
     var body: some View {
         let materialType = MaterialType(rawValue: band.materialType) ?? .green
+        let phase = CGFloat(index).truncatingRemainder(dividingBy: 2) * .pi/2
 
         PileBandView(
             type: materialType,
-            phase: CGFloat(index).truncatingRemainder(dividingBy: 2) * .pi/2,
+            phase: phase,
             isShredded: band.isShredded
         )
         .frame(height: bandHeight)
         .frame(maxWidth: .infinity)
-        .offset(y: -CGFloat(index) * (bandHeight - overlap))
+        .contentShape(WavyTopShape(phase: phase))
         .shadow(color: .black.opacity(0.08), radius: 6, y: 3)
         .zIndex(Double(totalBands - index))
         .onTapGesture(perform: onTap)
@@ -143,17 +142,17 @@ struct CompostCanvas: View {
 
             ScrollView(.vertical, showsIndicators: true) {
                 VStack(spacing: 0) {
-                    ZStack(alignment: .bottom) {
-                        ForEach(Array(bands.enumerated()), id: \.element.pileBandId) { idx, band in
+                    VStack(spacing: -overlap) {
+                        ForEach(Array(bands.reversed().enumerated()), id: \.element.pileBandId) { idx, band in
+                            let originalIndex = bands.count - 1 - idx
                             BandView(
                                 band: band,
-                                index: idx,
+                                index: originalIndex,
                                 bandHeight: bandBaseHeight,
-                                overlap: overlap,
                                 totalBands: bands.count,
                                 onTap: {
                                     withAnimation(.spring(response: 0.3, dampingFraction: 0.9)) {
-                                        bands[idx].isShredded.toggle()
+                                        bands[originalIndex].isShredded.toggle()
                                         compostItem.recomputeAndStoreETA(in: modelContext)
                                     }
                                 }
