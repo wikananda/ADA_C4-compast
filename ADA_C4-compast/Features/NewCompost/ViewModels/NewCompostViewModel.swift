@@ -50,10 +50,29 @@ final class NewCompostViewModel {
 
     // MARK: - Computed Properties
 
-    /// Whether the name is valid (not empty after trimming)
+    /// Auto-generated name based on existing compost count
+    var generatedName: String {
+        let count: Int
+        do {
+            let existingComposts = try compostService.fetchAllComposts(in: modelContext)
+            count = existingComposts.count + 1
+        } catch {
+            count = 1
+        }
+        return "Compost #\(count)"
+    }
+
+    /// The effective name to use (user input or auto-generated)
+    var effectiveName: String {
+        if let name = name, !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return name.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        return generatedName
+    }
+
+    /// Whether the name is valid - always true since we auto-generate if empty
     var isNameValid: Bool {
-        guard let name = name else { return false }
-        return !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        return true
     }
 
     /// Whether the current step is the last step
@@ -98,7 +117,7 @@ final class NewCompostViewModel {
             return false
         }
 
-        guard isNameValid else { return false }
+//        guard isNameValid else { return false }
         return addNewCompost()
     }
 
@@ -115,7 +134,7 @@ final class NewCompostViewModel {
     /// Creates a new compost item
     /// - Returns: true if creation was successful
     func addNewCompost() -> Bool {
-        guard let writtenName = name else { return false }
+        let compostName = effectiveName
 
         // Fetch the default method (Hot Compost, ID 1)
         guard let method = compostService.fetchMethod(byId: 1, in: modelContext) else {
@@ -125,11 +144,11 @@ final class NewCompostViewModel {
 
         do {
             let _ = try compostService.createCompost(
-                name: writtenName,
+                name: compostName,
                 method: method,
                 in: modelContext
             )
-            print("✅ Successfully created new compost: \(writtenName)")
+            print("✅ Successfully created new compost: \(compostName)")
             return true
         } catch {
             print("❌ Failed to save: \(error)")
