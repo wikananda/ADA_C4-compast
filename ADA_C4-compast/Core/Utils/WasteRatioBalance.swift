@@ -32,9 +32,24 @@ func computeBalanceRecommendation(browns b: Int, greens g: Int) -> BalanceRecomm
             title: "Let’s Start Your Pile",
             message: "Begin with a brown base (dry leaves/cardboard), then add a green layer (kitchen scraps). Aim for Brown:Green ≈ 2.5.",
             tip: "Rule of thumb: 2–3 parts brown for every 1 part green.",
-            neededText: "Add 1 brown, then 1 green",
+            neededText: "Add your first pile (brown or green).",
             severity: .empty,
             ratio: 0,
+            progressToIdeal01: 0
+        )
+    }
+
+    if b > 0 && g == 0 {
+        let targetG = Int(ceil(Double(b) / BalanceConfig.ideal))
+        let neededGreens = max(1, targetG)
+        
+        return .init(
+            title: "Too Many Browns",
+            message: "You have only browns. Add green piles to balance your compost",
+            tip: "",
+            neededText: "Add \(neededGreens) green pile\(neededGreens > 1 ? "s" : "")",
+            severity: .warnBrowns,
+            ratio: Double(b),
             progressToIdeal01: 0
         )
     }
@@ -60,7 +75,8 @@ func computeBalanceRecommendation(browns b: Int, greens g: Int) -> BalanceRecomm
         // Too many greens → need browns
         // find smallest Δb s.t. (b+Δb)/g ≥ 2.5
         if g > 0 {
-            let neededBrowns = max(0, Int(ceil(ideal * Double(g))) - b)
+            // let neededBrowns = max(0, Int(ceil(ideal * Double(g))) - b)
+            let neededBrowns = max(0, Int(ceil(BalanceConfig.acceptable.lowerBound * Double(g))) - b)
             neededText = neededBrowns > 0 ? "Add \(neededBrowns) brown\(neededBrowns > 1 ? "s" : "")" : nil
         } else {
             // no greens yet; suggest a base
@@ -79,7 +95,8 @@ func computeBalanceRecommendation(browns b: Int, greens g: Int) -> BalanceRecomm
     } else if ratio > BalanceConfig.acceptable.upperBound {
         // Too many browns → need greens
         // find smallest Δg s.t. b/(g+Δg) ≤ 2.5  ⇒ g+Δg ≥ b/2.5
-        let targetG = Int(ceil(Double(b) / ideal))
+        // let targetG = Int(ceil(Double(b) / ideal))
+        let targetG = Int(ceil(Double(b) / BalanceConfig.acceptable.upperBound))
         let neededGreens = max(0, targetG - g)
         neededText = neededGreens > 0 ? "Add \(neededGreens) green\(neededGreens > 1 ? "s" : "")" : nil
 
