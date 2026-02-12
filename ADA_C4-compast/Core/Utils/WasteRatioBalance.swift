@@ -32,9 +32,24 @@ func computeBalanceRecommendation(browns b: Int, greens g: Int) -> BalanceRecomm
             title: "Let’s Start Your Pile",
             message: "Begin with a brown base (dry leaves/cardboard), then add a green layer (kitchen scraps). Aim for Brown:Green ≈ 2.5.",
             tip: "Rule of thumb: 2–3 parts brown for every 1 part green.",
-            neededText: "Add 1 brown, then 1 green",
+            neededText: "Add your first pile (brown or green).",
             severity: .empty,
             ratio: 0,
+            progressToIdeal01: 0
+        )
+    }
+
+    if b > 0 && g == 0 {
+        let targetG = Int(ceil(Double(b) / BalanceConfig.ideal))
+        let neededGreens = max(1, targetG)
+        
+        return .init(
+            title: "Too Many Browns",
+            message: "You have only browns. Add green piles to balance your compost",
+            tip: "",
+            neededText: "Add \(neededGreens) green pile\(neededGreens > 1 ? "s" : "")",
+            severity: .warnBrowns,
+            ratio: Double(b),
             progressToIdeal01: 0
         )
     }
