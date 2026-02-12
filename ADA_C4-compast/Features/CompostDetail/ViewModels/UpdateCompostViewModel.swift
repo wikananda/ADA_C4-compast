@@ -132,8 +132,8 @@ final class UpdateCompostViewModel {
 
         if daysRemaining > 0 {
             return "\(daysRemaining) days"
-        } else if daysRemaining == 0 {
-            return "Today"
+        } else if daysRemaining <= 0 {
+            return "Ready"
         } else {
             return "—"
         }
