@@ -75,7 +75,8 @@ func computeBalanceRecommendation(browns b: Int, greens g: Int) -> BalanceRecomm
         // Too many greens → need browns
         // find smallest Δb s.t. (b+Δb)/g ≥ 2.5
         if g > 0 {
-            let neededBrowns = max(0, Int(ceil(ideal * Double(g))) - b)
+            // let neededBrowns = max(0, Int(ceil(ideal * Double(g))) - b)
+            let neededBrowns = max(0, Int(ceil(BalanceConfig.acceptable.lowerBound * Double(g))) - b)
             neededText = neededBrowns > 0 ? "Add \(neededBrowns) brown\(neededBrowns > 1 ? "s" : "")" : nil
         } else {
             // no greens yet; suggest a base
@@ -94,7 +95,8 @@ func computeBalanceRecommendation(browns b: Int, greens g: Int) -> BalanceRecomm
     } else if ratio > BalanceConfig.acceptable.upperBound {
         // Too many browns → need greens
         // find smallest Δg s.t. b/(g+Δg) ≤ 2.5  ⇒ g+Δg ≥ b/2.5
-        let targetG = Int(ceil(Double(b) / ideal))
+        // let targetG = Int(ceil(Double(b) / ideal))
+        let targetG = Int(ceil(Double(b) / BalanceConfig.acceptable.upperBound))
         let neededGreens = max(0, targetG - g)
         neededText = neededGreens > 0 ? "Add \(neededGreens) green\(neededGreens > 1 ? "s" : "")" : nil
 
