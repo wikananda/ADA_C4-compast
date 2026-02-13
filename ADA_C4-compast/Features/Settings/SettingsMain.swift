@@ -23,7 +23,7 @@ struct SettingsView: View {
             headerSection
             settingsOptions
             Spacer()
-            footerSection
+//            footerSection
         }
     }
 
@@ -47,6 +47,8 @@ struct SettingsView: View {
 
     private var settingsOptions: some View {
         VStack(spacing: 0) {
+            contactLink
+            Divider()
             helpLink
             Divider()
             languageToggle
@@ -91,7 +93,7 @@ struct SettingsView: View {
         ZStack {
             RoundedRectangle(cornerRadius: 20)
                 .fill(Color.gray.opacity(0.2))
-                .frame(width: 120, height: 36)
+                .frame(width: 138, height: 36)
 
             HStack(spacing: 0) {
                 languageButton(flag: "🇬🇧", code: "EN", isSelected: !viewModel.isIndonesian) {
@@ -100,7 +102,7 @@ struct SettingsView: View {
                     }
                 }
 
-                Spacer()
+//                Spacer()
 
                 languageButton(flag: "🇮🇩", code: "ID", isSelected: viewModel.isIndonesian) {
                     withAnimation(.easeInOut(duration: 0.2)) {
@@ -108,19 +110,19 @@ struct SettingsView: View {
                     }
                 }
             }
-            .frame(width: 120)
+            .frame(width: 140)
         }
     }
 
     private func languageButton(flag: String, code: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
         Text("\(flag) \(code)")
             .font(.system(size: 14, weight: .medium))
-            .frame(width: 52, height: 28)
+            .frame(width: 60, height: 30)
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(isSelected ? Color.green : Color.clear)
+                    .fill(isSelected ? Color.white : Color.clear)
             )
-            .foregroundColor(isSelected ? .white : .gray)
+            .foregroundColor(isSelected ? .black : .gray)
             .onTapGesture(perform: action)
             .padding(.horizontal, 4)
     }
@@ -187,6 +189,22 @@ struct SettingsView: View {
         .frame(maxWidth: .infinity)
         .padding(.bottom, 110)
     }
+    private var contactLink: some View {
+        Link(destination: URL(string: "https://linktr.ee/compast_ada")!) {
+            HStack {
+                Image(systemName: "phone")
+                    .foregroundColor(.secondary)
+                Text("Contact Compast Team")
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.gray)
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 10)
+        }
+        .accentColor(.black)
+    }
+
 }
 
 // MARK: - Previews

@@ -333,17 +333,18 @@ struct PilePrototype: View {
                         }
                     }
                     .padding()
-                    .background(.thinMaterial)
-                    .cornerRadius(20)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color("BrandGreenDark", fallback: Color(red: 0.10, green: 0.28, blue: 0.20)).opacity(0.5), lineWidth: 2)
-                    )
-                    .padding()
-                    .padding(.bottom, 20)
+                    .background(Color.white)
+//                    .background(.thinMaterial)
+//                    .cornerRadius(20)
+//                    .overlay(
+//                        RoundedRectangle(cornerRadius: 20)
+//                            .stroke(Color("BrandGreenDark", fallback: Color(red: 0.10, green: 0.28, blue: 0.20)).opacity(0.5), lineWidth: 2)
+//                    )
+//                    .padding()
+//                    .padding(.bottom, 20)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .ignoresSafeArea(edges: .bottom)
+//                .ignoresSafeArea(edges: .bottom)
                 .padding(.top, 150)
                 
                 HStack(alignment: .top, spacing: 20){
